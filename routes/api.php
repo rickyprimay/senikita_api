@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\User\ShopController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,5 +31,12 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::post('category', [CategoryController::class, 'store']);
     Route::put('category/{id}', [CategoryController::class, 'update']);
     Route::delete('category/{id}', [CategoryController::class, 'destroy']);
+
+});
+
+Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
+
+    // Shop
+    Route::post('shop', [ShopController::class, 'create']);
 
 });

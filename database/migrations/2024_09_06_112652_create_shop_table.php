@@ -18,6 +18,8 @@ return new class extends Migration
             $table->double('lat')->nullable();
             $table->double('lng')->nullable();
             $table->string('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('province')->nullable();
             $table->string('profile_picture')->nullable();
             $table->bigInteger('user_id')->unsigned()->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

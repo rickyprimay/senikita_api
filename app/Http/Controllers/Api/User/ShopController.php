@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shop;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,8 @@ class ShopController extends Controller
             'address' => 'required|string',
             'city' => 'required|string',
             'province' => 'required|string',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:category,id'
         ]);
 
         $user = Auth::user();
@@ -34,6 +37,7 @@ class ShopController extends Controller
             ], 400);
         }
 
+
         $shop = Shop::create([
             'name' => $request->name,
             'desc' => $request->desc,
@@ -42,6 +46,10 @@ class ShopController extends Controller
             'province' => $request->province,
             'user_id' => $user->id,
         ]);
+
+        $shop->categories()->attach($request->categories);
+
+        $shop->load('categories');
 
         return response()->json([
             'message' => 'Shop created successfully',

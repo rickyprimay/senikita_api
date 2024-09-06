@@ -21,5 +21,10 @@ class Shop extends Model
         'user_id',
         'status'
     ];
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_shop', 'shop_id', 'category_id');
+    }
     
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('otp')->nullable();
             $table->string('otp_sent_at')->nullable();
             $table->boolean('isHaveStore')->default(0);
+            $table->tinyInteger('role')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

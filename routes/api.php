@@ -13,9 +13,9 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::middleware('auth:api')->post('logout', [AuthController::class, 'logout']);
 });
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
 
-    //User Management
+    // User Management
     Route::get('users', [UserController::class, 'getAllUsers']);
     Route::get('users/{id}', [UserController::class, 'getUser']);
     Route::post('users', [UserController::class, 'createUser']);

@@ -141,6 +141,15 @@ class AuthController extends Controller
             ], 400);
         }
 
+        $resendInterval = 1;
+        if ($user->otp_sent_at && Carbon::parse($user->otp_sent_at)->diffInMinutes(Carbon::now()) < $resendInterval) {
+            $remainingTime = 60 - Carbon::parse($user->otp_sent_at)->diffInSeconds(Carbon::now());
+            return response()->json([
+                'message' => "You can request a new OTP after {$remainingTime} seconds",
+                'code' => 429,
+            ], 429);
+        }
+
         $otp = User::generateOTP();
 
         $user->otp = $otp;

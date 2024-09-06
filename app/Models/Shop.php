@@ -18,7 +18,8 @@ class Shop extends Model
         'city',
         'province',
         'profile_picture',
-        'user_id'
+        'user_id',
+        'status'
     ];
     
 }

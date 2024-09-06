@@ -27,6 +27,13 @@ class ShopController extends Controller
             ], 400);
         }
 
+        $existingShop = Shop::where('user_id', $user->id)->first();
+        if ($existingShop) {
+            return response()->json([
+                'message' => 'User already has a shop',
+            ], 400);
+        }
+
         $shop = Shop::create([
             'name' => $request->name,
             'desc' => $request->desc,

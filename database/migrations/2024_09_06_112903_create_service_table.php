@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('thumbnail');
             $table->integer('person_amount')->nullable();
             $table->bigInteger('category_id')->nullable()->unsigned();
-            $table->foreign('category_id')->references('id')->on('category');
+            $table->foreign('category_id')->references('id')->on('category')->onDelete('cascade');
             $table->timestamps();
         });
     }

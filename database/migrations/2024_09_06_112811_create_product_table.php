@@ -20,7 +20,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(0);
             $table->string('thumbnail');
             $table->bigInteger('category_id')->unsigned()->nullable();
-            $table->foreign('category_id')->references('id')->on('category');
+            $table->foreign('category_id')->references('id')->on('category')->onDelete('cascade');
             $table->timestamps();
         });
     }

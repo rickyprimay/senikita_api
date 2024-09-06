@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('price');
             $table->text('desc');
             $table->integer('stock');
-            $table->tinyInteger('status')->default('0');
+            $table->tinyInteger('status')->default(0);
             $table->string('thumbnail');
             $table->bigInteger('category_id')->unsigned()->nullable();
             $table->foreign('category_id')->references('id')->on('category');

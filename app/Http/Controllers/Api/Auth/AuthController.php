@@ -104,7 +104,7 @@ class AuthController extends Controller
 
         $credential->otp = null;
         $credential->otp_sent_at = null;
-        $credential->email_verified_at = Carbon::now();  
+        $credential->email_verified_at = Carbon::now();
         $credential->save();
 
         return response()->json(
@@ -128,27 +128,36 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'User not found',
-                'code' => 404,
-            ], 404);
+            return response()->json(
+                [
+                    'message' => 'User not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
         if ($user->email_verified_at) {
-            return response()->json([
-                'message' => 'Email is already verified',
-                'code' => 400,
-            ], 400);
+            return response()->json(
+                [
+                    'message' => 'Email is already verified',
+                    'code' => 400,
+                ],
+                400,
+            );
         }
 
         $resendInterval = 1;
         if ($user->otp_sent_at && Carbon::parse($user->otp_sent_at)->diffInMinutes(Carbon::now()) < $resendInterval) {
             $remainingTime = 60 - Carbon::parse($user->otp_sent_at)->diffInSeconds(Carbon::now());
-            return response()->json([
-                'message' => "You can request a new OTP after {$remainingTime} seconds",
-                'remaining_times' => $remainingTime,
-                'code' => 429,
-            ], 429);
+            return response()->json(
+                [
+                    'message' => "You can request a new OTP after {$remainingTime} seconds",
+                    'remaining_times' => $remainingTime,
+                    'code' => 429,
+                ],
+                429,
+            );
         }
 
         $otp = User::generateOTP();
@@ -159,15 +168,18 @@ class AuthController extends Controller
 
         $details = [
             'name' => $user->name,
-            'otp' => $otp
+            'otp' => $otp,
         ];
 
         Mail::to($user->email)->send(new VerificationCodeMail($details));
 
-        return response()->json([
-            'message' => 'OTP has been resent, please check your email',
-            'code' => 200,
-        ], 200);
+        return response()->json(
+            [
+                'message' => 'OTP has been resent, please check your email',
+                'code' => 200,
+            ],
+            200,
+        );
     }
 
     public function login(Request $request)
@@ -185,7 +197,7 @@ class AuthController extends Controller
 
             $credentials->otp = User::generateOTP();
             $credentials->otp_sent_at = now();
-            $credentials->save(); 
+            $credentials->save();
 
             $details = [
                 'name' => $credentials->name,
@@ -193,10 +205,13 @@ class AuthController extends Controller
             ];
             Mail::to($credentials->email)->send(new VerificationCodeMail($details));
 
-            return response()->json([
-                'error' => 'Email not verified. Please check your email to verify your OTP.',
-                'code' => 403,
-            ], 403);
+            return response()->json(
+                [
+                    'error' => 'Email not verified. Please check your email to verify your OTP.',
+                    'code' => 403,
+                ],
+                403,
+            );
         }
 
         return $this->respondWithToken($token);
@@ -216,6 +231,21 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'Successfully logged out',
+            ]);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['error' => 'Token is invalid'], 401);
+        }
+    }
+    public function refreshToken()
+    {
+        try {
+            // Menggunakan JWTAuth untuk melakukan refresh token
+            $newToken = JWTAuth::refresh(JWTAuth::getToken());
+
+            return response()->json([
+                'access_token' => $newToken,
+                'token_type' => 'Bearer',
+                'expires_in' => config('jwt.ttl') * 60,
             ]);
         } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
             return response()->json(['error' => 'Token is invalid'], 401);

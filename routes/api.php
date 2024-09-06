@@ -11,6 +11,7 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::post('verify-otp', [AuthController::class, 'verifyOTP']);
     Route::post('resend-otp', [AuthController::class, 'resendOTP']);
     Route::middleware('auth:api')->post('logout', [AuthController::class, 'logout']);
+    Route::middleware('auth:api')->post('refresh', [AuthController::class, 'refreshToken']);
 });
 
 Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {

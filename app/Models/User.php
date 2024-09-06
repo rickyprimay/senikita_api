@@ -24,7 +24,8 @@ class User extends Authenticatable implements JWTSubject
         'profile_picture',
         'isHaveStore',
         'otp',
-        'otp_sent_at'
+        'otp_sent_at',
+        'role'
     ];
 
     /**

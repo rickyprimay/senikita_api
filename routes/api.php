@@ -13,8 +13,13 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::middleware('auth:api')->post('logout', [AuthController::class, 'logout']);
 });
 
-Route::get('users', [UserController::class, 'getAllUsers']);
-Route::get('users/{id}', [UserController::class, 'getUser']);
-Route::post('users', [UserController::class, 'createUser']);
-Route::put('users/{id}', [UserController::class, 'updateUser']); 
-Route::delete('users/{id}', [UserController::class, 'deleteUser']);
+Route::prefix('admin')->group(function () {
+
+    //User Management
+    Route::get('users', [UserController::class, 'getAllUsers']);
+    Route::get('users/{id}', [UserController::class, 'getUser']);
+    Route::post('users', [UserController::class, 'createUser']);
+    Route::put('users/{id}', [UserController::class, 'updateUser']); 
+    Route::delete('users/{id}', [UserController::class, 'deleteUser']);
+
+});

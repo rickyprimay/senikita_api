@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -22,5 +23,12 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::post('users', [UserController::class, 'createUser']);
     Route::put('users/{id}', [UserController::class, 'updateUser']); 
     Route::delete('users/{id}', [UserController::class, 'deleteUser']);
+
+    // Category Management
+    Route::get('category', [CategoryController::class, 'index']);
+    Route::get('category/{id}', [CategoryController::class, 'show']);
+    Route::post('category', [CategoryController::class, 'store']);
+    Route::put('category/{id}', [CategoryController::class, 'update']);
+    Route::delete('category/{id}', [CategoryController::class, 'destroy']);
 
 });

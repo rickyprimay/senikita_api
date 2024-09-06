@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rating_image_service', function (Blueprint $table) {
+        Schema::create('image_service', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('service_id')->unsigned();
+            $table->string('picture');
+
+            $table->foreign('service_id')->references('id')->on('service')->onDelete('cascade');
             $table->timestamps();
         });
     }

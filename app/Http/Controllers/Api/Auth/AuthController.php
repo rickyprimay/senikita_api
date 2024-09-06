@@ -146,6 +146,7 @@ class AuthController extends Controller
             $remainingTime = 60 - Carbon::parse($user->otp_sent_at)->diffInSeconds(Carbon::now());
             return response()->json([
                 'message' => "You can request a new OTP after {$remainingTime} seconds",
+                'remaining_times' => $remainingTime,
                 'code' => 429,
             ], 429);
         }
@@ -177,9 +178,37 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        $credentials = User::where('email', $request->email)->first();
+
+        if (is_null($credentials->email_verified_at)) {
+            $otp = User::generateOTP();
+
+            $credentials->otp = User::generateOTP();
+            $credentials->otp_sent_at = now();
+            $credentials->save(); 
+
+            $details = [
+                'name' => $credentials->name,
+                'otp' => $otp,
+            ];
+            Mail::to($credentials->email)->send(new VerificationCodeMail($details));
+
+            return response()->json([
+                'error' => 'Email not verified. Please check your email to verify your OTP.',
+                'code' => 403,
+            ], 403);
+        }
+
         return $this->respondWithToken($token);
     }
-
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => config('jwt.ttl') * 60,
+        ]);
+    }
     public function logout()
     {
         try {
@@ -191,14 +220,5 @@ class AuthController extends Controller
         } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
             return response()->json(['error' => 'Token is invalid'], 401);
         }
-    }
-
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'expires_in' => config('jwt.ttl') * 60,
-        ]);
     }
 }

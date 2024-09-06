@@ -39,6 +39,12 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'otp_sent_at' => 'datetime',
+    ];
+
     /**
      * Get the attributes that should be cast.
      *

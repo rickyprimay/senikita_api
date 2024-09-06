@@ -11,19 +11,19 @@ class UserController extends Controller
 {
     public function getAllUsers()
     {
-        $users = User::all();
+        $credentials = User::all();
 
         return response()->json([
             'message' => 'All users retrieved successfully',
-            'data' => $users
+            'data' => $credentials
         ], 200);
     }
 
     public function getUser($id)
     {
-        $user = User::find($id);
+        $credentials = User::find($id);
 
-        if (!$user) {
+        if (!$credentials) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
@@ -31,7 +31,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User retrieved successfully',
-            'data' => $user
+            'data' => $credentials
         ], 200);
     }
 
@@ -43,7 +43,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        $user = User::create([
+        $credentials = User::create([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
@@ -51,15 +51,15 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'User created successfully',
-            'data' => $user
+            'data' => $credentials
         ], 201);
     }
 
     public function updateUser(Request $request, $id)
     {
-        $user = User::find($id);
+        $credentials = User::find($id);
 
-        if (!$user) {
+        if (!$credentials) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
@@ -67,41 +67,41 @@ class UserController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,'.$user->id,
+            'email' => 'sometimes|string|email|max:255|unique:users,email,'.$credentials->id,
             'password' => 'sometimes|string|min:8',
         ]);
 
         if (isset($validatedData['name'])) {
-            $user->name = $validatedData['name'];
+            $credentials->name = $validatedData['name'];
         }
 
         if (isset($validatedData['email'])) {
-            $user->email = $validatedData['email'];
+            $credentials->email = $validatedData['email'];
         }
 
         if (isset($validatedData['password'])) {
-            $user->password = Hash::make($validatedData['password']);
+            $credentials->password = Hash::make($validatedData['password']);
         }
 
-        $user->save();
+        $credentials->save();
 
         return response()->json([
             'message' => 'User updated successfully',
-            'data' => $user
+            'data' => $credentials
         ], 200);
     }
 
     public function deleteUser($id)
     {
-        $user = User::find($id);
+        $credentials = User::find($id);
 
-        if (!$user) {
+        if (!$credentials) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
         }
 
-        $user->delete();
+        $credentials->delete();
 
         return response()->json([
             'message' => 'User deleted successfully'

@@ -125,9 +125,9 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $credentials = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (!$credentials) {
             return response()->json(
                 [
                     'message' => 'User not found',
@@ -137,7 +137,7 @@ class AuthController extends Controller
             );
         }
 
-        if ($user->email_verified_at) {
+        if ($credentials->email_verified_at) {
             return response()->json(
                 [
                     'message' => 'Email is already verified',
@@ -148,8 +148,8 @@ class AuthController extends Controller
         }
 
         $resendInterval = 1;
-        if ($user->otp_sent_at && Carbon::parse($user->otp_sent_at)->diffInMinutes(Carbon::now()) < $resendInterval) {
-            $remainingTime = 60 - Carbon::parse($user->otp_sent_at)->diffInSeconds(Carbon::now());
+        if ($credentials->otp_sent_at && Carbon::parse($credentials->otp_sent_at)->diffInMinutes(Carbon::now()) < $resendInterval) {
+            $remainingTime = 60 - Carbon::parse($credentials->otp_sent_at)->diffInSeconds(Carbon::now());
             return response()->json(
                 [
                     'message' => "You can request a new OTP after {$remainingTime} seconds",
@@ -162,16 +162,16 @@ class AuthController extends Controller
 
         $otp = User::generateOTP();
 
-        $user->otp = $otp;
-        $user->otp_sent_at = Carbon::now();
-        $user->save();
+        $credentials->otp = $otp;
+        $credentials->otp_sent_at = Carbon::now();
+        $credentials->save();
 
         $details = [
-            'name' => $user->name,
+            'name' => $credentials->name,
             'otp' => $otp,
         ];
 
-        Mail::to($user->email)->send(new VerificationCodeMail($details));
+        Mail::to($credentials->email)->send(new VerificationCodeMail($details));
 
         return response()->json(
             [

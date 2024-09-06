@@ -38,5 +38,6 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Shop
     Route::post('shop', [ShopController::class, 'create']);
+    Route::put('shop/{id}', [ShopController::class, 'update']);
 
 });

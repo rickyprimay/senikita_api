@@ -7,6 +7,8 @@ use App\Models\Shop;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ShopController extends Controller
 {
@@ -55,5 +57,39 @@ class ShopController extends Controller
             'message' => 'Shop created successfully',
             'shop' => $shop,
         ], 201);
+    }
+    public function update(Request $request, $id)
+    {
+        $validateData = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'desc' => 'sometimes|required|string',
+            'address' => 'sometimes|required|string',
+            'city' => 'sometimes|required|string',
+            'province' => 'sometimes|required|string',
+            'profile_picture' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:6144',
+        ]);
+
+        $shop = Shop::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($request->hasFile('profile_picture')) {
+            if ($shop->profile_picture) {
+                Storage::delete(str_replace(asset('storage/'), '', $shop->profile_picture));
+            }
+        
+            $path = $request->file('profile_picture')->store('shop/profile', 'public');
+        
+            $shop->profile_picture = asset('storage/' . $path);
+        } else {
+            Log::info("cannot u[ploaded");
+        }
+
+        $shop->fill($request->except(['lat', 'lng', 'profile_picture']));
+
+        $shop->save();
+
+        return response()->json([
+            'message' => 'Shop updated successfully',
+            'shop' => $shop,
+        ], 200);
     }
 }

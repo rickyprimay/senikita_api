@@ -74,4 +74,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return mt_rand(100000, 999999);
     }
+    public function shop()
+    {
+        return $this->hasOne(Shop::class);
+    }
 }

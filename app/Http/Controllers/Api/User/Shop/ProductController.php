@@ -34,31 +34,43 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'desc' => 'required|string',
             'stock' => 'required|integer',
-            'status' => 'required|boolean',
-            'thumbnail' => 'required|image',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'nullable|exists:category,id',
         ]);
 
         $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json(['message' => 'User does not have a shop.'], 404);
+        }
+
         $shop_id = $user->shop->id;
 
-        $path = $request->file('thumbnail')->store('thumbnails', 'public');
+        if ($request->hasFile('thumbnail')) {
+            $path = $request->file('thumbnail')->store('thumbnails', 'public');
+
+            $fullPath = asset('storage/' . $path);
+        } else {
+            return response()->json(['message' => 'No thumbnail provided.'], 400);
+        }
 
         $product = Product::create([
             'name' => $request->name,
             'price' => $request->price,
             'desc' => $request->desc,
             'stock' => $request->stock,
-            'status' => $request->status,
-            'thumbnail' => $path,
+            'thumbnail' => $fullPath,
             'category_id' => $request->category_id,
             'shop_id' => $shop_id,
         ]);
 
-        return response()->json([
-            'message' => 'Product created successfully',
-            'product' => $product,
-        ], 201);
+        return response()->json(
+            [
+                'message' => 'Product created successfully',
+                'product' => $product,
+            ],
+            201,
+        );
     }
 
     public function update(Request $request, $id)
@@ -76,26 +88,21 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if ($request->hasFile('thumbnail')) {
-            // Delete old thumbnail
             Storage::disk('public')->delete($product->thumbnail);
 
             $path = $request->file('thumbnail')->store('thumbnails', 'public');
             $product->thumbnail = $path;
         }
 
-        $product->update($request->only([
-            'name', 
-            'price', 
-            'desc', 
-            'stock', 
-            'status', 
-            'category_id'
-        ]));
+        $product->update($request->only(['name', 'price', 'desc', 'stock', 'status', 'category_id']));
 
-        return response()->json([
-            'message' => 'Product updated successfully',
-            'product' => $product,
-        ], 200);
+        return response()->json(
+            [
+                'message' => 'Product updated successfully',
+                'product' => $product,
+            ],
+            200,
+        );
     }
 
     public function destroy($id)
@@ -106,8 +113,11 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return response()->json([
-            'message' => 'Product deleted successfully',
-        ], 200);
+        return response()->json(
+            [
+                'message' => 'Product deleted successfully',
+            ],
+            200,
+        );
     }
 }

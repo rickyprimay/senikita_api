@@ -42,9 +42,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::put('shop/{id}', [ShopController::class, 'update']);
 
     // Product Shop
-    Route::get('/products', [ProductController::class, 'index']);
-    Route::post('/products', [ProductController::class, 'create']);
-    Route::put('/products/{id}', [ProductController::class, 'update']);
-    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    Route::get('/shop/products', [ProductController::class, 'index']);
+    Route::post('/shop/products', [ProductController::class, 'create']);
+    Route::put('/shop/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/shop/products/{id}', [ProductController::class, 'destroy']);
 
 });

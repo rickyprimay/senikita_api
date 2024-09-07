@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationCodeMail;
+use App\Models\Shop;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -212,6 +213,17 @@ class AuthController extends Controller
                 ],
                 403,
             );
+        }
+
+        $shop = Shop::where('user_id', $credentials->id)->first();
+
+        if ($shop) {
+            return response()->json([
+                'code' => 200,
+                'message' => 'Login successful',
+                'token' => $token,
+                'shop' => $shop,
+            ], 200);
         }
 
         return $this->respondWithToken($token);

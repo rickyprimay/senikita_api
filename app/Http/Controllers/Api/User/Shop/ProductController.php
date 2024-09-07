@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -41,7 +42,7 @@ class ProductController extends Controller
 
     public function create(Request $request)
     {
-        $validateData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
             'desc' => 'required|string',
@@ -49,6 +50,15 @@ class ProductController extends Controller
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000',
             'category_id' => 'nullable|exists:category,id',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $user = Auth::user();
 
@@ -93,7 +103,7 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validateData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
             'price' => 'sometimes|required|numeric',
             'desc' => 'sometimes|required|string',
@@ -102,6 +112,15 @@ class ProductController extends Controller
             'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:5000',
             'category_id' => 'nullable|exists:category,id',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $user = Auth::user();
         $product = Product::findOrFail($id);

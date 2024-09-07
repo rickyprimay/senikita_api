@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Service extends Model
 {
     use HasFactory;
+    protected $table = "service";
     protected $fillable = [
         'name',
         'price',
@@ -17,5 +18,6 @@ class Service extends Model
         'thumbnail',
         'person_amount',
         'category_id',
+        'shop_id'
     ];
 }

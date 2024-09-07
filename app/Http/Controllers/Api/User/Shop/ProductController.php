@@ -47,7 +47,7 @@ class ProductController extends Controller
             'desc' => 'required|string',
             'stock' => 'required|integer',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'nullable|exists:category,id',
         ]);
 
         $user = Auth::user();
@@ -100,7 +100,7 @@ class ProductController extends Controller
             'stock' => 'sometimes|required|integer',
             'status' => 'sometimes|required|boolean',
             'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_id' => 'nullable|exists:category,id',
         ]);
 
         $user = Auth::user();

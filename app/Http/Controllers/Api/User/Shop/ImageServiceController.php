@@ -12,6 +12,27 @@ use Illuminate\Support\Facades\Validator;
 
 class ImageServiceController extends Controller
 {
+    public function index($serviceId)
+    {
+        $user = Auth::user();
+        $service = Service::find($serviceId);
+
+        if (!$service || $service->shop_id !== $user->shop->id) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 403,
+                'message' => 'This service does not belong to your shop.'
+            ], 403);
+        }
+
+        $images = ImageService::where('service_id', $serviceId)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'images' => $images
+        ], 200);
+    }
     public function create(Request $request, $serviceId)
     {
         $validator = Validator::make($request->all(), [

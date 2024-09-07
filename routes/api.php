@@ -53,6 +53,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::delete('/shop/products/{id}', [ProductController::class, 'destroy']);
 
     // Product Image
+    Route::get('/shop/products/{productId}/image', [ImageProductController::class, 'index']);
     Route::post('/shop/products/{productId}/image', [ImageProductController::class, 'create']);
     Route::put('/shop/products/{productId}/image', [ImageProductController::class, 'update']);
     Route::delete('/shop/products/{productId}/image', [ImageProductController::class, 'destroy']);
@@ -65,6 +66,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::delete('/shop/service/{id}', [ServiceController::class, 'destroy']);
 
     //Service Image
+    Route::get('/shop/service/{serviceId}/image', [ImageServiceController::class, 'index']);
     Route::post('/shop/service/{serviceId}/image', [ImageServiceController::class, 'create']);
     Route::put('/shop/service/{serviceId}/image/{imageId}', [ImageServiceController::class, 'update']);
     Route::delete('/shop/service/{serviceId}/image/{imageId}', [ImageServiceController::class, 'destroy']);

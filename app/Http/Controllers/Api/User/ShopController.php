@@ -9,12 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class ShopController extends Controller
 {
     public function create(Request $request)
     {
-        $validateData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'desc' => 'required|string',
             'address' => 'required|string',
@@ -22,6 +23,15 @@ class ShopController extends Controller
             'province' => 'required|string',
             'categories' => 'required|array',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $invalidCategories = array_diff($request->categories, Category::pluck('id')->toArray());
         if (!empty($invalidCategories)) {
@@ -73,7 +83,7 @@ class ShopController extends Controller
     
     public function update(Request $request, $id)
     {
-        $validateData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
             'desc' => 'sometimes|required|string',
             'address' => 'sometimes|required|string',
@@ -81,6 +91,15 @@ class ShopController extends Controller
             'province' => 'sometimes|required|string',
             'profile_picture' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:6144',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $shop = Shop::where('user_id', Auth::id())->findOrFail($id);
 

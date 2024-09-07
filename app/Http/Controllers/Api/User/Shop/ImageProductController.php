@@ -12,6 +12,27 @@ use Illuminate\Support\Facades\Validator;
 
 class ImageProductController extends Controller
 {
+    public function index($productId)
+    {
+        $user = Auth::user();
+        $product = Product::find($productId);
+
+        if (!$product || $product->shop_id !== $user->shop->id) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 403,
+                'message' => 'This product does not belong to your shop.'
+            ], 403);
+        }
+
+        $images = ImageProduct::where('product_id', $productId)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'images' => $images
+        ], 200);
+    }
     public function create(Request $request, $productId)
     {
         $validator = Validator::make($request->all(), [

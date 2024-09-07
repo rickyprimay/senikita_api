@@ -26,7 +26,9 @@ class ShopController extends Controller
         $invalidCategories = array_diff($request->categories, Category::pluck('id')->toArray());
         if (!empty($invalidCategories)) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Invalid category ID(s): ' . implode(', ', $invalidCategories),
+                'code' => 400,
             ], 400);
         }
 
@@ -34,17 +36,20 @@ class ShopController extends Controller
 
         if ($user->role == 1) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'Admin cannot create shop',
+                'code' => 400,
             ], 400);
         }
 
         $existingShop = Shop::where('user_id', $user->id)->first();
         if ($existingShop) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'User already has a shop',
+                'code' => 400,
             ], 400);
         }
-
 
         $shop = Shop::create([
             'name' => $request->name,
@@ -56,12 +61,13 @@ class ShopController extends Controller
         ]);
 
         $shop->categories()->attach($request->categories);
-
         $shop->load('categories');
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Shop created successfully',
             'shop' => $shop,
+            'code' => 201,
         ], 201);
     }
     
@@ -84,19 +90,19 @@ class ShopController extends Controller
             }
         
             $path = $request->file('profile_picture')->store('shop/profile', 'public');
-        
             $shop->profile_picture = asset('storage/' . $path);
         } else {
-            Log::info("cannot u[ploaded");
+            Log::info("Profile picture not uploaded.");
         }
 
         $shop->fill($request->except(['lat', 'lng', 'profile_picture']));
-
         $shop->save();
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Shop updated successfully',
             'shop' => $shop,
+            'code' => 200,
         ], 200);
     }
 }

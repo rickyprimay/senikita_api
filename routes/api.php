@@ -5,7 +5,9 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\User\Shop\ImageProductController;
 use App\Http\Controllers\Api\User\Shop\ProductController;
+use App\Http\Controllers\Api\User\Shop\ServiceController;
 use App\Http\Controllers\Api\User\ShopController;
+use App\Models\Service;
 use Illuminate\Support\Facades\Route;
 
 
@@ -51,5 +53,12 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Product Image
     Route::post('/shop/products/{id}/image', [ImageProductController::class, 'create']);
+
+    // Service Shop
+    Route::get('/shop/service', [ServiceController::class, 'index']);
+    Route::get('/shop/service/{id}', [ServiceController::class, 'show']);
+    Route::post('/shop/service', [ServiceController::class, 'create']);
+    Route::put('/shop/service/{id}', [ServiceController::class, 'update']);
+    Route::delete('/shop/service/{id}', [ServiceController::class, 'destroy']);
 
 });

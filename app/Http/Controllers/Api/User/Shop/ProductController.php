@@ -35,7 +35,7 @@ class ProductController extends Controller
             'desc' => 'required|string',
             'stock' => 'required|integer',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'category_id' => 'nullable|exists:category,id',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $user = Auth::user();
@@ -48,7 +48,6 @@ class ProductController extends Controller
 
         if ($request->hasFile('thumbnail')) {
             $path = $request->file('thumbnail')->store('thumbnails', 'public');
-
             $fullPath = asset('storage/' . $path);
         } else {
             return response()->json(['message' => 'No thumbnail provided.'], 400);
@@ -69,7 +68,7 @@ class ProductController extends Controller
                 'message' => 'Product created successfully',
                 'product' => $product,
             ],
-            201,
+            201
         );
     }
 
@@ -81,17 +80,22 @@ class ProductController extends Controller
             'desc' => 'sometimes|required|string',
             'stock' => 'sometimes|required|integer',
             'status' => 'sometimes|required|boolean',
-            'thumbnail' => 'sometimes|image',
-            'category_id' => 'nullable|exists:category,id',
+            'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
+        $user = Auth::user();
         $product = Product::findOrFail($id);
 
+        if ($product->shop_id !== $user->shop->id) {
+            return response()->json(['message' => 'This product does not belong to your shop.'], 403);
+        }
+
         if ($request->hasFile('thumbnail')) {
-            Storage::disk('public')->delete($product->thumbnail);
+            Storage::disk('public')->delete(str_replace(asset('storage/'), '', $product->thumbnail));
 
             $path = $request->file('thumbnail')->store('thumbnails', 'public');
-            $product->thumbnail = $path;
+            $product->thumbnail = asset('storage/' . $path);
         }
 
         $product->update($request->only(['name', 'price', 'desc', 'stock', 'status', 'category_id']));
@@ -101,15 +105,20 @@ class ProductController extends Controller
                 'message' => 'Product updated successfully',
                 'product' => $product,
             ],
-            200,
+            200
         );
     }
 
     public function destroy($id)
     {
+        $user = Auth::user();
         $product = Product::findOrFail($id);
 
-        Storage::disk('public')->delete($product->thumbnail);
+        if ($product->shop_id !== $user->shop->id) {
+            return response()->json(['message' => 'This product does not belong to your shop.'], 403);
+        }
+
+        Storage::disk('public')->delete(str_replace(asset('storage/'), '', $product->thumbnail));
 
         $product->delete();
 
@@ -117,7 +126,7 @@ class ProductController extends Controller
             [
                 'message' => 'Product deleted successfully',
             ],
-            200,
+            200
         );
     }
 }

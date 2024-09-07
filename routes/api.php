@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\User\Shop\ImageProductController;
+use App\Http\Controllers\Api\User\Shop\ImageServiceController;
 use App\Http\Controllers\Api\User\Shop\ProductController;
 use App\Http\Controllers\Api\User\Shop\ServiceController;
 use App\Http\Controllers\Api\User\ShopController;
@@ -60,5 +61,10 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::post('/shop/service', [ServiceController::class, 'create']);
     Route::put('/shop/service/{id}', [ServiceController::class, 'update']);
     Route::delete('/shop/service/{id}', [ServiceController::class, 'destroy']);
+
+    //Service Image
+    Route::post('/shop/service/{serviceId}/image', [ImageServiceController::class, 'create']);
+    Route::put('/shop/service/{serviceId}/image/{imageId}', [ImageServiceController::class, 'update']);
+    Route::delete('/shop/service/{serviceId}/image/{imageId}', [ImageServiceController::class, 'destroy']);
 
 });

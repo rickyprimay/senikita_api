@@ -19,7 +19,8 @@ class Shop extends Model
         'province',
         'profile_picture',
         'user_id',
-        'status'
+        'status',
+        'balance'
     ];
 
     public function categories()

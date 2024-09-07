@@ -21,8 +21,14 @@ class ShopController extends Controller
             'city' => 'required|string',
             'province' => 'required|string',
             'categories' => 'required|array',
-            'categories.*' => 'exists:category,id'
         ]);
+
+        $invalidCategories = array_diff($request->categories, Category::pluck('id')->toArray());
+        if (!empty($invalidCategories)) {
+            return response()->json([
+                'message' => 'Invalid category ID(s): ' . implode(', ', $invalidCategories),
+            ], 400);
+        }
 
         $user = Auth::user();
 
@@ -58,6 +64,7 @@ class ShopController extends Controller
             'shop' => $shop,
         ], 201);
     }
+    
     public function update(Request $request, $id)
     {
         $validateData = $request->validate([

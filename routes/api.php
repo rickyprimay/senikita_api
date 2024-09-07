@@ -55,8 +55,8 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // Product Image
     Route::get('/shop/products/{productId}/image', [ImageProductController::class, 'index']);
     Route::post('/shop/products/{productId}/image', [ImageProductController::class, 'create']);
-    Route::put('/shop/products/{productId}/image', [ImageProductController::class, 'update']);
-    Route::delete('/shop/products/{productId}/image', [ImageProductController::class, 'destroy']);
+    Route::put('/shop/products/{productId}/image/{imageId}', [ImageProductController::class, 'update']);
+    Route::delete('/shop/products/{productId}/image/{imageId}', [ImageProductController::class, 'destroy']);
 
     // Service Shop
     Route::get('/shop/service', [ServiceController::class, 'index']);

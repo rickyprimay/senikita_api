@@ -154,4 +154,32 @@ class ProductController extends Controller
             'message' => 'Product deleted successfully',
         ], 200);
     }
+
+    public function show($id)
+    {
+        $user = Auth::user();
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Product not found.'
+            ], 404);
+        }
+
+        if ($product->shop_id !== $user->shop->id) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 403,
+                'message' => 'This product does not belong to your shop.'
+            ], 403);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'product' => $product,
+        ], 200);
+    }
 }

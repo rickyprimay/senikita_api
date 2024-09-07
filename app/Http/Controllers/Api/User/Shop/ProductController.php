@@ -15,16 +15,28 @@ class ProductController extends Controller
         $user = Auth::user();
 
         if (!$user->shop) {
-            return response()->json(['message' => 'User does not have a shop.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
         }
 
         $products = Product::where('shop_id', $user->shop->id)->get();
 
         if ($products->isEmpty()) {
-            return response()->json(['message' => 'No products found for this shop.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No products found for this shop.'
+            ], 404);
         }
 
-        return response()->json($products, 200);
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'products' => $products
+        ], 200);
     }
 
     public function create(Request $request)
@@ -41,7 +53,11 @@ class ProductController extends Controller
         $user = Auth::user();
 
         if (!$user->shop) {
-            return response()->json(['message' => 'User does not have a shop.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
         }
 
         $shop_id = $user->shop->id;
@@ -50,7 +66,11 @@ class ProductController extends Controller
             $path = $request->file('thumbnail')->store('thumbnails', 'public');
             $fullPath = asset('storage/' . $path);
         } else {
-            return response()->json(['message' => 'No thumbnail provided.'], 400);
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'No thumbnail provided.'
+            ], 400);
         }
 
         $product = Product::create([
@@ -63,13 +83,12 @@ class ProductController extends Controller
             'shop_id' => $shop_id,
         ]);
 
-        return response()->json(
-            [
-                'message' => 'Product created successfully',
-                'product' => $product,
-            ],
-            201
-        );
+        return response()->json([
+            'status' => 'success',
+            'code' => 201,
+            'message' => 'Product created successfully',
+            'product' => $product,
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -88,7 +107,11 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if ($product->shop_id !== $user->shop->id) {
-            return response()->json(['message' => 'This product does not belong to your shop.'], 403);
+            return response()->json([
+                'status' => 'error',
+                'code' => 403,
+                'message' => 'This product does not belong to your shop.'
+            ], 403);
         }
 
         if ($request->hasFile('thumbnail')) {
@@ -100,13 +123,12 @@ class ProductController extends Controller
 
         $product->update($request->only(['name', 'price', 'desc', 'stock', 'status', 'category_id']));
 
-        return response()->json(
-            [
-                'message' => 'Product updated successfully',
-                'product' => $product,
-            ],
-            200
-        );
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Product updated successfully',
+            'product' => $product,
+        ], 200);
     }
 
     public function destroy($id)
@@ -115,18 +137,21 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if ($product->shop_id !== $user->shop->id) {
-            return response()->json(['message' => 'This product does not belong to your shop.'], 403);
+            return response()->json([
+                'status' => 'error',
+                'code' => 403,
+                'message' => 'This product does not belong to your shop.'
+            ], 403);
         }
 
         Storage::disk('public')->delete(str_replace(asset('storage/'), '', $product->thumbnail));
 
         $product->delete();
 
-        return response()->json(
-            [
-                'message' => 'Product deleted successfully',
-            ],
-            200
-        );
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Product deleted successfully',
+        ], 200);
     }
 }

@@ -53,7 +53,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::delete('/shop/products/{id}', [ProductController::class, 'destroy']);
 
     // Product Image
-    Route::post('/shop/products/{id}/image', [ImageProductController::class, 'create']);
+    Route::post('/shop/products/{productId}/image', [ImageProductController::class, 'create']);
+    Route::put('/shop/products/{productId}/image', [ImageProductController::class, 'update']);
+    Route::delete('/shop/products/{productId}/image', [ImageProductController::class, 'destroy']);
 
     // Service Shop
     Route::get('/shop/service', [ServiceController::class, 'index']);

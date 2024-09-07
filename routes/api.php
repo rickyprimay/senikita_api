@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\User\Shop\ImageProductController;
 use App\Http\Controllers\Api\User\Shop\ProductController;
 use App\Http\Controllers\Api\User\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -47,5 +48,8 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::post('/shop/products', [ProductController::class, 'create']);
     Route::put('/shop/products/{id}', [ProductController::class, 'update']);
     Route::delete('/shop/products/{id}', [ProductController::class, 'destroy']);
+
+    // Product Image
+    Route::post('/shop/products/{id}/image', [ImageProductController::class, 'create']);
 
 });

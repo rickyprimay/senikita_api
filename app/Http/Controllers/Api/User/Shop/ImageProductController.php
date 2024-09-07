@@ -8,14 +8,24 @@ use App\Models\ImageProduct;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ImageProductController extends Controller
 {
     public function create(Request $request, $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $user = Auth::user();
 

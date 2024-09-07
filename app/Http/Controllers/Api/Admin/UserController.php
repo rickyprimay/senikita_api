@@ -14,7 +14,9 @@ class UserController extends Controller
         $credentials = User::all();
 
         return response()->json([
+            'status' => 'success',
             'message' => 'All users retrieved successfully',
+            'code' => 200,
             'data' => $credentials
         ], 200);
     }
@@ -25,12 +27,16 @@ class UserController extends Controller
 
         if (!$credentials) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'User not found',
+                'code' => 404
             ], 404);
         }
 
         return response()->json([
+            'status' => 'success',
             'message' => 'User retrieved successfully',
+            'code' => 200,
             'data' => $credentials
         ], 200);
     }
@@ -50,7 +56,9 @@ class UserController extends Controller
         ]);
 
         return response()->json([
+            'status' => 'success',
             'message' => 'User created successfully',
+            'code' => 201,
             'data' => $credentials
         ], 201);
     }
@@ -61,7 +69,9 @@ class UserController extends Controller
 
         if (!$credentials) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'User not found',
+                'code' => 404
             ], 404);
         }
 
@@ -86,7 +96,9 @@ class UserController extends Controller
         $credentials->save();
 
         return response()->json([
+            'status' => 'success',
             'message' => 'User updated successfully',
+            'code' => 200,
             'data' => $credentials
         ], 200);
     }
@@ -97,14 +109,18 @@ class UserController extends Controller
 
         if (!$credentials) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'User not found',
+                'code' => 404
             ], 404);
         }
 
         $credentials->delete();
 
         return response()->json([
-            'message' => 'User deleted successfully'
+            'status' => 'success',
+            'message' => 'User deleted successfully',
+            'code' => 200
         ], 200);
     }
 }

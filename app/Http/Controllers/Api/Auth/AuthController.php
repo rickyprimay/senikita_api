@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         $otp = User::generateOTP();
 
-        $credentials = User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -52,17 +52,17 @@ class AuthController extends Controller
         ]);
 
         $details = [
-            'name' => $credentials->name,
+            'name' => $user->name,
             'otp' => $otp,
         ];
 
-        Mail::to($credentials->email)->send(new VerificationCodeMail($details));
+        Mail::to($user->email)->send(new VerificationCodeMail($details));
 
         return response()->json([
             'status' => 'success',
             'message' => 'Register Success, check your email to verify OTP',
             'code' => 201,
-            'user' => $credentials,
+            'user' => $user,
         ], 201);
     }
 
@@ -82,9 +82,9 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $credential = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (!$credential) {
+        if (!$user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found',
@@ -92,7 +92,7 @@ class AuthController extends Controller
             ], 404);
         }
 
-        if ($credential->otp !== $request->otp) {
+        if ($user->otp !== $request->otp) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid OTP',
@@ -101,7 +101,7 @@ class AuthController extends Controller
         }
 
         $otpExpiryMinutes = 5;
-        $otpSentAt = Carbon::parse($credential->otp_sent_at);
+        $otpSentAt = Carbon::parse($user->otp_sent_at);
         if ($otpSentAt->addMinutes($otpExpiryMinutes)->isPast()) {
             return response()->json([
                 'status' => 'error',
@@ -110,20 +110,20 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $token = JWTAuth::fromUser($credential);
+        $token = JWTAuth::fromUser($user);
 
-        $credential->otp = null;
-        $credential->otp_sent_at = null;
-        $credential->email_verified_at = Carbon::now();
-        $credential->save();
+        $user->otp = null;
+        $user->otp_sent_at = null;
+        $user->email_verified_at = Carbon::now();
+        $user->token = $token;
+        $user->token_type = 'bearer';
+        $user->save();
 
         return response()->json([
             'status' => 'success',
             'message' => 'OTP verified successfully',
             'code' => 200,
-            'user' => $credential,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'user' => $user,
             'expires_in' => config('jwt.ttl') * 60,
         ], 200);
     }
@@ -143,9 +143,9 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $credentials = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (!$credentials) {
+        if (!$user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found',
@@ -153,7 +153,7 @@ class AuthController extends Controller
             ], 404);
         }
 
-        if ($credentials->email_verified_at) {
+        if ($user->email_verified_at) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email is already verified',
@@ -162,8 +162,8 @@ class AuthController extends Controller
         }
 
         $resendInterval = 1;
-        if ($credentials->otp_sent_at && Carbon::parse($credentials->otp_sent_at)->diffInMinutes(Carbon::now()) < $resendInterval) {
-            $remainingTime = 60 - Carbon::parse($credentials->otp_sent_at)->diffInSeconds(Carbon::now());
+        if ($user->otp_sent_at && Carbon::parse($user->otp_sent_at)->diffInMinutes(Carbon::now()) < $resendInterval) {
+            $remainingTime = 60 - Carbon::parse($user->otp_sent_at)->diffInSeconds(Carbon::now());
             return response()->json([
                 'status' => 'error',
                 'message' => "You can request a new OTP after {$remainingTime} seconds",
@@ -174,16 +174,16 @@ class AuthController extends Controller
 
         $otp = User::generateOTP();
 
-        $credentials->otp = $otp;
-        $credentials->otp_sent_at = Carbon::now();
-        $credentials->save();
+        $user->otp = $otp;
+        $user->otp_sent_at = Carbon::now();
+        $user->save();
 
         $details = [
-            'name' => $credentials->name,
+            'name' => $user->name,
             'otp' => $otp,
         ];
 
-        Mail::to($credentials->email)->send(new VerificationCodeMail($details));
+        Mail::to($user->email)->send(new VerificationCodeMail($details));
 
         return response()->json([
             'status' => 'success',
@@ -194,9 +194,9 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $user = $request->only('email', 'password');
 
-        if (!($token = JWTAuth::attempt($credentials))) {
+        if (!($token = JWTAuth::attempt($user))) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Unauthorized',
@@ -204,20 +204,20 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $credentials = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-        if (is_null($credentials->email_verified_at)) {
+        if (is_null($user->email_verified_at)) {
             $otp = User::generateOTP();
 
-            $credentials->otp = $otp;
-            $credentials->otp_sent_at = now();
-            $credentials->save();
+            $user->otp = $otp;
+            $user->otp_sent_at = now();
+            $user->save();
 
             $details = [
-                'name' => $credentials->name,
+                'name' => $user->name,
                 'otp' => $otp,
             ];
-            Mail::to($credentials->email)->send(new VerificationCodeMail($details));
+            Mail::to($user->email)->send(new VerificationCodeMail($details));
 
             return response()->json([
                 'status' => 'error',
@@ -226,19 +226,23 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $shop = Shop::where('user_id', $credentials->id)->first();
+        $shop = Shop::where('user_id', $user->id)->first();
+
+        $user->token = $token;
+        $user->token_type = 'bearer';
+
+        $response = [
+            'status' => 'success',
+            'message' => 'Login successful',
+            'code' => 200,
+            'user' => $user,
+        ];
 
         if ($shop) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Login successful',
-                'code' => 200,
-                'token' => $token,
-                'shop' => $shop,
-            ], 200);
+            $response['shop'] = $shop;
         }
 
-        return $this->respondWithToken($token);
+        return response()->json($response, 200);
     }
 
     protected function respondWithToken($token)

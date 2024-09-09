@@ -115,9 +115,9 @@ class AuthController extends Controller
         $user->otp = null;
         $user->otp_sent_at = null;
         $user->email_verified_at = Carbon::now();
+        $user->save();
         $user->token = $token;
         $user->token_type = 'bearer';
-        $user->save();
 
         return response()->json([
             'status' => 'success',

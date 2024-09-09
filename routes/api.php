@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\User\Shop\ImageServiceController;
 use App\Http\Controllers\Api\User\Shop\ProductController;
 use App\Http\Controllers\Api\User\Shop\ServiceController;
 use App\Http\Controllers\Api\User\ShopController;
+use App\Http\Controllers\Api\User\Cart\CartController;
+use App\Http\Controllers\Api\User\Cart\CartItemController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -41,6 +43,9 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
 });
 
 Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
+
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::get('/cart/{cart_id}/items', [CartItemController::class, 'index']);
 
     // Shop
     Route::post('shop', [ShopController::class, 'create']);

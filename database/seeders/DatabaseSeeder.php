@@ -18,12 +18,21 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Ricky Primayuda Putra',
             'email' => 'rickyprima30@gmail.com',
+            'email_verified_at' => now(),
             'password' => 'rickyprima30@gmail.com',
+            'role' => 1,
+        ]);
+        User::create([
+            'name' => 'Seni Kita Admin',
+            'email' => 'senikita@gmail.com',
+            'email_verified_at' => now(),
+            'password' => 'senikita@gmail.com',
             'role' => 1,
         ]);
         User::create([
             'name' => 'Mario Aprilnino',
             'email' => 'mario.aprilnino27@gmail.com',
+            'email_verified_at' => now(),
             'password' => 'mario.aprilnino27@gmail.com',
             'role' => 0,
         ]);

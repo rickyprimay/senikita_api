@@ -45,7 +45,12 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
 Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     Route::get('/cart', [CartController::class, 'index']);
+    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+
     Route::get('/cart/{cart_id}/items', [CartItemController::class, 'index']);
+    Route::post('/cart/items', [CartItemController::class, 'store']);
+    Route::delete('/cart/items/{id}', [CartItemController::class, 'destroy']);
+    Route::put('/cart/items/{id}', [CartItemController::class, 'updateQty']);
 
     // Shop
     Route::post('shop', [ShopController::class, 'create']);

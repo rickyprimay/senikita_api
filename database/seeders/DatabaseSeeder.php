@@ -21,5 +21,11 @@ class DatabaseSeeder extends Seeder
             'password' => 'rickyprima30@gmail.com',
             'role' => 1,
         ]);
+        User::factory()->create([
+            'name' => 'Mario Aprilnino',
+            'email' => 'mario.aprilnino27@gmail.com',
+            'password' => 'mario.aprilnino27@gmail.com',
+            'role' => 0,
+        ]);
     }
 }

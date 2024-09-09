@@ -4,12 +4,12 @@ use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\User\Product\ProductController as ProductProductController;
+use App\Http\Controllers\Api\User\Service\ServiceController as ServiceServiceController;
 use App\Http\Controllers\Api\User\Shop\ImageProductController;
 use App\Http\Controllers\Api\User\Shop\ImageServiceController;
 use App\Http\Controllers\Api\User\Shop\ProductController;
 use App\Http\Controllers\Api\User\Shop\ServiceController;
 use App\Http\Controllers\Api\User\ShopController;
-use App\Models\Service;
 use Illuminate\Support\Facades\Route;
 
 
@@ -75,3 +75,4 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 });
 
 Route::get('/products', [ProductProductController::class, 'index']);
+Route::get('/service', [ServiceServiceController::class, 'index']);

@@ -13,11 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'api' => [
-                \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-                'throttle:api',
-                \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            ],
             'admin' => \App\Http\Middleware\RoleMiddleware::class,
             'user' => \App\Http\Middleware\UserMiddleware::class,
         ]);

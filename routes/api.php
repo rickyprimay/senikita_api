@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\User\Shop\ServiceController;
 use App\Http\Controllers\Api\User\ShopController;
 use App\Http\Controllers\Api\User\Cart\CartController;
 use App\Http\Controllers\Api\User\Cart\CartItemController;
+use App\Http\Controllers\Api\User\Order\OrderController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -90,3 +91,4 @@ Route::get('/products', [ProductProductController::class, 'index']);
 Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('cities', [CityController::class, 'index']);
 Route::get('provinces', [ProvinceController::class, 'index']);
+Route::post('check-ongkir', [OrderController::class, 'checkOngkir']);

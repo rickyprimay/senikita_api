@@ -18,8 +18,18 @@ class Order extends Model
         'qty',
         'ongkir',
         'price',
+        'city_id',
         'total_price',
         'invoice_url',
         'status'
     ];
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id');
+    }
 }

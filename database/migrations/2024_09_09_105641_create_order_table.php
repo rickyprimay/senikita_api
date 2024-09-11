@@ -16,6 +16,8 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('product_id')->unsigned()->nullable();
             $table->bigInteger('service_id')->unsigned()->nullable();
+            $table->foreignId('city_id');
+            $table->foreignId('province_id');
             $table->integer('qty');
             $table->integer('ongkir')->nullable();
             $table->integer('price');

@@ -15,8 +15,8 @@ class Shop extends Model
         'lat',
         'lng',
         'address',
-        'city',
-        'province',
+        'city_id',
+        'province_id',
         'profile_picture',
         'user_id',
         'status',
@@ -26,6 +26,15 @@ class Shop extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'category_shop', 'shop_id', 'category_id');
+    }
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id');
     }
     
 }

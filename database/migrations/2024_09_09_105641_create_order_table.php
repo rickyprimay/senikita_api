@@ -17,12 +17,16 @@ return new class extends Migration
             $table->bigInteger('product_id')->unsigned()->nullable();
             $table->bigInteger('service_id')->unsigned()->nullable();
             $table->integer('qty');
-            $table->integer('ongkir');
+            $table->integer('ongkir')->nullable();
             $table->integer('price');
             $table->integer('total_price');
-            $table->integer('invoice_url');
+            $table->string('address');
+            $table->string('invoice_url');
             $table->string('stauts')->default('pending');
 
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('product')->onDelete('cascade');
+            $table->foreign('service_id')->references('id')->on('service')->onDelete('cascade');
             $table->timestamps();
         });
     }

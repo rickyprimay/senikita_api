@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\City\CityController;
+use App\Http\Controllers\Api\City\ProvinceController;
 use App\Http\Controllers\Api\User\Product\ProductController as ProductProductController;
 use App\Http\Controllers\Api\User\Service\ServiceController as ServiceServiceController;
 use App\Http\Controllers\Api\User\Shop\ImageProductController;
@@ -86,3 +88,5 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
 Route::get('/products', [ProductProductController::class, 'index']);
 Route::get('/service', [ServiceServiceController::class, 'index']);
+Route::get('cities', [CityController::class, 'index']);
+Route::get('provinces', [ProvinceController::class, 'index']);

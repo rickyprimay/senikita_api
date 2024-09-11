@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('order', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('product_id')->unsigned()->nullable();
+            $table->bigInteger('service_id')->unsigned()->nullable();
+            $table->integer('qty');
+            $table->integer('ongkir');
+            $table->integer('price');
+            $table->integer('total_price');
+            $table->integer('invoice_url');
+            $table->string('stauts')->default('pending');
+
             $table->timestamps();
         });
     }

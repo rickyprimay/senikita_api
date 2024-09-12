@@ -8,9 +8,12 @@ use App\Models\Category;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
+        $perPage = $request->query('pag', 15);
+
+        $categories = Category::paginate($perPage);
+        
         return response()->json([
             'status' => 'success',
             'message' => 'Categories retrieved successfully',

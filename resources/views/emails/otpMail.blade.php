@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Email Template</title>
+    <title>Email OTP</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
 

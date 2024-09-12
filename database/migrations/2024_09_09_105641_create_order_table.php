@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('order', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
-            $table->bigInteger('product_id')->unsigned()->nullable();
+            $table->json('product_ids');
             $table->foreignId('city_id');
             $table->foreignId('province_id');
             $table->string('name');
@@ -25,14 +25,13 @@ return new class extends Migration
             $table->integer('price');
             $table->integer('total_price');
             $table->string('address');
-            $table->string('courir')->default('jne');
+            $table->string('courier')->default('jne');
             $table->string('service');
             $table->string('invoice_url');
             $table->string('estimation');
             $table->string('status')->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('product')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -42,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order');
+        Schema::dropIfExists('orders');
     }
 };

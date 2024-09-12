@@ -13,7 +13,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id',
+        'product_ids',
         'qty',
         'no_transaction',
         'email',
@@ -26,9 +26,12 @@ class Order extends Model
         'total_price',
         'invoice_url',
         'service',
-        'courir',
+        'courier',
         'status',
         'estimation'
+    ];
+    protected $casts = [
+        'product_ids' => 'array',
     ];
     public function city()
     {
@@ -39,4 +42,5 @@ class Order extends Model
     {
         return $this->belongsTo(Province::class, 'province_id');
     }
+    
 }

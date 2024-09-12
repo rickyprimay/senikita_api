@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('product_id')->unsigned()->nullable();
-            $table->bigInteger('service_id')->unsigned()->nullable();
             $table->foreignId('city_id');
             $table->foreignId('province_id');
+            $table->string('name');
+            $table->string('email');
+            $table->string('no_transaction');
             $table->integer('qty');
             $table->integer('ongkir')->nullable();
             $table->integer('price');
@@ -27,11 +29,10 @@ return new class extends Migration
             $table->string('service');
             $table->string('invoice_url');
             $table->string('estimation');
-            $table->tinyInteger('status')->default('0');
+            $table->string('status')->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('product')->onDelete('cascade');
-            $table->foreign('service_id')->references('id')->on('service')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -10,11 +10,13 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use Xendit\Configuration;
 use Xendit\Invoice\CreateInvoiceRequest;
+use Xendit\Invoice\InvoiceItem;
 use Xendit\Invoice\InvoiceApi;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -55,10 +57,10 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'product_id' => 'nullable|integer|exists:product,id',
-            'service_id' => 'nullable|integer|exists:service,id',
             'city_id' => 'required|integer|exists:cities,id',
             'province_id' => 'required|integer|exists:provinces,id',
             'address' => 'required|string',
+            'name' => 'required|string',
             'qty' => 'required|integer|min:1',
             'courier' => 'required|string',
             'service' => 'required|string',
@@ -80,11 +82,6 @@ class OrderController extends Controller
         $priceProduct = null;
         if ($request->filled('product_id')) {
             $priceProduct = Product::find($request->input('product_id'))->price ?? null;
-        }
-
-        $priceService = null;
-        if ($request->filled('service_id')) {
-            $priceService = Service::find($request->input('service_id'))->price ?? null;
         }
 
         $weight = 1000;
@@ -125,10 +122,12 @@ class OrderController extends Controller
         foreach ($ongkirData as $service) {
             if ($service['service'] === $selectedService) {
                 $ongkirCost = $service['cost'][0]['value'] ?? 0;
-                $estimation = $service['cost'][0]['etd'] ?? null; // Menyimpan nilai estimasi waktu pengiriman
+                $estimation = $service['cost'][0]['etd'] ?? null; 
                 break;
             }
         }
+
+        $no_transaction = 'Inv-' . (string) Str::uuid();
 
         Log::info('Selected Ongkir Cost:', ['ongkirCost' => $ongkirCost]);
 
@@ -141,12 +140,30 @@ class OrderController extends Controller
             'totalPrice' => $totalPrice,
         ]);
 
+        $product = Product::find($request->input('product_id'));
+        $productName = $product ? $product->name : 'Unknown Product';
+
+        $fees = [
+            [
+                'type' => 'Ongkir Fee',
+                'value' => $ongkirCost,
+            ],
+        ];
+
+
+        $items = new InvoiceItem([
+            'name' => $productName,
+            'price' => $priceProduct,
+            'quantity' => $request->input('qty'),
+        ]);
+
         $invoice = new CreateInvoiceRequest([
+            'external_id' => $no_transaction,
             'amount' => $totalPrice,
-            'description' => 'Order Invoice',
-            'external_id' => 'order-' . uniqid(),
             'invoice_duration' => 172800,
             'customer_email' => $user->email,
+            'items' => [$items],
+            'fees' => $fees,
         ]);
 
         try {
@@ -161,9 +178,11 @@ class OrderController extends Controller
                 'user_id' => $user->id,
                 'product_id' => $request->input('product_id'),
                 'city_id' => $request->input('city_id'),
+                'no_transaction' => $no_transaction,
+                'email' => $user->email,
+                'name' => $request->input('name'),
                 'address' => $request->input('address'),
                 'province_id' => $province_id,
-                'service_id' => $request->input('service_id'),
                 'qty' => $request->input('qty'),
                 'price' => $priceProduct,
                 'ongkir' => $ongkirCost,
@@ -172,6 +191,7 @@ class OrderController extends Controller
                 'courir' => $request->input('courier'),
                 'service' => $selectedService,
                 'estimation' => $estimation,
+                'status' => 'pending'
             ]);
 
             return response()->json([

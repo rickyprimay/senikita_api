@@ -16,12 +16,17 @@ class Order extends Model
         'product_id',
         'service_id',
         'qty',
+        'address',
         'ongkir',
         'price',
         'city_id',
+        'province_id',
         'total_price',
         'invoice_url',
-        'status'
+        'service',
+        'courir',
+        'status',
+        'estimation'
     ];
     public function city()
     {

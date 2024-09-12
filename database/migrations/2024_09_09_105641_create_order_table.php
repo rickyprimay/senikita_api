@@ -23,8 +23,11 @@ return new class extends Migration
             $table->integer('price');
             $table->integer('total_price');
             $table->string('address');
+            $table->string('courir')->default('jne');
+            $table->string('service');
             $table->string('invoice_url');
-            $table->string('stauts')->default('pending');
+            $table->string('estimation');
+            $table->tinyInteger('status')->default('0');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('product')->onDelete('cascade');

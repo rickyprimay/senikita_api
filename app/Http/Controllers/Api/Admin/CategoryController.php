@@ -109,4 +109,36 @@ class CategoryController extends Controller
             'code' => 200
         ], 200);
     }
+    public function search(Request $request)
+{
+    $query = $request->query('name');
+
+    if (!$query) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Name query parameter is required',
+            'code' => 400
+        ], 400);
+    }
+
+    // Pencarian parsial dengan LIKE
+    $categories = Category::where('name', 'LIKE', '%' . $query . '%')->get();
+
+    if ($categories->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No categories found',
+            'code' => 404
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Categories found',
+        'code' => 200,
+        'data' => $categories
+    ], 200);
+}
+
+
 }

@@ -126,4 +126,35 @@ class UserController extends Controller
             'code' => 200
         ], 200);
     }
+    public function search(Request $request)
+{
+    $query = $request->query('name');
+
+    if (!$query) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Name query parameter is required',
+            'code' => 400
+        ], 400);
+    }
+
+    $users = User::where('name', 'LIKE', '%' . $query . '%')->get();
+
+    if ($users->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'No users found',
+            'code' => 404
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Users found',
+        'code' => 200,
+        'data' => $users
+    ], 200);
+}
+
+
 }

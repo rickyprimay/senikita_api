@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\User\Order\OrderController;
 use Illuminate\Support\Facades\Route;
 
 
+
+
 Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
@@ -35,6 +37,8 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::post('users', [UserController::class, 'createUser']);
     Route::put('users/{id}', [UserController::class, 'updateUser']); 
     Route::delete('users/{id}', [UserController::class, 'deleteUser']);
+    
+
 
     // Category Management
     Route::get('category', [CategoryController::class, 'index']);
@@ -95,3 +99,5 @@ Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('cities', [CityController::class, 'index']);
 Route::get('provinces', [ProvinceController::class, 'index']);
 Route::post('check-ongkir', [OrderController::class, 'checkOngkir']);
+Route::get('category/search', [CategoryController::class, 'search']);
+Route::get('user/search', [UserController::class, 'search']);

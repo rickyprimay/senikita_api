@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function getAllUsers()
+    public function getAllUsers(Request $request)
     {
-        $credentials = User::all();
+        $perPage = $request->query('pag', 15);
+
+        $credentials = User::paginate($perPage);
 
         return response()->json([
             'status' => 'success',

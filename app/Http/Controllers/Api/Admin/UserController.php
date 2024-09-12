@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -77,22 +78,22 @@ class UserController extends Controller
             ], 404);
         }
 
-        $validatedData = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,'.$credentials->id,
-            'password' => 'sometimes|string|min:8',
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users,email,'.$credentials->id,
+            'password' => 'nullable|string|min:8',
         ]);
 
-        if (isset($validatedData['name'])) {
-            $credentials->name = $validatedData['name'];
-        }
-
-        if (isset($validatedData['email'])) {
-            $credentials->email = $validatedData['email'];
-        }
-
-        if (isset($validatedData['password'])) {
-            $credentials->password = Hash::make($validatedData['password']);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ],
+                400,
+            );
         }
 
         $credentials->save();

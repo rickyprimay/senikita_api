@@ -241,4 +241,44 @@ class OrderController extends Controller
             );
         }
     }
+
+    public function notificationCallback(Request $request)
+    {
+        $getToken = $request->headers->get('x-callback-token');
+        $callbackToken = env('XENDIT_CALLBACK_TOKEN');
+
+        try {
+            if (!$callbackToken) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'callback token not exist',
+                    ],
+                    404,
+                );
+            }
+
+            $order = Order::where('no_transaction', $request->external_id)->first();
+
+            if ($order) {
+                if ($request->status == 'PAID') {
+                    $order->status = 'Success';
+                    $order->save();
+                } else {
+                    $order->status = 'Failed';
+                    $order->save();
+                }
+            }
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'callback sent',
+                ],
+                200,
+            );
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

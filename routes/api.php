@@ -101,3 +101,4 @@ Route::get('provinces', [ProvinceController::class, 'index']);
 Route::post('check-ongkir', [OrderController::class, 'checkOngkir']);
 Route::get('category/search', [CategoryController::class, 'search']);
 Route::get('user/search', [UserController::class, 'search']);
+Route::post('/notification', [OrderController::class, 'notificationCallback'])->name('notification');

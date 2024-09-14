@@ -16,12 +16,15 @@ class UserController extends Controller
 
         $credentials = User::paginate($perPage);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'All users retrieved successfully',
-            'code' => 200,
-            'data' => $credentials
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'All users retrieved successfully',
+                'code' => 200,
+                'data' => $credentials,
+            ],
+            200,
+        );
     }
 
     public function getUser($id)
@@ -29,19 +32,25 @@ class UserController extends Controller
         $credentials = User::find($id);
 
         if (!$credentials) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found',
-                'code' => 404
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'User not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User retrieved successfully',
-            'code' => 200,
-            'data' => $credentials
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'User retrieved successfully',
+                'code' => 200,
+                'data' => $credentials,
+            ],
+            200,
+        );
     }
 
     public function createUser(Request $request)
@@ -58,12 +67,15 @@ class UserController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            'code' => 201,
-            'data' => $credentials
-        ], 201);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'User created successfully',
+                'code' => 201,
+                'data' => $credentials,
+            ],
+            201,
+        );
     }
 
     public function updateUser(Request $request, $id)
@@ -71,16 +83,19 @@ class UserController extends Controller
         $credentials = User::find($id);
 
         if (!$credentials) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found',
-                'code' => 404
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'User not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users,email,'.$credentials->id,
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $credentials->id,
             'password' => 'nullable|string|min:8',
         ]);
 
@@ -98,12 +113,15 @@ class UserController extends Controller
 
         $credentials->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User updated successfully',
-            'code' => 200,
-            'data' => $credentials
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'User updated successfully',
+                'code' => 200,
+                'data' => $credentials,
+            ],
+            200,
+        );
     }
 
     public function deleteUser($id)
@@ -111,50 +129,63 @@ class UserController extends Controller
         $credentials = User::find($id);
 
         if (!$credentials) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found',
-                'code' => 404
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'User not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
         $credentials->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User deleted successfully',
-            'code' => 200
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'User deleted successfully',
+                'code' => 200,
+            ],
+            200,
+        );
     }
     public function search(Request $request)
-{
-    $query = $request->query('name');
+    {
+        $query = $request->input('name');
 
-    if (!$query) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Name query parameter is required',
-            'code' => 400
-        ], 400);
+        if (!$query) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Name field is required in the request body',
+                    'code' => 400,
+                ],
+                400,
+            );
+        }
+
+        $users = User::where('name', 'LIKE', '%' . $query . '%')->get();
+
+        if ($users->isEmpty()) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'No users found',
+                    'code' => 404,
+                ],
+                404,
+            );
+        }
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Users found',
+                'code' => 200,
+                'data' => $users,
+            ],
+            200,
+        );
     }
-
-    $users = User::where('name', 'LIKE', '%' . $query . '%')->get();
-
-    if ($users->isEmpty()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'No users found',
-            'code' => 404
-        ], 404);
-    }
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Users found',
-        'code' => 200,
-        'data' => $users
-    ], 200);
-}
-
-
 }

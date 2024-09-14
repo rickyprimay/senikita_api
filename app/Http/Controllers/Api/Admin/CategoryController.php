@@ -13,13 +13,16 @@ class CategoryController extends Controller
         $perPage = $request->query('pag', 15);
 
         $categories = Category::paginate($perPage);
-        
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Categories retrieved successfully',
-            'code' => 200,
-            'data' => $categories
-        ], 200);
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Categories retrieved successfully',
+                'code' => 200,
+                'data' => $categories,
+            ],
+            200,
+        );
     }
 
     public function store(Request $request)
@@ -32,12 +35,15 @@ class CategoryController extends Controller
             'name' => $request->name,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category created successfully',
-            'code' => 201,
-            'data' => $category,
-        ], 201);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Category created successfully',
+                'code' => 201,
+                'data' => $category,
+            ],
+            201,
+        );
     }
 
     public function show($id)
@@ -45,19 +51,25 @@ class CategoryController extends Controller
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Category not found',
-                'code' => 404
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Category not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category retrieved successfully',
-            'code' => 200,
-            'data' => $category
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Category retrieved successfully',
+                'code' => 200,
+                'data' => $category,
+            ],
+            200,
+        );
     }
 
     public function update(Request $request, $id)
@@ -65,11 +77,14 @@ class CategoryController extends Controller
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Category not found',
-                'code' => 404
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Category not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
         $request->validate([
@@ -80,12 +95,15 @@ class CategoryController extends Controller
             'name' => $request->name,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category updated successfully',
-            'code' => 200,
-            'data' => $category,
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Category updated successfully',
+                'code' => 200,
+                'data' => $category,
+            ],
+            200,
+        );
     }
 
     public function destroy($id)
@@ -93,52 +111,64 @@ class CategoryController extends Controller
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Category not found',
-                'code' => 404
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Category not found',
+                    'code' => 404,
+                ],
+                404,
+            );
         }
 
         // Hapus kategori
         $category->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Category deleted successfully',
-            'code' => 200
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Category deleted successfully',
+                'code' => 200,
+            ],
+            200,
+        );
     }
     public function search(Request $request)
-{
-    $query = $request->query('name');
+    {
+        $query = $request->input('name');
 
-    if (!$query) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Name query parameter is required',
-            'code' => 400
-        ], 400);
+        if (!$query) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Name field is required in the request body',
+                    'code' => 400,
+                ],
+                400,
+            );
+        }
+
+        $categories = Category::where('name', 'LIKE', '%' . $query . '%')->get();
+
+        if ($categories->isEmpty()) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'No categories found',
+                    'code' => 404,
+                ],
+                404,
+            );
+        }
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Categories found',
+                'code' => 200,
+                'data' => $categories,
+            ],
+            200,
+        );
     }
-
-    // Pencarian parsial dengan LIKE
-    $categories = Category::where('name', 'LIKE', '%' . $query . '%')->get();
-
-    if ($categories->isEmpty()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'No categories found',
-            'code' => 404
-        ], 404);
-    }
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Categories found',
-        'code' => 200,
-        'data' => $categories
-    ], 200);
-}
-
-
 }

@@ -97,6 +97,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 });
 
 Route::get('/products', [ProductProductController::class, 'index']);
+Route::get('/products/random', [ProductProductController::class, 'randomProducts']);
 Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('cities', [CityController::class, 'index']);
 Route::get('provinces', [ProvinceController::class, 'index']);

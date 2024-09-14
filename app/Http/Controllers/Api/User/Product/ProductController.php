@@ -24,4 +24,18 @@ class ProductController extends Controller
             200,
         );
     }
+    public function randomProducts()
+    {
+        $products = Product::inRandomOrder()->limit(5)->get();
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Random products retrieved successfully',
+                'data' => $products,
+            ],
+            200
+        );
+    }
 }

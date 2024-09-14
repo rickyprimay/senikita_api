@@ -46,5 +46,9 @@ class Order extends Model
         return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id')
                     ->withPivot('qty'); 
     }
+    public function transaction()
+    {
+        return $this->hasOne(TransactionOrder::class, 'order_id');
+    }
     
 }

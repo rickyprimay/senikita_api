@@ -80,9 +80,9 @@ class UserController extends Controller
 
     public function updateUser(Request $request, $id)
     {
-        $credentials = User::find($id);
+        $user = User::find($id);
 
-        if (!$credentials) {
+        if (!$user) {
             return response()->json(
                 [
                     'status' => 'error',
@@ -95,7 +95,7 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:users,email,' . $credentials->id,
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
         ]);
 
@@ -111,14 +111,21 @@ class UserController extends Controller
             );
         }
 
-        $credentials->save();
+        $user->name = $request->input('name', $user->name);
+        $user->email = $request->input('email', $user->email);
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->input('password'));
+        }
+
+        $user->save();
 
         return response()->json(
             [
                 'status' => 'success',
                 'message' => 'User updated successfully',
                 'code' => 200,
-                'data' => $credentials,
+                'data' => $user,
             ],
             200,
         );

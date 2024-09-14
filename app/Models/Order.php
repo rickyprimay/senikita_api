@@ -42,5 +42,10 @@ class Order extends Model
     {
         return $this->belongsTo(Province::class, 'province_id');
     }
+    public function product()
+    {
+        return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id')
+                    ->withPivot('quantity'); 
+    }
     
 }

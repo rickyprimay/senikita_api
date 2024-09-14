@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -207,6 +208,13 @@ class OrderController extends Controller
                 'status' => 'pending',
             ]);
 
+            DB::table('transaction')->insert([
+                'order_id' => $order->id,
+                'payment_status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             $details = [
                 'name' => $request->input('name'),
                 'price' => $totalPrice,
@@ -248,13 +256,13 @@ class OrderController extends Controller
         $callbackToken = env('XENDIT_CALLBACK_TOKEN');
 
         try {
-            if (!$callbackToken) {
+            if (!$callbackToken || $callbackToken !== $getToken) {
                 return response()->json(
                     [
                         'status' => 'error',
-                        'message' => 'callback token not exist',
+                        'message' => 'Invalid callback token',
                     ],
-                    404,
+                    403,
                 );
             }
 
@@ -264,21 +272,82 @@ class OrderController extends Controller
                 if ($request->status == 'PAID') {
                     $order->status = 'Success';
                     $order->save();
+
+                    DB::table('transaction')
+                        ->where('order_id', $order->id)
+                        ->update([
+                            'payment_status' => 'PAID',
+                            'payment_date' => now(),
+                            'updated_at' => now(),
+                        ]);
                 } else {
                     $order->status = 'Failed';
                     $order->save();
+
+                    DB::table('transaction')
+                        ->where('order_id', $order->id)
+                        ->update([
+                            'payment_status' => 'FAILED',
+                            'updated_at' => now(),
+                        ]);
                 }
             }
 
             return response()->json(
                 [
                     'status' => 'success',
-                    'message' => 'callback sent',
+                    'message' => 'Callback processed',
                 ],
                 200,
             );
         } catch (\Throwable $th) {
-            throw $th;
+            Log::error('Callback Error:', ['error' => $th->getMessage()]);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to process callback',
+                ],
+                500,
+            );
+        }
+    }
+
+    public function transactionHistory()
+    {
+        try {
+            $user = Auth::user();
+
+            $orders = Order::where('user_id', $user->id)
+                ->with('product')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'No transaction history found',
+                    ],
+                    404,
+                );
+            }
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Transaction history retrieved successfully',
+                    'data' => $orders,
+                ],
+                200,
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => $th->getMessage(),
+                ],
+                500,
+            );
         }
     }
 }

@@ -91,6 +91,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Order
     Route::post('order', [OrderController::class, 'create']);
+    Route::get('/transaction-history', [OrderController::class, 'transactionHistory']);
 
 });
 

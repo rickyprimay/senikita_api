@@ -14,14 +14,22 @@ class UserController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $credentials = User::paginate($perPage);
+        $search = $request->query('search');
+
+        $query = User::query();
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $users = $query->paginate($perPage);
 
         return response()->json(
             [
                 'status' => 'success',
                 'message' => 'All users retrieved successfully',
                 'code' => 200,
-                'data' => $credentials,
+                'data' => $users,
             ],
             200,
         );
@@ -153,44 +161,6 @@ class UserController extends Controller
                 'status' => 'success',
                 'message' => 'User deleted successfully',
                 'code' => 200,
-            ],
-            200,
-        );
-    }
-    public function search(Request $request)
-    {
-        $query = $request->input('name');
-
-        if (!$query) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'message' => 'Name field is required in the request body',
-                    'code' => 400,
-                ],
-                400,
-            );
-        }
-
-        $users = User::where('name', 'LIKE', '%' . $query . '%')->get();
-
-        if ($users->isEmpty()) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'message' => 'No users found',
-                    'code' => 404,
-                ],
-                404,
-            );
-        }
-
-        return response()->json(
-            [
-                'status' => 'success',
-                'message' => 'Users found',
-                'code' => 200,
-                'data' => $users,
             ],
             200,
         );

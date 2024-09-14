@@ -12,7 +12,15 @@ class CategoryController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $categories = Category::paginate($perPage);
+        $search = $request->query('search');
+
+        $query = Category::query();
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $categories = $query->paginate($perPage);
 
         return response()->json(
             [
@@ -21,9 +29,10 @@ class CategoryController extends Controller
                 'code' => 200,
                 'data' => $categories,
             ],
-            200,
+            200
         );
     }
+
 
     public function store(Request $request)
     {

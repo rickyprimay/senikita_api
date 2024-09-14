@@ -14,13 +14,11 @@ return new class extends Migration
         Schema::create('order', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
-            $table->json('product_ids');
             $table->foreignId('city_id');
             $table->foreignId('province_id');
             $table->string('name');
             $table->string('email');
             $table->string('no_transaction');
-            $table->integer('qty');
             $table->integer('ongkir')->nullable();
             $table->integer('price');
             $table->integer('total_price');

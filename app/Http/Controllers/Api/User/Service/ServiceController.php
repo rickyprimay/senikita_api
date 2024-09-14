@@ -24,4 +24,18 @@ class ServiceController extends Controller
             200,
         );
     }
+    public function randomService()
+    {
+        $services = Service::inRandomOrder()->limit(5)->get();
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Random services retrieved successfully',
+                'data' => $services,
+            ],
+            200
+        );
+    }
 }

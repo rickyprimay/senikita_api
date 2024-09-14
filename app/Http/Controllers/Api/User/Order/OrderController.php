@@ -348,4 +348,71 @@ class OrderController extends Controller
             );
         }
     }
+    public function updatePaymentStatus(Request $request, $orderId)
+    {
+        $validator = Validator::make($request->all(), [
+            'payment_status' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ],
+                400,
+            );
+        }
+
+        try {
+            $order = Order::find($orderId);
+
+            if (!$order) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'code' => 404,
+                        'message' => 'Order not found',
+                    ],
+                    404,
+                );
+            }
+
+            $updated = DB::table('transaction')
+                ->where('order_id', $orderId)
+                ->update([
+                    'payment_status' => 'DONE',
+                    'updated_at' => now(),
+                ]);
+
+            if ($updated) {
+                return response()->json(
+                    [
+                        'status' => 'success',
+                        'message' => 'Payment status updated successfully',
+                    ],
+                    200,
+                );
+            } else {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'Failed to update payment status',
+                    ],
+                    500,
+                );
+            }
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to update payment status',
+                    'error' => $th->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
 }

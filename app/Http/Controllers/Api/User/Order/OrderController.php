@@ -8,6 +8,7 @@ use App\Models\City;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\Shop;
 use Illuminate\Http\Request;
 use Xendit\Configuration;
 use Xendit\Invoice\CreateInvoiceRequest;
@@ -351,7 +352,7 @@ class OrderController extends Controller
     public function updatePaymentStatus(Request $request, $orderId)
     {
         $validator = Validator::make($request->all(), [
-            'payment_status' => 'required|string',
+            'payment_status' => 'required|string|in:DONE',
         ]);
 
         if ($validator->fails()) {
@@ -365,6 +366,8 @@ class OrderController extends Controller
                 400,
             );
         }
+
+        DB::beginTransaction();
 
         try {
             $order = Order::find($orderId);
@@ -380,35 +383,42 @@ class OrderController extends Controller
                 );
             }
 
-            $updated = DB::table('transaction')
+            DB::table('transaction')
                 ->where('order_id', $orderId)
                 ->update([
                     'payment_status' => 'DONE',
                     'updated_at' => now(),
                 ]);
 
-            if ($updated) {
-                return response()->json(
-                    [
-                        'status' => 'success',
-                        'message' => 'Payment status updated successfully',
-                    ],
-                    200,
-                );
-            } else {
-                return response()->json(
-                    [
-                        'status' => 'error',
-                        'message' => 'Failed to update payment status',
-                    ],
-                    500,
-                );
+            $products = DB::table('product')->join('order_product', 'product.id', '=', 'order_product.product_id')->where('order_product.order_id', $orderId)->select('product.id as product_id', 'product.price', 'order_product.qty')->get();
+
+            foreach ($products as $product) {
+                $shop = Shop::whereHas('product', function ($query) use ($product) {
+                    $query->where('id', $product->product_id);
+                })->first();
+
+                if ($shop) {
+                    $shop->balance += $product->price * $product->qty;
+                    $shop->save();
+                }
             }
+
+            DB::commit();
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Payment status updated and shop balance adjusted successfully',
+                ],
+                200,
+            );
         } catch (\Throwable $th) {
+            DB::rollBack();
+
             return response()->json(
                 [
                     'status' => 'error',
-                    'message' => 'Failed to update payment status',
+                    'message' => 'Failed to update payment status and adjust shop balance',
                     'error' => $th->getMessage(),
                 ],
                 500,

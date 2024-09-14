@@ -36,5 +36,9 @@ class Shop extends Model
     {
         return $this->belongsTo(Province::class, 'province_id');
     }
+    public function product()
+    {
+        return $this->hasMany(Product::class, 'shop_id');
+    }
     
 }

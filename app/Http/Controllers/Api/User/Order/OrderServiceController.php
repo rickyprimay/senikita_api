@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\User\Order;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderService;
+use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,9 +25,8 @@ class OrderServiceController extends Controller
         $validator = Validator::make($request->all(), [
             'service_id' => 'required|exists:service,id',
             'name' => 'required|string|max:255',
-            'price' => 'required|integer',
             'address' => 'required|string|max:255',
-            'optional_document' => 'nullable|string',
+            'optional_document' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -41,28 +41,38 @@ class OrderServiceController extends Controller
             );
         }
 
+        $service = Service::find($request->service_id);
+            if (!$service) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'code' => 404,
+                        'message' => 'Service not found',
+                    ],
+                    404
+                );
+            }
+
         $no_transaction = 'Inv-' . rand();
+        $price = $service->price;
         $user = Auth::user();
 
+        $invoice = new CreateInvoiceRequest([
+            'external_id' => $no_transaction,
+            'amount' => $price,
+            'invoice_duration' => 172800,
+            'customer_email' => $user->email,
+        ]);
+
         try {
-            $invoiceApi = new InvoiceApi();
-            $invoiceItems = [
-                new InvoiceItem([
-                    'name' => 'Service Payment',
-                    'quantity' => 1,
-                    'price' => $request->price,
-                ]),
-            ];
+            $apiInstance = new InvoiceApi();
+            $generateInvoice = $apiInstance->createInvoice($invoice);
+            $invoiceUrl = $generateInvoice['invoice_url'];
 
-            $invoiceRequest = new CreateInvoiceRequest([
-                'external_id' => $no_transaction,
-                'payer_email' => $request->email,
-                'description' => 'Payment for service',
-                'amount' => $request->price,
-                'items' => $invoiceItems,
-            ]);
-
-            $invoice = $invoiceApi->createInvoice($invoiceRequest);
+            if ($request->hasFile('optional_document')) {
+                $path = $request->file('optional_document')->store('documents', 'public');
+                $fullPath = asset('storage/' . $path);
+            }
 
             $order = OrderService::create([
                 'user_id' => $user->id,
@@ -70,10 +80,10 @@ class OrderServiceController extends Controller
                 'name' => $request->name,
                 'email' => $user->email,
                 'no_transaction' => $no_transaction,
-                'price' => $request->price,
+                'price' => $price,
                 'address' => $request->address,
-                'optional_document' => $request->optional_document,
-                'invoice_url' => $invoice->getInvoiceUrl(),
+                'optional_document' => $fullPath,
+                'invoice_url' => $invoiceUrl,
             ]);
 
             return response()->json(
@@ -83,7 +93,6 @@ class OrderServiceController extends Controller
                     'message' => 'Order created successfully',
                     'data' => [
                         'order' => $order,
-                        'invoice_url' => $invoice->getInvoiceUrl(),
                     ],
                 ],
                 201

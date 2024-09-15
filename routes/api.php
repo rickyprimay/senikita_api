@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\User\ShopController;
 use App\Http\Controllers\Api\User\Cart\CartController;
 use App\Http\Controllers\Api\User\Cart\CartItemController;
 use App\Http\Controllers\Api\User\Order\OrderController;
+use App\Http\Controllers\Api\User\Order\OrderServiceController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -93,6 +94,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::post('order', [OrderController::class, 'create']);
     Route::get('/transaction-history', [OrderController::class, 'transactionHistory']);
     Route::put('/order/payment-status/{orderId}', [OrderController::class, 'updatePaymentStatus']);
+
+    // Order Service
+    Route::post('order-service', [OrderServiceController::class, 'create']);
 
 });
 

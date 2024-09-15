@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\ReminderPayments;
 use App\Models\City;
 use App\Models\Order;
+use App\Models\OrderService;
 use App\Models\Product;
 use App\Models\Service;
 use App\Models\Shop;
@@ -267,6 +268,7 @@ class OrderController extends Controller
             }
 
             $order = Order::where('no_transaction', $request->external_id)->first();
+            $orderService = OrderService::where('no_transaction', $request->external_id)->first();
 
             if ($order) {
                 if ($request->status == 'PAID') {
@@ -290,6 +292,16 @@ class OrderController extends Controller
                             'payment_status' => 'FAILED',
                             'updated_at' => now(),
                         ]);
+                }
+            }
+
+            if($orderService) {
+                if ($request->status == 'PAID') {
+                    $orderService->status = 'Success';
+                    $orderService->save();
+                } else {
+                    $orderService->status = 'Failed';
+                    $orderService->save();
                 }
             }
 

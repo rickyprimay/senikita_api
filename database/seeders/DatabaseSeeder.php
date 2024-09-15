@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'rickyprima30@gmail.com',
             'email_verified_at' => now(),
             'password' => 'rickyprima30@gmail.com',
-            'role' => 1,
+            'role' => 0,
         ]);
         User::create([
             'name' => 'Seni Kita Admin',

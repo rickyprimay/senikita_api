@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\ShopController as AdminShopController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\City\CityController;
@@ -47,6 +48,10 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::post('category', [CategoryController::class, 'store']);
     Route::put('category/{id}', [CategoryController::class, 'update']);
     Route::delete('category/{id}', [CategoryController::class, 'destroy']);
+
+    // Shop Management
+    Route::get('shop', [AdminShopController::class, 'index']);
+    Route::put('shop/verification/{id}', [AdminShopController::class, 'verificationShop']);
 
 });
 

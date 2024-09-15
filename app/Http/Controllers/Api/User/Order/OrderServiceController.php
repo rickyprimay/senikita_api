@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\User\Order;
 
 use App\Http\Controllers\Controller;
 use App\Models\OrderService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Xendit\Configuration;
@@ -20,12 +21,9 @@ class OrderServiceController extends Controller
 
     public function create(Request $request)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
             'service_id' => 'required|exists:service,id',
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
             'price' => 'required|integer',
             'address' => 'required|string|max:255',
             'optional_document' => 'nullable|string',
@@ -43,11 +41,10 @@ class OrderServiceController extends Controller
             );
         }
 
-        // Buat nomor transaksi
-        $no_transaction = 'Inv-' . rand(100000, 999999);
+        $no_transaction = 'Inv-' . rand();
+        $user = Auth::user();
 
         try {
-            // Buat invoice di Xendit
             $invoiceApi = new InvoiceApi();
             $invoiceItems = [
                 new InvoiceItem([
@@ -67,18 +64,16 @@ class OrderServiceController extends Controller
 
             $invoice = $invoiceApi->createInvoice($invoiceRequest);
 
-            // Simpan order ke database
             $order = OrderService::create([
-                'user_id' => $request->user_id,
+                'user_id' => $user->id,
                 'service_id' => $request->service_id,
                 'name' => $request->name,
-                'email' => $request->email,
+                'email' => $user->email,
                 'no_transaction' => $no_transaction,
                 'price' => $request->price,
                 'address' => $request->address,
                 'optional_document' => $request->optional_document,
                 'invoice_url' => $invoice->getInvoiceUrl(),
-                'status' => 'pending', // Set status awal sebagai 'pending'
             ]);
 
             return response()->json(

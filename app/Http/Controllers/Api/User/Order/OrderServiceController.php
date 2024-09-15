@@ -113,7 +113,7 @@ class OrderServiceController extends Controller
                 'sender_name' => 'SeniKita Team',
             ];
 
-            Mail::to('rickyprima30@gmail.com')->send(new ReminderPayments($details));
+            Mail::to($user->email)->send(new ReminderPayments($details));
 
             return response()->json(
                 [

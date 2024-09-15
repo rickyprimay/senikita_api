@@ -13,8 +13,19 @@ return new class extends Migration
     {
         Schema::create('order_service', function (Blueprint $table) {
             $table->id();
-            $table->
+            $table->bigInteger('user_id')->unsigned();
+            $table->bigInteger('service_id')->unsigned();
+            $table->string('name');
+            $table->string('email');
+            $table->string('no_transaction');
+            $table->integer('price');
+            $table->string('address');
+            $table->string('invoice_url');
+            $table->string('optional_document')->nullable();
+            $table->string('status')->default('pending');
 
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('service_id')->references('id')->on('service');
             $table->timestamps();
         });
     }

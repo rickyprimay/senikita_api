@@ -1,39 +1,172 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Email OTP</title>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>OTP Email</title>
 
-    <table cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #dddddd;">
-        <tr>
-            <td style="padding: 20px;">
-                <h1 style="color: #333333; font-size: 24px;">Email Verifikasi kode OTP anda</h1>
-                <p style="color: #666666; font-size: 16px;">Berikut Kode OTP untuk verifikasi email anda</p>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 20px;">
-                <main>
-                    <h2 style="color: #333333; font-size: 20px;">Hi , {{ $details['name'] }}</h2>
-                    <p style="color: #666666; font-size: 16px; margin-top: 10px;">This is your verification code:</p>
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-                        @foreach(str_split($details['otp']) as $digit)
-                        <p style="text-align: center; width: 40px; height: 40px; font-size: 24px; font-weight: 600; color: #007bff; border: 1px solid #007bff; border-radius: 50%; line-height: 40px;">{{ $digit }}</p>
-                        @endforeach
-                    </div>
-                    <p style="color: #666666; font-size: 16px; margin-top: 20px;">Thanks,<br>SeniKita Team</p>
-                </main>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 20px;">
-                <footer>
-                    <p style="color: #888888; font-size: 12px; margin-top: 10px;">© {{ date('Y') }} SeniKita All Rights Reserved.</p>
-                </footer>
-            </td>
-        </tr>
-    </table>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    style="
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #ffffff;
+      font-size: 14px;
+    "
+  >
+    <div
+      style="
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 45px 30px 60px;
+        background: #f4f7ff;
+        background-image: url(https://archisketch-resources.s3.ap-northeast-2.amazonaws.com/vrstyler/1661497957196_595865/email-template-background-banner);
+        background-repeat: no-repeat;
+        background-size: 800px 452px;
+        background-position: top center;
+        font-size: 14px;
+        color: #434343;
+      "
+    >
+      <header>
+        <table style="width: 100%;">
+          <tbody>
+            <tr style="height: 0;">
+              <td>
+              </td>
+              <td style="text-align: right;">
+                <span
+                  style="font-size: 16px; line-height: 30px; color: #ffffff;"
+                  >{{ date('d M, Y') }}</span
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </header>
 
-</body>
+      <main>
+        <div
+          style="
+            margin: 0;
+            margin-top: 70px;
+            padding: 92px 30px 115px;
+            background: #ffffff;
+            border-radius: 30px;
+            text-align: center;
+          "
+        >
+          <div style="width: 100%; max-width: 489px; margin: 0 auto;">
+            <h1
+              style="
+                margin: 0;
+                font-size: 24px;
+                font-weight: 500;
+                color: #1f1f1f;
+              "
+            >
+              Your OTP
+            </h1>
+            <p
+              style="
+                margin: 0;
+                margin-top: 17px;
+                font-size: 16px;
+                font-weight: 500;
+              "
+            >
+              Hey {{ $details['name'] }},
+            </p>
+            <p
+              style="
+                margin: 0;
+                margin-top: 17px;
+                font-weight: 500;
+                letter-spacing: 0.56px;
+              "
+            >
+              Thank you for choosing SeniKita Website. Use the following OTP
+              to complete the procedure to change your email address. OTP is
+              valid for
+              <span style="font-weight: 600; color: #1f1f1f;">5 minutes</span>.
+              Do not share this code with others, including SeniKita
+              employees.
+            </p>
+            <p
+              style="
+                margin: 0;
+                margin-top: 60px;
+                font-size: 40px;
+                font-weight: 600;
+                letter-spacing: 25px;
+                color: #ba3d4f;
+              "
+            >
+              {{ $details['otp'] }}
+            </p>
+          </div>
+        </div>
+
+        <p
+          style="
+            max-width: 400px;
+            margin: 0 auto;
+            margin-top: 90px;
+            text-align: center;
+            font-weight: 500;
+            color: #8c8c8c;
+          "
+        >
+          Need help? Ask at
+          <a
+            href="mailto:archisketch@gmail.com"
+            style="color: #499fb6; text-decoration: none;"
+            >officialsenikita@gmail.com</a
+          >
+          or visit our
+          <a
+            href=""
+            target="_blank"
+            style="color: #499fb6; text-decoration: none;"
+            >Help Center</a
+          >
+        </p>
+      </main>
+
+      <footer
+        style="
+          width: 100%;
+          max-width: 490px;
+          margin: 20px auto 0;
+          text-align: center;
+          border-top: 1px solid #e6ebf1;
+        "
+      >
+        <p
+          style="
+            margin: 0;
+            margin-top: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #434343;
+          "
+        >
+          SeniKita
+        </p>
+        <p style="margin: 0; margin-top: 8px; color: #434343;">
+          Semarang, Central Java, Indonesia.
+        </p>
+        <div style="margin: 0; margin-top: 16px;">
+        </div>
+        <p style="margin: 0; margin-top: 16px; color: #434343;">
+          Copyright © {{ date('Y') }} SeniKita. All rights reserved.
+        </p>
+      </footer>
+    </div>
+  </body>
 </html>

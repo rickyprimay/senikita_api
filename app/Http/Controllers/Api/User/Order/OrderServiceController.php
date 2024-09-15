@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\User\Order;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ReminderPayments;
 use App\Models\OrderService;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Xendit\Configuration;
 use Xendit\Invoice\CreateInvoiceRequest;
@@ -101,6 +103,18 @@ class OrderServiceController extends Controller
                 'invoice_url' => $invoiceUrl,
             ]);
 
+            $details = [
+                'name' => $request->input('name'),
+                'price' => $totalPrice,
+                'invoice_number' => $no_transaction,
+                'product_names' => $service->name,
+                'due_date' => '48 Hours',
+                'invoice_url' => $invoiceUrl,
+                'sender_name' => 'SeniKita Team',
+            ];
+
+            Mail::to('rickyprima30@gmail.com')->send(new ReminderPayments($details));
+
             return response()->json(
                 [
                     'status' => 'success',
@@ -112,6 +126,8 @@ class OrderServiceController extends Controller
                 ],
                 201
             );
+
+            
         } catch (\Exception $e) {
             return response()->json(
                 [

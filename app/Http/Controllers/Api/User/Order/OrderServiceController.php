@@ -55,13 +55,28 @@ class OrderServiceController extends Controller
 
         $no_transaction = 'Inv-' . rand();
         $price = $service->price;
+        $feeAdmin = min($price * (5 / 100), 5000);
+        $totalPrice = $price + $feeAdmin;
         $user = Auth::user();
+        $items = new InvoiceItem([
+            'name' => $service->name,
+            'price' => $price,
+            'quantity' => 1
+        ]);
+        $fees = [
+            [
+                'type' => 'Admin Fee',
+                'value' => $feeAdmin,
+            ],
+        ];
 
         $invoice = new CreateInvoiceRequest([
             'external_id' => $no_transaction,
-            'amount' => $price,
+            'amount' => $totalPrice,
             'invoice_duration' => 172800,
             'customer_email' => $user->email,
+            'items' => [$items],
+            'fees' => $fees
         ]);
 
         try {

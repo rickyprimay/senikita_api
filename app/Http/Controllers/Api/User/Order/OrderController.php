@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User\Order;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InvoicePayment;
 use App\Mail\ReminderPayments;
 use App\Models\City;
 use App\Models\Order;
@@ -282,6 +283,34 @@ class OrderController extends Controller
                             'payment_date' => now(),
                             'updated_at' => now(),
                         ]);
+
+                        $products = $order->product()->get();
+                        $productItems = $products->map(function($product) {
+                            // dd('error');
+                            return [
+                                'name' => $product->name,
+                                'price' => $product->price,
+                                'qty' => $product->pivot->qty,
+                            ];
+                        })->toArray();
+
+                        $feeAdmin = min($order->price * (5 / 100), 5000);
+                        $ongkirFee = $order->ongkir;
+        
+                        $details = [
+                            'name' => $order->name,
+                            'ongkir' => $ongkirFee,
+                            'price' => $order->price,
+                            'total_price' => $order->total_price,
+                            'invoice_number' => $order->no_transaction,
+                            'due_date' => '48 Hours',
+                            'invoice_url' => $order->invoice_url,
+                            'sender_name' => 'SeniKita Team',
+                            'products' => $productItems,
+                            'feeAdmin' => $feeAdmin
+                        ];
+        
+                        Mail::to('rickyprima30@gmail.com')->send(new InvoicePayment($details));
                 } else {
                     $order->status = 'Failed';
                     $order->save();
@@ -317,6 +346,7 @@ class OrderController extends Controller
                 [
                     'status' => 'error',
                     'message' => 'Failed to process callback',
+                    'error' => $th->getMessage()
                 ],
                 500,
             );

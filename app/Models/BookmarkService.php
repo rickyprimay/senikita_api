@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class BookmarkProduct extends Model
+class BookmarkService extends Model
 {
     use HasFactory;
 
-    protected $table = 'bookmart_product';
+    protected $table = 'bookmart_service';
 
     protected $fillable = [
         'user_id',
-        'product_id'
+        'service_id'
     ];
 }

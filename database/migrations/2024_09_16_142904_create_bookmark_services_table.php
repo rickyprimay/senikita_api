@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bookmark_product', function (Blueprint $table) {
+        Schema::create('bookmark_service', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
-            $table->bigInteger('product_id')->unsigned();
+            $table->bigInteger('service_id')->unsigned();
 
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('product_id')->references('id')->on('product');
+            $table->foreign('service_id')->references('id')->on('service');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bookmark_products');
+        Schema::dropIfExists('bookmark_services');
     }
 };

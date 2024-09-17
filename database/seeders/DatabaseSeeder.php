@@ -24,13 +24,21 @@ class DatabaseSeeder extends Seeder
             'name' => 'Ricky Primayuda Putra',
             'email' => 'rickyprima30@gmail.com',
             'email_verified_at' => now(),
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
+            'call_number' => '0895363185264',
+            'gender' => 'male',
             'password' => 'rickyprima30@gmail.com',
             'role' => 0,
         ]);
         User::create([
             'name' => 'Seni Kita Admin',
             'email' => 'senikita@gmail.com',
+            'call_number' => '0895363185264',
+            'gender' => 'male',
             'email_verified_at' => now(),
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
             'password' => 'senikita@gmail.com',
             'role' => 1,
         ]);
@@ -38,6 +46,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Mario Aprilnino',
             'email' => 'mario.aprilnino27@gmail.com',
             'email_verified_at' => now(),
+            'call_number' => '0895363185264',
+            'gender' => 'male',
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
             'password' => 'mario.aprilnino27@gmail.com',
             'role' => 0,
         ]);

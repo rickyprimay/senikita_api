@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\User\Cart\CartController;
 use App\Http\Controllers\Api\User\Cart\CartItemController;
 use App\Http\Controllers\Api\User\Order\OrderController;
 use App\Http\Controllers\Api\User\Order\OrderServiceController;
+use App\Http\Controllers\Api\User\User\UserController as UserUserController;
 use App\Models\BookmarkService;
 use Illuminate\Support\Facades\Route;
 
@@ -42,8 +43,6 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::post('users', [UserController::class, 'createUser']);
     Route::put('users/{id}', [UserController::class, 'updateUser']); 
     Route::delete('users/{id}', [UserController::class, 'deleteUser']);
-    
-
 
     // Category Management
     Route::get('category', [CategoryController::class, 'index']);
@@ -59,6 +58,10 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
 });
 
 Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
+
+    // Edit Profile
+    Route::put('/edit-profile', [UserUserController::class, 'edit']);
+    Route::put('/edit-profile/password', [UserUserController::class, 'updatePassword']);
 
     // Cart
     Route::get('/cart', [CartController::class, 'index']);
@@ -77,6 +80,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/bookmark-product', [BookmarkProductController::class, 'index']);
     Route::post('/bookmark-product', [BookmarkProductController::class, 'store']);
     Route::delete('/bookmark-product/{id}', [BookmarkProductController::class, 'destroy']);
+    
     // Shop
     Route::post('shop', [ShopController::class, 'create']);
     Route::put('shop/{id}', [ShopController::class, 'update']);

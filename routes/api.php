@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\City\CityController;
 use App\Http\Controllers\Api\City\ProvinceController;
+use App\Http\Controllers\Api\User\Bookmark\BookmarkServiceController;
 use App\Http\Controllers\Api\User\Product\ProductController as ProductProductController;
 use App\Http\Controllers\Api\User\Service\ServiceController as ServiceServiceController;
 use App\Http\Controllers\Api\User\Shop\ImageProductController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\User\Cart\CartController;
 use App\Http\Controllers\Api\User\Cart\CartItemController;
 use App\Http\Controllers\Api\User\Order\OrderController;
 use App\Http\Controllers\Api\User\Order\OrderServiceController;
+use App\Models\BookmarkService;
 use Illuminate\Support\Facades\Route;
 
 
@@ -57,13 +59,19 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
 
 Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
+    // Cart
     Route::get('/cart', [CartController::class, 'index']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
-
     Route::get('/cart/{cart_id}/items', [CartItemController::class, 'index']);
     Route::post('/cart/items', [CartItemController::class, 'store']);
     Route::delete('/cart/items/{id}', [CartItemController::class, 'destroy']);
     Route::put('/cart/items/{id}', [CartItemController::class, 'updateQty']);
+
+    // Bookmark
+    Route::get('/bookmark', [BookmarkServiceController::class, 'index']);
+    Route::post('/bookmark', [BookmarkServiceController::class, 'store']);
+    Route::delete('/bookmark/{id}', [BookmarkServiceController::class, 'destroy']);
+
 
     // Shop
     Route::post('shop', [ShopController::class, 'create']);

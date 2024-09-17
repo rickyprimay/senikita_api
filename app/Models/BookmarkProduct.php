@@ -9,7 +9,7 @@ class BookmarkProduct extends Model
 {
     use HasFactory;
 
-    protected $table = 'bookmart_product';
+    protected $table = 'bookmark_product';
 
     protected $fillable = [
         'user_id',

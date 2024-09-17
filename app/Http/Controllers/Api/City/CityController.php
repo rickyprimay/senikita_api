@@ -21,10 +21,10 @@ class CityController extends Controller
         ], 200);
     }
 
-    public function getCitiesByProvince(Request $request)
+    public function getCitiesByProvince($id)
     {
-        $validator = Validator::make($request->all(), [
-            'province_id' => 'required|integer',
+        $validator = Validator::make(['province_id' => $id], [
+            'province_id' => 'required|integer|exists:provinces,id', // Pastikan 'provinces' adalah nama tabel provinsi Anda
         ]);
 
         if ($validator->fails()) {
@@ -36,9 +36,7 @@ class CityController extends Controller
             ], 400);
         }
 
-        $provinceId = $request->input('province_id');
-
-        $cities = City::where('province_id', $provinceId)->get();
+        $cities = City::where('province_id', $id)->get();
 
         return response()->json([
             'status' => 'success',

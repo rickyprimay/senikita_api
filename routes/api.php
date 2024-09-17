@@ -126,6 +126,7 @@ Route::get('/products/random', [ProductProductController::class, 'randomProducts
 Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('/service/random', [ServiceServiceController::class, 'randomService']);
 Route::get('cities', [CityController::class, 'index']);
+Route::post('cities-by-province', [CityController::class, 'getCitiesByProvince']);
 Route::get('provinces', [ProvinceController::class, 'index']);
 Route::post('check-ongkir', [OrderController::class, 'checkOngkir']);
 Route::get('category/search', [CategoryController::class, 'search']);

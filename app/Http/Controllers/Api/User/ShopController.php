@@ -86,7 +86,9 @@ class ShopController extends Controller
 
         $shop->categories()->attach($request->categories);
 
-        // Load city and province relationships
+        $user->isHaveStore = 1;
+        $user->save();
+
         $shop->load('city', 'province', 'categories');
 
         return response()->json(

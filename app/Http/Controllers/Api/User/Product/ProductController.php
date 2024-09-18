@@ -38,4 +38,18 @@ class ProductController extends Controller
             200
         );
     }
+
+    public function show($id)
+    {
+        $products = Product::find($id);
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'detail product retrieved successfully',
+                'data' => $products
+            ]
+        );
+    }
 }

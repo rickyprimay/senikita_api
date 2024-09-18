@@ -123,6 +123,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 });
 
 Route::get('/products', [ProductProductController::class, 'index']);
+Route::get('/products/{id}', [ProductProductController::class, 'show']);
 Route::get('/products/random', [ProductProductController::class, 'randomProducts']);
 Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('/service/random', [ServiceServiceController::class, 'randomService']);

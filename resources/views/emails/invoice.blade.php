@@ -53,7 +53,6 @@
     <div class="invoice-details">
         <p><strong>Invoice Number:</strong> {{ $details['invoice_number'] }}</p>
         <p><strong>Total Price:</strong> {{ formatCurrency($details['price']) }}</p>
-        <p><strong>Due Date:</strong> {{ $details['due_date'] }}</p>
     </div>
 
     <table>

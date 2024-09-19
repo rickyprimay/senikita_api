@@ -285,6 +285,12 @@ class OrderController extends Controller
                         ]);
 
                         $products = $order->product()->get();
+
+                        foreach ($products as $product) {
+                            $product->sold += $product->pivot->qty;
+                            $product->save();
+                        }
+                        
                         $productItems = $products->map(function($product) {
                             // dd('error');
                             return [

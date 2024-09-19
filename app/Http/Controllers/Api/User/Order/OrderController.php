@@ -36,7 +36,7 @@ class OrderController extends Controller
         try {
             $response = Http::withOptions(['verify' => false])
                 ->withHeaders([
-                    'key' => env('RAJAONGKIR_API_KEY'),
+                    'key' => '705ba17077047b363032a0485c9941b0',
                 ])
                 ->post('https://api.rajaongkir.com/starter/cost', [
                     'origin' => $request->origin,

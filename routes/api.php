@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\User\Cart\CartController;
 use App\Http\Controllers\Api\User\Cart\CartItemController;
 use App\Http\Controllers\Api\User\Order\OrderController;
 use App\Http\Controllers\Api\User\Order\OrderServiceController;
+use App\Http\Controllers\Api\User\User\RatingController;
 use App\Http\Controllers\Api\User\User\UserController as UserUserController;
 use App\Models\BookmarkService;
 use Illuminate\Support\Facades\Route;
@@ -119,6 +120,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Order Service
     Route::post('order-service', [OrderServiceController::class, 'create']);
+
+    // Rating Prodcut
+    Route::post('/product/rating/{id}', [RatingController::class, 'store']);
 
 });
 

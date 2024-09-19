@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('thumbnail');
             $table->bigInteger('category_id')->unsigned()->nullable();
             $table->bigInteger('shop_id')->unsigned();
+            $table->integer('sold')->default(0);
             
             $table->foreign('category_id')->references('id')->on('category')->onDelete('cascade');
             $table->foreign('shop_id')->references('id')->on('shop')->onDelete('cascade');

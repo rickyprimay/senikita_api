@@ -19,12 +19,13 @@ class Product extends Model
         'status',
         'thumbnail',
         'category_id',
-        'shop_id'
+        'shop_id',
+        'sold'
     ];
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function shop()
@@ -36,5 +37,14 @@ class Product extends Model
         return $this->belongsToMany(Order::class, 'order_product')
                     ->withPivot('qty')
                     ->withTimestamps();
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(RatingProduct::class, 'product_id');
+    }
+    public function images()
+    {
+        return $this->hasMany(ImageProduct::class, 'product_id');
     }
 }

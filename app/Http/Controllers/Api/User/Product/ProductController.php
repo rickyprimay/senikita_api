@@ -14,14 +14,13 @@ class ProductController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $products = Product::with('category')
-            ->paginate($perPage)
-            ->map(function ($product) {
-                $ratings = RatingProduct::where('product_id', $product->id)->get();
-                $product->average_rating = $ratings->avg('rating');
-                $product->rating_count = $ratings->count();
-                return $product;
-            });
+        $products = Product::with('category')->paginate($perPage);
+
+        foreach ($products as $product) {
+            $ratings = RatingProduct::where('product_id', $product->id)->get();
+            $product->average_rating = $ratings->avg('rating') ?? 0;
+            $product->rating_count = $ratings->count();
+        }
 
         return response()->json(
             [
@@ -33,7 +32,7 @@ class ProductController extends Controller
             200
         );
     }
-
+    
     public function randomProducts()
     {
         $products = Product::with('category')

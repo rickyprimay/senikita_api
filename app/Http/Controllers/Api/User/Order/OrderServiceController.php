@@ -127,7 +127,6 @@ class OrderServiceController extends Controller
                 201
             );
 
-            
         } catch (\Exception $e) {
             return response()->json(
                 [

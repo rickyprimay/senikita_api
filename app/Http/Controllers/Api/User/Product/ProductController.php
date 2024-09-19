@@ -29,10 +29,10 @@ class ProductController extends Controller
                 'message' => 'Products retrieved successfully',
                 'data' => $products,
             ],
-            200
+            200,
         );
     }
-    
+
     public function randomProducts()
     {
         $products = Product::with('category')
@@ -53,7 +53,7 @@ class ProductController extends Controller
                 'message' => 'Random products retrieved successfully',
                 'data' => $products,
             ],
-            200
+            200,
         );
     }
 
@@ -68,42 +68,46 @@ class ProductController extends Controller
                     'code' => 404,
                     'message' => 'Product not found',
                 ],
-                404
+                404,
             );
         }
 
         $categoryName = $product->category ? $product->category->name : null;
         $product->category_name = $categoryName;
 
-        $ratings = RatingProduct::where('product_id', $id)->get();
+        $ratings = RatingProduct::with('user')->where('product_id', $id)->get();
 
         if ($ratings->isEmpty()) {
-            return response()->json(
-                [
-                    'status' => 'success',
-                    'code' => 200,
-                    'message' => 'Product found, but no ratings available',
-                    'product' => $product,
-                    'images' => $product->images,
-                    'ratings' => [],
-                ]
-            );
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Product found, but no ratings available',
+                'product' => $product,
+                'images' => $product->images,
+                'ratings' => [],
+            ]);
         }
 
         $averageRating = $ratings->avg('rating');
         $ratingCount = $ratings->count();
 
-        return response()->json(
-            [
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Show Product retrieved successfully',
-                'product' => $product,
-                // 'images' => $product->images,
-                'ratings' => $ratings,
-                'average_rating' => $averageRating,
-                'rating_count' => $ratingCount,
-            ]
-        );
+        $ratings = $ratings->map(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'rating' => $rating->rating,
+                'comment' => $rating->comment,
+                'user_name' => $rating->user ? $rating->user->name : 'Unknown',
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Show Product retrieved successfully',
+            'product' => $product,
+            'ratings' => $ratings,
+            'average_rating' => $averageRating,
+            'rating_count' => $ratingCount,
+        ]);
     }
 }

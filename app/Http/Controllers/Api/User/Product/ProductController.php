@@ -14,7 +14,14 @@ class ProductController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $products = Product::paginate($perPage);
+        $products = Product::with('category')
+            ->paginate($perPage)
+            ->map(function ($product) {
+                $ratings = RatingProduct::where('product_id', $product->id)->get();
+                $product->average_rating = $ratings->avg('rating');
+                $product->rating_count = $ratings->count();
+                return $product;
+            });
 
         return response()->json(
             [
@@ -23,12 +30,22 @@ class ProductController extends Controller
                 'message' => 'Products retrieved successfully',
                 'data' => $products,
             ],
-            200,
+            200
         );
     }
+
     public function randomProducts()
     {
-        $products = Product::inRandomOrder()->limit(5)->get();
+        $products = Product::with('category')
+            ->inRandomOrder()
+            ->limit(5)
+            ->get()
+            ->map(function ($product) {
+                $ratings = RatingProduct::where('product_id', $product->id)->get();
+                $product->average_rating = $ratings->avg('rating');
+                $product->rating_count = $ratings->count();
+                return $product;
+            });
 
         return response()->json(
             [
@@ -37,7 +54,7 @@ class ProductController extends Controller
                 'message' => 'Random products retrieved successfully',
                 'data' => $products,
             ],
-            200,
+            200
         );
     }
 

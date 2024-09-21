@@ -23,4 +23,14 @@ class OrderService extends Model
         'optional_document',
         'status'
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Service::class, 'service_id');
+    }
+
+    public function transaction()
+    {
+        return $this->hasOne(TransactionService::class, 'service_id', 'service_id');
+    }
 }

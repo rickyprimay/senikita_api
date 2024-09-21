@@ -144,4 +144,43 @@ class OrderServiceController extends Controller
             );
         }
     }
+
+    public function transactionHistory()
+    {
+        try {
+            $user = Auth::user();
+
+            $orders = OrderService::where('user_id', $user->id)
+                ->with(['service', 'transaction'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'No transaction history service found',
+                    ],
+                    404,
+                );
+            }
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Transaction history service retrieved successfully',
+                    'data' => $orders,
+                ],
+                200,
+            );
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => $th->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
 }

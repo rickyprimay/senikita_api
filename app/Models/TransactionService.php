@@ -14,6 +14,6 @@ class TransactionService extends Model
     protected $fillable = [
         'service_id',
         'payment_status',
-        'payment_date'
+        'payment_date' 
     ];
 }

@@ -334,6 +334,14 @@ class OrderController extends Controller
                 if ($request->status == 'PAID') {
                     $orderService->status = 'Success';
                     $orderService->save();
+
+                    DB::table('transaction_service')
+                        ->where('service_id', $orderService->id)
+                        ->update([
+                            'payment_status' => 'PAID',
+                            'payment_date' => now(),
+                            'updated_at' => now(),
+                        ]);
                 } else {
                     $orderService->status = 'Failed';
                     $orderService->save();

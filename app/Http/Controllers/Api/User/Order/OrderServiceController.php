@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\ReminderPayments;
 use App\Models\OrderService;
 use App\Models\Service;
+use App\Models\TransactionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -82,6 +83,10 @@ class OrderServiceController extends Controller
         ]);
 
         try {
+            TransactionService::create([
+                'service_id' => $service->id,
+            ]);
+
             $apiInstance = new InvoiceApi();
             $generateInvoice = $apiInstance->createInvoice($invoice);
             $invoiceUrl = $generateInvoice['invoice_url'];

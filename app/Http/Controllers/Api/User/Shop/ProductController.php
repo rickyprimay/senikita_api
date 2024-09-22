@@ -151,6 +151,7 @@ class ProductController extends Controller
             'status' => 'sometimes|required|boolean',
             'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:5000',
             'category_id' => 'nullable|exists:category,id',
+            'image_product.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -181,12 +182,31 @@ class ProductController extends Controller
 
         if ($request->hasFile('thumbnail')) {
             Storage::disk('public')->delete(str_replace(asset('storage/'), '', $product->thumbnail));
-
             $path = $request->file('thumbnail')->store('thumbnails', 'public');
             $product->thumbnail = asset('storage/' . $path);
         }
 
         $product->update($request->only(['name', 'price', 'desc', 'stock', 'status', 'category_id']));
+
+        $imageProducts = [];
+
+        if ($request->hasFile('image_product')) {
+            ImageProduct::where('product_id', $product->id)->delete();
+
+            foreach ($request->file('image_product') as $image) {
+                $imagePath = $image->store('product_images', 'public');
+                $fullImagePath = asset('storage/' . $imagePath);
+
+                $imageProduct = ImageProduct::create([
+                    'product_id' => $product->id,
+                    'picture' => $fullImagePath,
+                ]);
+
+                $imageProducts[] = $imageProduct;
+            }
+        } else {
+            $imageProducts = ImageProduct::where('product_id', $product->id)->get();
+        }
 
         return response()->json(
             [
@@ -194,6 +214,7 @@ class ProductController extends Controller
                 'code' => 200,
                 'message' => 'Product updated successfully',
                 'product' => $product,
+                'image_product' => $imageProducts,
             ],
             200,
         );

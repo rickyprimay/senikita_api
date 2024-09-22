@@ -20,4 +20,9 @@ class Service extends Model
         'category_id',
         'shop_id'
     ];
+
+    public function images()
+    {
+        return $this->hasMany(ImageService::class);
+    }
 }

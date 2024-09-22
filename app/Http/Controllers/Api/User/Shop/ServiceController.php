@@ -24,7 +24,6 @@ class ServiceController extends Controller
         ], 404);
     }
 
-    // Eager load service images
     $services = Service::with('images')->where('shop_id', $user->shop->id)->get();
 
     if ($services->isEmpty()) {
@@ -48,7 +47,7 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
             'desc' => 'required|string',
-            'type' => 'required|integer',
+            'type' => 'required',
             'status' => 'nullable|integer',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000',
             'person_amount' => 'nullable|integer',
@@ -162,7 +161,7 @@ class ServiceController extends Controller
             'name' => 'sometimes|required|string|max:255',
             'price' => 'sometimes|required|numeric',
             'desc' => 'sometimes|required|string',
-            'type' => 'sometimes|required|integer',
+            'type' => 'sometimes|required',
             'status' => 'sometimes|integer',
             'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:5000',
             'person_amount' => 'sometimes|nullable|integer',

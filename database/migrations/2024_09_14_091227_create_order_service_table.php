@@ -16,16 +16,26 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('service_id')->unsigned();
             $table->string('name');
+            $table->string('activity_name');
+            $table->date('activity_date');
+            $table->string('phone');
             $table->string('email');
+            $table->time('activity_time');
+            $table->bigInteger('province_id')->unsigned();
+            $table->bigInteger('city_id')->unsigned();
+            $table->integer('attendee');
             $table->string('no_transaction');
             $table->integer('price');
             $table->string('address');
+            $table->text('description')->nullable();
             $table->string('invoice_url');
-            $table->string('optional_document')->nullable();
+            $table->json('optional_document')->nullable();
             $table->string('status')->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('service_id')->references('id')->on('service');
+            $table->foreign('province_id')->references('id')->on('provinces');
+            $table->foreign('city_id')->references('id')->on('cities');
             $table->timestamps();
         });
     }

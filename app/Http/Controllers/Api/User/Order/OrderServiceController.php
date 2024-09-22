@@ -7,6 +7,7 @@ use App\Mail\ReminderPayments;
 use App\Models\OrderService;
 use App\Models\Service;
 use App\Models\TransactionService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -27,9 +28,16 @@ class OrderServiceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'service_id' => 'required|exists:service,id',
-            'name' => 'required|string|max:255',
+            'activity_name' => 'required|string|max:255',
+            'activity_time' => 'required',
+            'phone' => 'required|string|max:15',
+            'activity_date' => 'required|date_format:d/m/Y',
+            'attendee' => 'required|integer',
+            'province_id' => 'required|exists:provinces,id',
+            'city_id' => 'required|exists:cities,id',
+            'description' => 'nullable|string',
             'address' => 'required|string|max:255',
-            'optional_document' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:5000',
+            'optional_document.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -91,20 +99,34 @@ class OrderServiceController extends Controller
             $generateInvoice = $apiInstance->createInvoice($invoice);
             $invoiceUrl = $generateInvoice['invoice_url'];
 
+            $optionalDocuments = [];
+
             if ($request->hasFile('optional_document')) {
-                $path = $request->file('optional_document')->store('documents', 'public');
-                $fullPath = asset('storage/' . $path);
+                foreach ($request->file('optional_document') as $file) {
+                    $path = $file->store('optional_documents', 'public');
+                    $optionalDocuments[] = asset('storage/' . $path);
+                }
             }
+
+            $activityDate = Carbon::createFromFormat('d/m/Y', $request->activity_date)->format('Y-m-d');
 
             $order = OrderService::create([
                 'user_id' => $user->id,
                 'service_id' => $request->service_id,
-                'name' => $request->name,
+                'name' => Auth::user()->name,
+                'phone' => $request->phone,
+                'activity_name' => $request->activity_name,
+                'activity_date' => $activityDate,
+                'activity_time' => $request->activity_time,
+                'attendee' => $request->attendee,
+                'province_id' => $request->province_id,
+                'city_id' => $request->city_id,
+                'description' => $request->description,
                 'email' => $user->email,
                 'no_transaction' => $no_transaction,
                 'price' => $price,
                 'address' => $request->address,
-                'optional_document' => $fullPath,
+                'optional_document' => json_encode($optionalDocuments),
                 'invoice_url' => $invoiceUrl,
             ]);
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->bigInteger('price');
             $table->text('desc');
-            $table->tinyInteger('type');
+            $table->enum('type', ['jam', 'tampil', 'hari']);
             $table->tinyInteger('status')->default(0);
             $table->string('thumbnail');
             $table->integer('person_amount')->nullable();

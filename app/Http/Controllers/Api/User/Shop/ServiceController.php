@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api\User\Shop;
 
 use App\Http\Controllers\Controller;
+use App\Models\ImageService;
 use Illuminate\Http\Request;
 use App\Models\Service;
-use App\Models\Shop;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +52,7 @@ class ServiceController extends Controller
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000',
             'person_amount' => 'nullable|integer',
             'category_id' => 'nullable|exists:category,id',
+            'service_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -98,11 +99,28 @@ class ServiceController extends Controller
             'shop_id' => $shop_id,
         ]);
 
+        $serviceImages = [];
+
+        if ($request->hasFile('service_image')) {
+            foreach ($request->file('service_image') as $image) {
+                $imagePath = $image->store('service_images', 'public');
+                $fullImagePath = asset('storage/' . $imagePath);
+
+                $serviceImage = ImageService::create([
+                    'service_id' => $service->id,
+                    'picture' => $fullImagePath,
+                ]);
+
+                $serviceImages[] = $serviceImage;
+            }
+        }
+
         return response()->json([
             'status' => 'success',
             'code' => 201,
             'message' => 'Service created successfully',
             'service' => $service,
+            'service_images' => $serviceImages,
         ], 201);
     }
 
@@ -145,6 +163,7 @@ class ServiceController extends Controller
             'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:5000',
             'person_amount' => 'sometimes|nullable|integer',
             'category_id' => 'sometimes|nullable|exists:category,id',
+            'service_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -186,11 +205,32 @@ class ServiceController extends Controller
             'name', 'price', 'desc', 'type', 'status', 'person_amount', 'category_id'
         ]));
 
+        $serviceImages = [];
+
+        if ($request->hasFile('service_image')) {
+            ImageService::where('service_id', $service->id)->delete();
+
+            foreach ($request->file('service_image') as $image) {
+                $imagePath = $image->store('service_images', 'public');
+                $fullImagePath = asset('storage/' . $imagePath);
+
+                $serviceImage = ImageService::create([
+                    'service_id' => $service->id,
+                    'picture' => $fullImagePath,
+                ]);
+
+                $serviceImages[] = $serviceImage;
+            }
+        } else {
+            $serviceImages = ImageService::where('service_id', $service->id)->get();
+        }
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'message' => 'Service updated successfully',
             'service' => $service,
+            'service_images' => $serviceImages,
         ], 200);
     }
 
@@ -216,6 +256,12 @@ class ServiceController extends Controller
         }
 
         Storage::disk('public')->delete(str_replace(asset('storage/'), '', $service->thumbnail));
+
+        $serviceImages = ImageService::where('service_id', $service->id)->get();
+        foreach ($serviceImages as $serviceImage) {
+            Storage::disk('public')->delete(str_replace(asset('storage/'), '', $serviceImage->picture));
+            $serviceImage->delete();
+        }
 
         $service->delete();
 

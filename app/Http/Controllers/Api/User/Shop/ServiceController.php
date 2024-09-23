@@ -24,7 +24,8 @@ class ServiceController extends Controller
             ], 404);
         }
 
-        $services = Service::with(['category', 'images'])
+        $services = Service::with(['category', 'images', 'bookmarkService'])
+            ->withCount(['bookmarkService'])
             ->where('shop_id', $user->shop->id)
             ->get();
 
@@ -133,7 +134,9 @@ class ServiceController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $service = Service::with(['category', 'images'])->find($id);
+        $service = Service::with(['category', 'images', 'bookmarkService'])
+            ->withCount(['bookmarkService'])
+            ->find($id);
 
         if (!$service) {
             return response()->json([

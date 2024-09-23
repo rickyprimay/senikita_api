@@ -29,5 +29,9 @@ class Service extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function bookmarkService()
+    {
+        return $this->hasMany(BookmarkService::class);
+    }
     
 }

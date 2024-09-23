@@ -129,7 +129,6 @@ class ImageProductController extends Controller
         }
 
         if ($request->hasFile('picture')) {
-            // Delete old picture
             Storage::disk('public')->delete(str_replace(asset('storage/'), '', $imageProduct->picture));
 
             $path = $request->file('picture')->store('product_images', 'public');
@@ -169,7 +168,6 @@ class ImageProductController extends Controller
             ], 403);
         }
 
-        // Delete the image file
         Storage::disk('public')->delete(str_replace(asset('storage/'), '', $imageProduct->picture));
 
         $imageProduct->delete();

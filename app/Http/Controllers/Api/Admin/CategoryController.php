@@ -130,7 +130,6 @@ class CategoryController extends Controller
             );
         }
 
-        // Hapus kategori
         $category->delete();
 
         return response()->json(

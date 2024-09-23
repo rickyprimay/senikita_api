@@ -13,33 +13,39 @@ use Illuminate\Support\Facades\Validator;
 class ServiceController extends Controller
 {
     public function index()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    if (!$user->shop) {
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
+        }
+
+        $services = Service::with(['category', 'images'])
+            ->where('shop_id', $user->shop->id)
+            ->get();
+
+        if ($services->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No services found for this shop.'
+            ], 404);
+        }
+
+        $services->each(function ($service) {
+            $service->category_name = $service->category ? $service->category->name : null;
+        });
+
         return response()->json([
-            'status' => 'error',
-            'code' => 404,
-            'message' => 'User does not have a shop.'
-        ], 404);
+            'status' => 'success',
+            'code' => 200,
+            'services' => $services,
+        ], 200);
     }
-
-    $services = Service::with('images')->where('shop_id', $user->shop->id)->get();
-
-    if ($services->isEmpty()) {
-        return response()->json([
-            'status' => 'error',
-            'code' => 404,
-            'message' => 'No services found for this shop.'
-        ], 404);
-    }
-
-    return response()->json([
-        'status' => 'success',
-        'code' => 200,
-        'services' => $services
-    ], 200);
-}
 
     public function create(Request $request)
     {
@@ -127,7 +133,7 @@ class ServiceController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $service = Service::find($id);
+        $service = Service::with(['category', 'images'])->find($id);
 
         if (!$service) {
             return response()->json([
@@ -145,13 +151,12 @@ class ServiceController extends Controller
             ], 403);
         }
 
-        $serviceImages = ImageService::where('service_id', $service->id)->get();
+        $service->category_name = $service->category ? $service->category->name : null;
 
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'service' => $service,
-            'service_images' => $serviceImages,
         ], 200);
     }
 
@@ -260,7 +265,6 @@ class ServiceController extends Controller
 
         Storage::disk('public')->delete(str_replace(asset('storage/'), '', $service->thumbnail));
 
-        // Delete service images
         $serviceImages = ImageService::where('service_id', $service->id)->get();
         foreach ($serviceImages as $serviceImage) {
             Storage::disk('public')->delete(str_replace(asset('storage/'), '', $serviceImage->picture));

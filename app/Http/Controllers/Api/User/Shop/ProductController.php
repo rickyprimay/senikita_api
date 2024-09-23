@@ -27,7 +27,9 @@ class ProductController extends Controller
             );
         }
 
-        $products = Product::where('shop_id', $user->shop->id)->get();
+        $products = Product::with(['category', 'images'])
+            ->where('shop_id', $user->shop->id)
+            ->get();
 
         if ($products->isEmpty()) {
             return response()->json(
@@ -39,6 +41,10 @@ class ProductController extends Controller
                 404,
             );
         }
+
+        $products->each(function ($product) {
+            $product->category_name = $product->category ? $product->category->name : null;
+        });
 
         return response()->json(
             [
@@ -253,37 +259,30 @@ class ProductController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $product = Product::find($id);
+        $product = Product::with(['category', 'images'])->find($id);
 
         if (!$product) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 404,
-                    'message' => 'Product not found.',
-                ],
-                404,
-            );
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Product not found.'
+            ], 404);
         }
 
         if ($product->shop_id !== $user->shop->id) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 403,
-                    'message' => 'This product does not belong to your shop.',
-                ],
-                403,
-            );
+            return response()->json([
+                'status' => 'error',
+                'code' => 403,
+                'message' => 'This product does not belong to your shop.'
+            ], 403);
         }
 
-        return response()->json(
-            [
-                'status' => 'success',
-                'code' => 200,
-                'product' => $product,
-            ],
-            200,
-        );
+        $product->category_name = $product->category ? $product->category->name : null;
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'product' => $product,
+        ], 200);
     }
 }

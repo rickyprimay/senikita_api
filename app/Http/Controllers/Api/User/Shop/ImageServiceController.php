@@ -129,7 +129,6 @@ class ImageServiceController extends Controller
         }
 
         if ($request->hasFile('picture')) {
-            // Delete old picture
             Storage::disk('public')->delete(str_replace(asset('storage/'), '', $imageService->picture));
 
             $path = $request->file('picture')->store('service_images', 'public');
@@ -169,7 +168,6 @@ class ImageServiceController extends Controller
             ], 403);
         }
 
-        // Delete the image file
         Storage::disk('public')->delete(str_replace(asset('storage/'), '', $imageService->picture));
 
         $imageService->delete();

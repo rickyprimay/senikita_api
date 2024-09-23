@@ -24,7 +24,7 @@ class CityController extends Controller
     public function getCitiesByProvince($id)
     {
         $validator = Validator::make(['province_id' => $id], [
-            'province_id' => 'required|integer|exists:provinces,id', // Pastikan 'provinces' adalah nama tabel provinsi Anda
+            'province_id' => 'required|integer|exists:provinces,id',
         ]);
 
         if ($validator->fails()) {

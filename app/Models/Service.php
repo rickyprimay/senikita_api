@@ -25,4 +25,9 @@ class Service extends Model
     {
         return $this->hasMany(ImageService::class);
     }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+    
 }

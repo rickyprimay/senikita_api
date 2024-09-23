@@ -17,43 +17,34 @@ class ProductController extends Controller
         $user = Auth::user();
 
         if (!$user->shop) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 404,
-                    'message' => 'User does not have a shop.',
-                ],
-                404,
-            );
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
         }
 
-        $products = Product::with(['category', 'images'])
+        $products = Product::with(['category', 'images', 'bookmark', 'cart'])
             ->where('shop_id', $user->shop->id)
             ->get();
 
         if ($products->isEmpty()) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 404,
-                    'message' => 'No products found for this shop.',
-                ],
-                404,
-            );
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No products found for this shop.'
+            ], 404);
         }
 
         $products->each(function ($product) {
             $product->category_name = $product->category ? $product->category->name : null;
         });
 
-        return response()->json(
-            [
-                'status' => 'success',
-                'code' => 200,
-                'products' => $products,
-            ],
-            200,
-        );
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'products' => $products,
+        ], 200);
     }
 
     public function create(Request $request)
@@ -259,7 +250,7 @@ class ProductController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $product = Product::with(['category', 'images'])->find($id);
+        $product = Product::with(['category', 'images', 'bookmark', 'cart'])->find($id);
 
         if (!$product) {
             return response()->json([

@@ -47,4 +47,13 @@ class Product extends Model
     {
         return $this->hasMany(ImageProduct::class, 'product_id');
     }
+    public function bookmark()
+    {
+        return $this->hasMany(BookmarkProduct::class);
+    }
+
+    public function cart()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }

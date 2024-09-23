@@ -25,6 +25,7 @@ class ProductController extends Controller
         }
 
         $products = Product::with(['category', 'images', 'bookmark', 'cart'])
+            ->withCount(['bookmark', 'cartItems'])
             ->where('shop_id', $user->shop->id)
             ->get();
 
@@ -250,7 +251,9 @@ class ProductController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $product = Product::with(['category', 'images', 'bookmark', 'cart'])->find($id);
+        $product = Product::with(['category', 'images', 'bookmark', 'cart'])
+            ->withCount(['bookmark', 'cartItems'])
+            ->find($id);
 
         if (!$product) {
             return response()->json([

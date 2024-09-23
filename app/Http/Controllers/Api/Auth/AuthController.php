@@ -279,10 +279,12 @@ class AuthController extends Controller
     {
         try {
             $newToken = JWTAuth::refresh(JWTAuth::getToken());
+            $user = Auth::user();
 
             return response()->json([
                 'status' => 'success',
                 'access_token' => $newToken,
+                'user' => $user,
                 'token_type' => 'Bearer',
                 'expires_in' => config('jwt.ttl') * 60,
                 'code' => 200,

@@ -33,5 +33,9 @@ class Service extends Model
     {
         return $this->hasMany(BookmarkService::class);
     }
+    public function ratings()
+    {
+        return $this->hasMany(RatingService::class, 'service_id');
+    }
     
 }

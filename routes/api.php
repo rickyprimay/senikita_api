@@ -129,10 +129,10 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
 Route::get('/products', [ProductProductController::class, 'index']);
 Route::get('/products/{id}', [ProductProductController::class, 'show']);
-Route::get('/products/random', [ProductProductController::class, 'randomProducts']);
+Route::get('/random-product', [ProductProductController::class, 'randomProducts']);
 Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('/service/{id}', [ServiceServiceController::class, 'show']);
-Route::get('/service/random', [ServiceServiceController::class, 'randomService']);
+Route::get('/random-services', [ServiceServiceController::class, 'randomServices']);
 Route::get('cities', [CityController::class, 'index']);
 Route::get('cities-by-province/{id}', [CityController::class, 'getCitiesByProvince']);
 Route::get('provinces', [ProvinceController::class, 'index']);

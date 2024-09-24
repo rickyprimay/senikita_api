@@ -44,19 +44,23 @@ class ServiceController extends Controller
             'data' => $service,
         ], 200);
     }
-
-    public function randomService()
+    public function randomServices()
     {
-        $services = Service::inRandomOrder()->limit(5)->get();
+        $services = Service::with('images')->inRandomOrder()->limit(5)->get();
 
-        return response()->json(
-            [
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Random services retrieved successfully',
-                'data' => $services,
-            ],
-            200,
-        );
+        if ($services->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No services found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Random services retrieved successfully',
+            'data' => $services,
+        ], 200);
     }
 }

@@ -22,4 +22,8 @@ class RatingProduct extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function ratingImages()
+    {
+        return $this->hasMany(RatingProductImage::class, 'rating_product_id');
+    }
 }

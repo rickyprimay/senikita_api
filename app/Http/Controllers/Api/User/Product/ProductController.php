@@ -59,7 +59,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with(['category', 'images'])->find($id);
+        $product = Product::with(['category', 'images', 'shop'])->find($id);
 
         if (!$product) {
             return response()->json(
@@ -75,7 +75,9 @@ class ProductController extends Controller
         $categoryName = $product->category ? $product->category->name : null;
         $product->category_name = $categoryName;
 
-        $ratings = RatingProduct::with('user')->where('product_id', $id)->get();
+        $ratings = RatingProduct::with(['user', 'ratingImages'])
+            ->where('product_id', $id)
+            ->get();
 
         if ($ratings->isEmpty()) {
             return response()->json([
@@ -97,6 +99,12 @@ class ProductController extends Controller
                 'rating' => $rating->rating,
                 'comment' => $rating->comment,
                 'user_name' => $rating->user ? $rating->user->name : 'Unknown',
+                'images' => $rating->ratingImages->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'picture_rating_product' => $image->picture_rating_product,
+                    ];
+                }),
             ];
         });
 
@@ -105,6 +113,7 @@ class ProductController extends Controller
             'code' => 200,
             'message' => 'Show Product retrieved successfully',
             'product' => $product,
+            'shop' => $product->shop,
             'ratings' => $ratings,
             'average_rating' => $averageRating,
             'rating_count' => $ratingCount,

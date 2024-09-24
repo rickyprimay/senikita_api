@@ -13,6 +13,6 @@ class RatingProductImage extends Model
 
     protected $fillable = [
         'rating_product_id',
-        'picture_rating_image'
+        'picture_rating_product'
     ];
 }

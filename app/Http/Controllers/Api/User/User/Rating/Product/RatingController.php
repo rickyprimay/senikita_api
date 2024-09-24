@@ -21,10 +21,13 @@ class RatingController extends Controller
 
         $ratings = RatingProduct::where('product_id', $id)->get();
 
-        return response()->json([
-            'status' => 'success',
-            'ratings' => $ratings,
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'ratings' => $ratings,
+            ],
+            200,
+        );
     }
 
     public function store(Request $request, $id)
@@ -48,27 +51,30 @@ class RatingController extends Controller
             'comment' => $request->comment,
         ]);
 
-        $imageRatingProduct = [];
+        $imageRatingProducts = [];
 
         if ($request->hasFile('images_rating')) {
             foreach ($request->file('images_rating') as $image) {
                 $imagePath = $image->store('rating_images', 'public');
                 $fullImagePath = asset('storage/' . $imagePath);
-    
+
                 $imageRatingProduct = RatingProductImage::create([
                     'rating_product_id' => $rating->id,
                     'picture_rating_product' => $fullImagePath,
                 ]);
+
+                $imageRatingProducts[] = $imageRatingProduct;
             }
         }
 
-        $imageData = $imageRatingProduct;
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Rating and images uploaded successfully',
-            'rating' => $rating,
-            'images' => $imageData,
-        ], 201);
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Rating and images uploaded successfully',
+                'rating' => $rating,
+                'images' => $imageRatingProducts,
+            ],
+            201,
+        );
     }
 }

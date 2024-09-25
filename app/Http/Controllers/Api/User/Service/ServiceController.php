@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User\Service;
 
 use App\Http\Controllers\Controller;
+use App\Models\RatingService;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
@@ -12,7 +13,13 @@ class ServiceController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $services = Service::with('images')->paginate($perPage);
+        $services = Service::with('category')->paginate($perPage);
+
+        foreach ($services as $service) {
+            $ratings = RatingService::where('service_id', $service->id)->get();
+            $service->average_rating = $ratings->avg('rating') ?? 0;
+            $service->rating_count = $ratings->count();
+        }
 
         return response()->json(
             [

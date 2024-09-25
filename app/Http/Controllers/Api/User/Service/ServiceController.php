@@ -34,7 +34,7 @@ class ServiceController extends Controller
 
     public function show($id)
     {
-        $service = Service::with(['images', 'ratings'])->find($id);
+        $service = Service::with(['images', 'ratings', 'category', 'shop'])->find($id);
 
         if (!$service) {
             return response()->json([
@@ -44,11 +44,40 @@ class ServiceController extends Controller
             ], 404);
         }
 
+        $categoryName = $service->category ? $service->category->name : null;
+        $service->category_name = $categoryName;
+
+        $ratings = RatingService::with(['user', 'ratingImages'])
+            ->where('service_id', $service->id)
+            ->get();
+
+        $averageRating = $ratings->avg('rating');
+        $ratingCount = $ratings->count();
+
+        $ratings = $ratings->map(function ($rating) {
+            return [
+                'id' => $rating->id,
+                'rating' => $rating->rating,
+                'comment' => $rating->comment,
+                'user_name' => $rating->user ? $rating->user->name : 'Unknown',
+                'images' => $rating->ratingImages->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'picture_rating_service' => $image->picture_rating_service,
+                    ];
+                }),
+            ];
+        });
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'message' => 'Service retrieved successfully',
-            'data' => $service,
+            'service' => $service,
+            'shop' => $service->shop,
+            'ratings' => $ratings,
+            'average_rating' => $averageRating,
+            'rating_count' => $ratingCount,
         ], 200);
     }
     public function randomServices()

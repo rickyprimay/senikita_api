@@ -21,6 +21,10 @@ class Service extends Model
         'shop_id'
     ];
 
+    public function shop()
+    {
+        return $this->belongsTo(Shop::class);
+    }
     public function images()
     {
         return $this->hasMany(ImageService::class);

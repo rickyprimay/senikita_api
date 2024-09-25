@@ -17,4 +17,13 @@ class RatingService extends Model
         'rating',
         'comment',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function ratingImages()
+    {
+        return $this->hasMany(RatingServiceImage::class, 'rating_service_id');
+    }
 }

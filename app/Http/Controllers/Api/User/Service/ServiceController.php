@@ -80,6 +80,7 @@ class ServiceController extends Controller
             'rating_count' => $ratingCount,
         ], 200);
     }
+    
     public function randomServices()
     {
         $services = Service::with('images')->inRandomOrder()->limit(5)->get();

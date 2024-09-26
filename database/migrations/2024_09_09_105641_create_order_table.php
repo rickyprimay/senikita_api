@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('invoice_url');
             $table->string('estimation');
             $table->string('status')->default('pending');
+            $table->string('status_order')->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

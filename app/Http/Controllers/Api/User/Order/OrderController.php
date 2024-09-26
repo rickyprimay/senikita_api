@@ -173,7 +173,7 @@ class OrderController extends Controller
         $invoice = new CreateInvoiceRequest([
             'external_id' => $no_transaction,
             'amount' => $totalPrice,
-            'invoice_duration' => 172800,
+            'invoice_duration' => 172800 / 2,
             'customer_email' => $user->email,
             'items' => $items,
             'fees' => $fees,
@@ -204,6 +204,7 @@ class OrderController extends Controller
                 'service' => $selectedService,
                 'estimation' => $estimation,
                 'status' => 'pending',
+                'status_order' => 'waiting',
             ]);
 
             foreach ($productIds as $index => $productId) {
@@ -274,6 +275,7 @@ class OrderController extends Controller
             if ($order) {
                 if ($request->status == 'PAID') {
                     $order->status = 'Success';
+                    $order->status_order = 'process';
                     $order->save();
 
                     DB::table('transaction')

@@ -27,6 +27,7 @@ class Order extends Model
         'service',
         'courier',
         'status',
+        'status_order',
         'estimation'
     ];
     protected $casts = [

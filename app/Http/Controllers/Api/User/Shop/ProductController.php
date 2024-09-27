@@ -326,4 +326,46 @@ class ProductController extends Controller
             'order' => $order,
         ], 200);
     }
+    public function getOrdersByShop()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+        if (empty($products)) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No products found for this shop.',
+            ], 404);
+        }
+
+        $orders = Order::whereHas('product', function ($query) use ($products) {
+            $query->whereIn('product_id', $products);
+        })->with('product')->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No orders found for this shop.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'orders' => $orders,
+        ], 200);
+    }
 }

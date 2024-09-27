@@ -74,6 +74,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::delete('/cart/items/{id}', [CartItemController::class, 'destroy']);
     Route::put('/cart/items/{id}', [CartItemController::class, 'updateQty']);
 
+    // View Order
+    Route::get('/shop/order', [ProductController::class, 'getOrdersByShop']);
+
     // Accept Order
     Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);
     Route::put('/shop/reject-order/{id}', [ProductController::class, 'setStatusReject']);

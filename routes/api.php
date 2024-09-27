@@ -76,6 +76,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Accept Order
     Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);
+    Route::put('/shop/reject-order/{id}', [ProductController::class, 'setStatusReject']);
 
     // Bookmark Service
     Route::get('/bookmark-service', [BookmarkServiceController::class, 'index']);

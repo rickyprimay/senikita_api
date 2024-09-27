@@ -304,4 +304,26 @@ class ProductController extends Controller
             'order' => $order,
         ], 200);
     }
+
+    public function setStatusReject($id) {
+        $order = Order::findorFail($id);
+
+        if(!$order) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Order not found.'
+            ], 404);
+        }
+
+        $order->status = "rejected";
+        $order->save();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Order status updated successfully',
+            'order' => $order,
+        ], 200);
+    }
 }

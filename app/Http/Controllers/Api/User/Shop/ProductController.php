@@ -285,8 +285,23 @@ class ProductController extends Controller
     public function setStatus($id) 
     {
         $order = Order::findorFail($id);
-        $orderProduct = OrderProduct::where('order_id', $order->id)->get();
 
-        dd($orderProduct);
+        if(!$order) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Order not found.'
+            ], 404);
+        }
+
+        $order->status = "delivered";
+        $order->save();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Order status updated successfully',
+            'order' => $order,
+        ], 200);
     }
 }

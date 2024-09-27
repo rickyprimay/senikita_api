@@ -74,6 +74,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::delete('/cart/items/{id}', [CartItemController::class, 'destroy']);
     Route::put('/cart/items/{id}', [CartItemController::class, 'updateQty']);
 
+    // Accept Order
+    Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);
+
     // Bookmark Service
     Route::get('/bookmark-service', [BookmarkServiceController::class, 'index']);
     Route::post('/bookmark-service', [BookmarkServiceController::class, 'store']);

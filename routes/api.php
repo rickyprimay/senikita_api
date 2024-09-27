@@ -95,6 +95,8 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::put('/shop/products/{id}', [ProductController::class, 'update']);
     Route::delete('/shop/products/{id}', [ProductController::class, 'destroy']);
 
+    Route::get('/shop/order/{id}', [ProductController::class, 'setStatus']);
+
     // Product Image
     Route::get('/shop/products/{productId}/image', [ImageProductController::class, 'index']);
     Route::post('/shop/products/{productId}/image', [ImageProductController::class, 'create']);

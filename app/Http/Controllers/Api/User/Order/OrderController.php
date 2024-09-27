@@ -173,7 +173,7 @@ class OrderController extends Controller
         $invoice = new CreateInvoiceRequest([
             'external_id' => $no_transaction,
             'amount' => $totalPrice,
-            'invoice_duration' => 172800 / 2,
+            'invoice_duration' => 86400,
             'customer_email' => $user->email,
             'items' => $items,
             'fees' => $fees,

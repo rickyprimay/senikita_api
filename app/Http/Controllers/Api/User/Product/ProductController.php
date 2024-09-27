@@ -35,7 +35,7 @@ class ProductController extends Controller
 
     public function randomProducts()
     {
-        $products = Product::with('category')
+        $products = Product::with('category', 'shop')
             ->inRandomOrder()
             ->limit(5)
             ->get()
@@ -45,6 +45,8 @@ class ProductController extends Controller
                 $product->rating_count = $ratings->count();
                 return $product;
             });
+
+        
 
         return response()->json(
             [

@@ -83,7 +83,7 @@ class ServiceController extends Controller
     
     public function randomServices()
     {
-        $services = Service::with('images')->inRandomOrder()->limit(5)->get();
+        $services = Service::with('images', 'shop')->inRandomOrder()->limit(5)->get();
 
         if ($services->isEmpty()) {
             return response()->json([

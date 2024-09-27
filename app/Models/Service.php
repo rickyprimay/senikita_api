@@ -15,6 +15,7 @@ class Service extends Model
         'desc',
         'type',
         'status',
+        'sold',
         'thumbnail',
         'person_amount',
         'category_id',

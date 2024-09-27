@@ -19,10 +19,10 @@ return new class extends Migration
             $table->enum('type', ['jam', 'tampil', 'hari']);
             $table->tinyInteger('status')->default(0);
             $table->string('thumbnail');
+            $table->integer('sold')->default(0);
             $table->integer('person_amount')->nullable();
             $table->bigInteger('category_id')->nullable()->unsigned();
             $table->bigInteger('shop_id')->unsigned();
-
 
             $table->foreign('category_id')->references('id')->on('category')->onDelete('cascade');
             $table->foreign('shop_id')->references('id')->on('shop')->onDelete('cascade');

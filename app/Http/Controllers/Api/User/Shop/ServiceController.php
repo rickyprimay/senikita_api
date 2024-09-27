@@ -100,6 +100,7 @@ class ServiceController extends Controller
             'desc' => $request->desc,
             'type' => $request->type,
             'status' => $request->status ?? 0,
+            'sold' => 0,
             'thumbnail' => $fullPath,
             'person_amount' => $request->person_amount,
             'category_id' => $request->category_id,

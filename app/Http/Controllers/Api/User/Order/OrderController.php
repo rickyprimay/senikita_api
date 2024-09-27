@@ -337,7 +337,10 @@ class OrderController extends Controller
                     $orderService->status = 'Success';
                     $orderService->save();
 
-                    $orderService->sold += 1;
+                    $service = Service::find($orderService->service_id);
+                    $service->sold += 1;
+                    $service->save();
+
 
                     DB::table('transaction_service')
                         ->where('service_id', $orderService->id)

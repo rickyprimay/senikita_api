@@ -283,4 +283,20 @@ class ServiceController extends Controller
             'message' => 'Service deleted successfully',
         ], 200);
     }
+
+    public function getOrderServiceByShop()
+    {
+        $user = Auth::user();
+
+        $services = Service::where('shop_id', $user->shop->id)
+            ->with(['orderService'])
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Order service retrieved successfully',
+            'data' => $services,
+        ], 200);
+    }
 }

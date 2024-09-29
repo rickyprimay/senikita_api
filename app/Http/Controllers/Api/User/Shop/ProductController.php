@@ -59,7 +59,7 @@ class ProductController extends Controller
             'stock' => 'required|integer',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:5000',
             'category_id' => 'nullable|exists:category,id',
-            'image_product.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
+            'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -115,8 +115,8 @@ class ProductController extends Controller
 
         $imageProducts = [];
 
-        if ($request->hasFile('image_product')) {
-            foreach ($request->file('image_product') as $image) {
+        if ($request->hasFile('product_images')) {
+            foreach ($request->file('product_images') as $image) {
                 $imagePath = $image->store('product_images', 'public');
                 $fullImagePath = asset('storage/' . $imagePath);
 
@@ -135,7 +135,7 @@ class ProductController extends Controller
                 'code' => 201,
                 'message' => 'Product created successfully',
                 'product' => $product,
-                'image_product' => $imageProducts,
+                'product_images' => $imageProducts,
             ],
             201,
         );
@@ -151,7 +151,7 @@ class ProductController extends Controller
             'status' => 'sometimes|required|boolean',
             'thumbnail' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:5000',
             'category_id' => 'nullable|exists:category,id',
-            'image_product.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
+            'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
         ]);
 
         if ($validator->fails()) {
@@ -190,10 +190,10 @@ class ProductController extends Controller
 
         $imageProducts = [];
 
-        if ($request->hasFile('image_product')) {
+        if ($request->hasFile('product_images')) {
             ImageProduct::where('product_id', $product->id)->delete();
 
-            foreach ($request->file('image_product') as $image) {
+            foreach ($request->file('product_images') as $image) {
                 $imagePath = $image->store('product_images', 'public');
                 $fullImagePath = asset('storage/' . $imagePath);
 
@@ -214,7 +214,7 @@ class ProductController extends Controller
                 'code' => 200,
                 'message' => 'Product updated successfully',
                 'product' => $product,
-                'image_product' => $imageProducts,
+                'product_images' => $imageProducts,
             ],
             200,
         );

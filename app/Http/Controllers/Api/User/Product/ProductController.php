@@ -9,6 +9,7 @@ use App\Models\RatingProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class ProductController extends Controller
 {
@@ -84,16 +85,24 @@ class ProductController extends Controller
         );
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $product = Product::with(['category', 'images', 'shop.city.province', 'bookmark'])->find($id);
 
-        $user = Auth::user();
+        $token = $request->bearerToken();
 
-        try {
-            $user = JWTAuth::parseToken()->authenticate();
-        } catch (JWTException $e) {
-            $user = null; 
+        if ($token) {
+            try {
+                JWTAuth::setToken($token);
+                $user = JWTAuth::parseToken()->authenticate();
+            } catch (JWTException $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Token could not be parsed or is invalid',
+                ], 401);
+            }
+        } else {
+            $user = null;
         }
 
         if ($user) {

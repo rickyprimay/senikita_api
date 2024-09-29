@@ -92,6 +92,14 @@ class ProductController extends Controller
             ]);
         }
 
+        $cityName = $product->shop && $product->shop->city ? $product->shop->city->name : null;
+        $provinceName = $product->shop && $product->shop->city && $product->shop->city->province ? $product->shop->city->province->name : null;
+        $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+        if ($product->shop) {
+            $product->shop->region = $region;
+        }
+
         $averageRating = $ratings->avg('rating');
         $ratingCount = $ratings->count();
 

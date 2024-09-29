@@ -56,25 +56,21 @@ class ServiceController extends Controller
 
         $token = $request->bearerToken();
 
-        if($token) {
+        if ($token) {
             try {
                 JWTAuth::setToken($token);
                 $user = JWTAuth::parseToken()->authenticate();
+                
+                if ($user) {
+                    $isBookmarked = $service->bookmark()->where('user_id', $user->id)->exists();
+                    $service->is_bookmarked = $isBookmarked;
+                }
             } catch (JWTException $e) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Token could not be parsed or is invalid',
                 ], 401);
             }
-        } else {
-            $user = null;
-        }
-
-        if ($user) {
-            $isBookmarked = $service->bookmarkService()->where('user_id', $user->id)->exists();
-            $service->is_bookmarked = $isBookmarked;
-        } else {
-            $service->is_bookmarked = false;
         }
 
         if (!$service) {

@@ -95,21 +95,17 @@ class ProductController extends Controller
             try {
                 JWTAuth::setToken($token);
                 $user = JWTAuth::parseToken()->authenticate();
+                
+                if ($user) {
+                    $isBookmarked = $product->bookmark()->where('user_id', $user->id)->exists();
+                    $product->is_bookmarked = $isBookmarked;
+                }
             } catch (JWTException $e) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Token could not be parsed or is invalid',
                 ], 401);
             }
-        } else {
-            $user = null;
-        }
-
-        if ($user) {
-            $isBookmarked = $product->bookmark()->where('user_id', $user->id)->exists();
-            $product->is_bookmarked = $isBookmarked;
-        } else {
-            $product->is_bookmarked = false;
         }
 
         if (!$product) {

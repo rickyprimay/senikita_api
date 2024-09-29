@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\RatingService;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceController extends Controller
 {
@@ -48,9 +50,32 @@ class ServiceController extends Controller
         );
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
-        $service = Service::with(['images', 'ratings', 'category', 'shop.city.province'])->find($id);
+        $service = Service::with(['images', 'ratings', 'category', 'shop.city.province', 'bookmarkService'])->find($id);
+
+        $token = $request->bearerToken();
+
+        if($token) {
+            try {
+                JWTAuth::setToken($token);
+                $user = JWTAuth::parseToken()->authenticate();
+            } catch (JWTException $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Token could not be parsed or is invalid',
+                ], 401);
+            }
+        } else {
+            $user = null;
+        }
+
+        if ($user) {
+            $isBookmarked = $service->bookmarkService()->where('user_id', $user->id)->exists();
+            $service->is_bookmarked = $isBookmarked;
+        } else {
+            $service->is_bookmarked = false;
+        }
 
         if (!$service) {
             return response()->json(

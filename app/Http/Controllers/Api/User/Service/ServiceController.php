@@ -62,7 +62,7 @@ class ServiceController extends Controller
                 $user = JWTAuth::parseToken()->authenticate();
                 
                 if ($user) {
-                    $isBookmarked = $service->bookmark()->where('user_id', $user->id)->exists();
+                    $isBookmarked = $service->bookmarkService()->where('user_id', $user->id)->exists();
                     $service->is_bookmarked = $isBookmarked;
                 }
             } catch (JWTException $e) {

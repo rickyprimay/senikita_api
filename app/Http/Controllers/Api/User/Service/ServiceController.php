@@ -13,7 +13,15 @@ class ServiceController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $services = Service::with('category', 'shop.city.province')->paginate($perPage);
+        $search = $request->query('search', null);
+
+        $servicesQuery = Service::with(['category', 'shop.city.province']);
+
+        if ($search) {
+            $servicesQuery->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $services = $servicesQuery->paginate($perPage);
 
         foreach ($services as $service) {
             $ratings = RatingService::where('service_id', $service->id)->get();
@@ -33,7 +41,7 @@ class ServiceController extends Controller
             [
                 'status' => 'success',
                 'code' => 200,
-                'message' => 'Service retrieved successfully',
+                'message' => 'Services retrieved successfully',
                 'data' => $services,
             ],
             200,
@@ -125,16 +133,16 @@ class ServiceController extends Controller
                 return $service;
             });
 
-            if ($services->isEmpty()) {
-                return response()->json(
-                    [
-                        'status' => 'error',
-                        'code' => 404,
-                        'message' => 'No services found.',
-                    ],
-                    404
-                );
-            }
+        if ($services->isEmpty()) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'No services found.',
+                ],
+                404,
+            );
+        }
 
         return response()->json(
             [

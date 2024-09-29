@@ -14,7 +14,15 @@ class ProductController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $products = Product::with('category', 'shop.city.province')->paginate($perPage);
+        $search = $request->query('search', null);
+
+        $productsQuery = Product::with(['category', 'shop.city.province']);
+
+        if ($search) {
+            $productsQuery->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $products = $productsQuery->paginate($perPage);
 
         foreach ($products as $product) {
             $ratings = RatingProduct::where('product_id', $product->id)->get();

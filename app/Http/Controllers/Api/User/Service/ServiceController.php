@@ -34,14 +34,17 @@ class ServiceController extends Controller
 
     public function show($id)
     {
-        $service = Service::with(['images', 'ratings', 'category', 'shop'])->find($id);
+        $service = Service::with(['images', 'ratings', 'category', 'shop.city.province'])->find($id);
 
         if (!$service) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'Service not found.'
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'Service not found.',
+                ],
+                404,
+            );
         }
 
         $categoryName = $service->category ? $service->category->name : null;
@@ -69,35 +72,52 @@ class ServiceController extends Controller
             ];
         });
 
-        return response()->json([
-            'status' => 'success',
-            'code' => 200,
-            'message' => 'Service retrieved successfully',
-            'service' => $service,
-            'shop' => $service->shop,
-            'ratings' => $ratings,
-            'average_rating' => $averageRating,
-            'rating_count' => $ratingCount,
-        ], 200);
+        $cityName = $service->shop && $service->shop->city ? $service->shop->city->name : null;
+        $provinceName = $service->shop && $service->shop->city && $service->shop->city->province ? $service->shop->city->province->name : null;
+        $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+        if ($service->shop) {
+            $service->shop->region = $region;
+        }
+
+        $service->ratings = $ratings;
+        $service->average_rating = $averageRating;
+        $service->rating_count = $ratingCount;
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Service retrieved successfully',
+                'service' => $service,
+            ],
+            200,
+        );
     }
-    
+
     public function randomServices()
     {
         $services = Service::with('images', 'shop', 'category')->inRandomOrder()->limit(5)->get();
 
         if ($services->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'No services found.'
-            ], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'No services found.',
+                ],
+                404,
+            );
         }
 
-        return response()->json([
-            'status' => 'success',
-            'code' => 200,
-            'message' => 'Random services retrieved successfully',
-            'data' => $services,
-        ], 200);
+        return response()->json(
+            [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Random services retrieved successfully',
+                'data' => $services,
+            ],
+            200,
+        );
     }
 }

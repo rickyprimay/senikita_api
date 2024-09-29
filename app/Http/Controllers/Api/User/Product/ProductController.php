@@ -110,15 +110,15 @@ class ProductController extends Controller
             ];
         });
 
+        $product->ratings = $ratings;
+        $product->average_rating = $averageRating;
+        $product->rating_count = $ratingCount;
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'message' => 'Show Product retrieved successfully',
             'product' => $product,
-            'shop' => $product->shop,
-            'ratings' => $ratings,
-            'average_rating' => $averageRating,
-            'rating_count' => $ratingCount,
         ]);
     }
 }

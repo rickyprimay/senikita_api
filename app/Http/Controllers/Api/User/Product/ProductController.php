@@ -7,6 +7,8 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\RatingProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProductController extends Controller
 {
@@ -84,7 +86,22 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with(['category', 'images', 'shop.city.province'])->find($id);
+        $product = Product::with(['category', 'images', 'shop.city.province', 'bookmark'])->find($id);
+
+        $user = Auth::user();
+
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {
+            $user = null; 
+        }
+
+        if ($user) {
+            $isBookmarked = $product->bookmark()->where('user_id', $user->id)->exists();
+            $product->is_bookmarked = $isBookmarked;
+        } else {
+            $product->is_bookmarked = false;
+        }
 
         if (!$product) {
             return response()->json(

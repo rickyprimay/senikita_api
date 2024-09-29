@@ -14,12 +14,20 @@ class ProductController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $products = Product::with('category')->paginate($perPage);
+        $products = Product::with('category', 'shop.city.province')->paginate($perPage);
 
         foreach ($products as $product) {
             $ratings = RatingProduct::where('product_id', $product->id)->get();
             $product->average_rating = $ratings->avg('rating') ?? 0;
             $product->rating_count = $ratings->count();
+
+            $cityName = $product->shop && $product->shop->city ? $product->shop->city->name : null;
+            $provinceName = $product->shop && $product->shop->city && $product->shop->city->province ? $product->shop->city->province->name : null;
+            $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+            if ($product->shop) {
+                $product->shop->region = $region;
+            }
         }
 
         return response()->json(
@@ -35,18 +43,25 @@ class ProductController extends Controller
 
     public function randomProducts()
     {
-        $products = Product::with('category', 'shop')
+        $products = Product::with(['category', 'shop.city.province'])
             ->inRandomOrder()
             ->limit(5)
             ->get()
             ->map(function ($product) {
                 $ratings = RatingProduct::where('product_id', $product->id)->get();
-                $product->average_rating = $ratings->avg('rating');
+                $product->average_rating = $ratings->avg('rating') ?? 0;
                 $product->rating_count = $ratings->count();
+
+                $cityName = $product->shop && $product->shop->city ? $product->shop->city->name : null;
+                $provinceName = $product->shop && $product->shop->city && $product->shop->city->province ? $product->shop->city->province->name : null;
+                $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+                if ($product->shop) {
+                    $product->shop->region = $region;
+                }
+
                 return $product;
             });
-
-        
 
         return response()->json(
             [

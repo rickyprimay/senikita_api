@@ -13,12 +13,20 @@ class ServiceController extends Controller
     {
         $perPage = $request->query('pag', 15);
 
-        $services = Service::with('category')->paginate($perPage);
+        $services = Service::with('category', 'shop.city.province')->paginate($perPage);
 
         foreach ($services as $service) {
             $ratings = RatingService::where('service_id', $service->id)->get();
             $service->average_rating = $ratings->avg('rating') ?? 0;
             $service->rating_count = $ratings->count();
+
+            $cityName = $service->shop && $service->shop->city ? $service->shop->city->name : null;
+            $provinceName = $service->shop && $service->shop->city && $service->shop->city->province ? $service->shop->city->province->name : null;
+            $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+            if ($service->shop) {
+                $service->shop->region = $region;
+            }
         }
 
         return response()->json(
@@ -97,18 +105,36 @@ class ServiceController extends Controller
 
     public function randomServices()
     {
-        $services = Service::with('images', 'shop', 'category')->inRandomOrder()->limit(5)->get();
+        $services = Service::with(['category', 'shop.city.province', 'images'])
+            ->inRandomOrder()
+            ->limit(5)
+            ->get()
+            ->map(function ($service) {
+                $ratings = RatingService::where('service_id', $service->id)->get();
+                $service->average_rating = $ratings->avg('rating') ?? 0;
+                $service->rating_count = $ratings->count();
 
-        if ($services->isEmpty()) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 404,
-                    'message' => 'No services found.',
-                ],
-                404,
-            );
-        }
+                $cityName = $service->shop && $service->shop->city ? $service->shop->city->name : null;
+                $provinceName = $service->shop && $service->shop->city && $service->shop->city->province ? $service->shop->city->province->name : null;
+                $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+                if ($service->shop) {
+                    $service->shop->region = $region;
+                }
+
+                return $service;
+            });
+
+            if ($services->isEmpty()) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'code' => 404,
+                        'message' => 'No services found.',
+                    ],
+                    404
+                );
+            }
 
         return response()->json(
             [

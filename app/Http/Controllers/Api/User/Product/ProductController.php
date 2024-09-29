@@ -104,16 +104,6 @@ class ProductController extends Controller
             ->where('product_id', $id)
             ->get();
 
-        if ($ratings->isEmpty()) {
-            return response()->json([
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Product found, but no ratings available',
-                'product' => $product,
-                'images' => $product->images,
-                'ratings' => [],
-            ]);
-        }
 
         $cityName = $product->shop && $product->shop->city ? $product->shop->city->name : null;
         $provinceName = $product->shop && $product->shop->city && $product->shop->city->province ? $product->shop->city->province->name : null;
@@ -144,6 +134,15 @@ class ProductController extends Controller
         $product->ratings = $ratings;
         $product->average_rating = $averageRating;
         $product->rating_count = $ratingCount;
+
+        if ($ratings->isEmpty()) {
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Product found, but no ratings available',
+                'product' => $product,
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',

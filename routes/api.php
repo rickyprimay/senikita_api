@@ -77,6 +77,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // View Order
     Route::get('/shop/order-product', [ProductController::class, 'getOrdersByShop']);
     Route::get('/shop/order-service', [ProductController::class, 'getOrdersByShop']);
+    
+    Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
+
 
     // Accept Order
     Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);

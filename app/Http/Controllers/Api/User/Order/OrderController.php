@@ -413,24 +413,8 @@ class OrderController extends Controller
         }
     }
     
-    public function updatePaymentStatus(Request $request, $orderId)
+    public function updatePaymentStatus($orderId)
     {
-        $validator = Validator::make($request->all(), [
-            'payment_status' => 'required|string|in:DONE',
-            'status_order' => 'required|string|in:DONE',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 400,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors(),
-                ],
-                400,
-            );
-        }
 
         DB::beginTransaction();
 
@@ -448,7 +432,19 @@ class OrderController extends Controller
                 );
             }
 
+            if ($order->status_order === 'DONE' || $order->status === 'DONE') {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'code' => 400,
+                        'message' => 'Order already marked as done',
+                    ],
+                    400,
+                );
+            }
+
             $order->status_order = 'DONE';
+            $order->status = 'DONE';
             $order->save();
 
             DB::table('transaction')
@@ -461,7 +457,7 @@ class OrderController extends Controller
             $products = DB::table('product')->join('order_product', 'product.id', '=', 'order_product.product_id')->where('order_product.order_id', $orderId)->select('product.id as product_id', 'product.price', 'order_product.qty')->get();
 
             foreach ($products as $product) {
-                $shop = Shop::whereHas('product', function ($query) use ($product) {
+                $shop = Shop::whereHas('products', function ($query) use ($product) {
                     $query->where('id', $product->product_id);
                 })->first();
 

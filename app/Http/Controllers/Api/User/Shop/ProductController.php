@@ -294,7 +294,15 @@ class ProductController extends Controller
             ], 404);
         }
 
-        $order->status = "delivered";
+        if ($order->status_order == 'delivered' || $order->status_order == 'rejected') {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Cannot update the status because it is already delivered or rejected.'
+            ], 400);
+        }
+
+        $order->status_order = "delivered";
         $order->save();
 
         return response()->json([
@@ -316,7 +324,15 @@ class ProductController extends Controller
             ], 404);
         }
 
-        $order->status = "rejected";
+        if ($order->status_order == 'delivered' || $order->status_order == 'rejected') {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Cannot update the status because it is already delivered or rejected.'
+            ], 400);
+        }
+
+        $order->status_order = "rejected";
         $order->save();
 
         return response()->json([

@@ -417,6 +417,7 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'payment_status' => 'required|string|in:DONE',
+            'status_order' => 'required|string|in:DONE',
         ]);
 
         if ($validator->fails()) {
@@ -446,6 +447,9 @@ class OrderController extends Controller
                     404,
                 );
             }
+
+            $order->status_order = 'DONE';
+            $order->save();
 
             DB::table('transaction')
                 ->where('order_id', $orderId)

@@ -56,39 +56,25 @@ class BookmarkProductController extends Controller
 
     public function destroy($id)
     {
+
         $userId = Auth::user()->id;
 
-        if(!$id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Bookmark not found',
-            ], 404);
-        }
-
-        
         $bookmark = BookmarkProduct::where('user_id', $userId)
-        ->where('id', $id)
-        ->firstOrFail();
+            ->where('id', $id)
+            ->first();
 
-        if($bookmark->user_id !== $userId) {
+        if ($bookmark) {
+            $bookmark->delete();
+
             return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized',
-            ], 401);
-        }
-
-        if(!$bookmark) {
+                'status' => 'success',
+                'message' => 'Bookmark removed successfully',
+            ], 200);
+        } else {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Bookmark not found',
             ], 404);
-        }
-
-        $bookmark->delete();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Bookmark removed successfully',
-        ], 200);
+        }   
     }
 }

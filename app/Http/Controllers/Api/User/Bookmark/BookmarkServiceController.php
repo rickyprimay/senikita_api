@@ -56,17 +56,25 @@ class BookmarkServiceController extends Controller
 
     public function destroy($id)
     {
+
         $userId = Auth::user()->id;
 
         $bookmark = BookmarkService::where('user_id', $userId)
-                ->where('id', $id)
-                ->firstOrFail();
+            ->where('id', $id)
+            ->first();
 
+        if ($bookmark) {
             $bookmark->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Bookmark removed successfully',
-        ], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Bookmark removed successfully',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bookmark not found',
+            ], 404);
+        }   
     }
 }

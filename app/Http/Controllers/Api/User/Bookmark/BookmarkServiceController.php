@@ -13,7 +13,9 @@ class BookmarkServiceController extends Controller
     {
         $userId = Auth::user()->id;
 
-        $bookmarks = BookmarkService::where('user_id', $userId)->get();
+        $bookmarks = BookmarkService::where('user_id', $userId)
+                        ->with('service')
+                        ->get();
 
         return response()->json([
             'status' => 'success',

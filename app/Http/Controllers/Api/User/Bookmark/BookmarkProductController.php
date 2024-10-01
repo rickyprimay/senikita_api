@@ -13,7 +13,9 @@ class BookmarkProductController extends Controller
     {
         $userId = Auth::user()->id;
 
-        $bookmarks = BookmarkProduct::where('user_id', $userId)->get();
+        $bookmarks = BookmarkProduct::where('user_id', $userId)
+                        ->with('product')
+                        ->get();
 
         return response()->json([
             'status' => 'success',
@@ -56,9 +58,31 @@ class BookmarkProductController extends Controller
     {
         $userId = Auth::user()->id;
 
+        if(!$id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bookmark not found',
+            ], 404);
+        }
+
+        
         $bookmark = BookmarkProduct::where('user_id', $userId)
-            ->where('id', $id)
-            ->firstOrFail();
+        ->where('id', $id)
+        ->firstOrFail();
+
+        if($bookmark->user_id !== $userId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        if(!$bookmark) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Bookmark not found',
+            ], 404);
+        }
 
         $bookmark->delete();
 

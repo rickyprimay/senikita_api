@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BookmarkProductController extends Controller
 {
-    public function index ()
+    public function index()
     {
         $userId = Auth::user()->id;
 
@@ -24,7 +24,7 @@ class BookmarkProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:service,id',
+            'product_id' => 'required|exists:product,id',
         ]);
 
         $userId = Auth::user()->id;
@@ -37,7 +37,7 @@ class BookmarkProductController extends Controller
         if ($existingBookmark) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Bookmark already exists for this service.',
+                'message' => 'Bookmark already exists for this product.',
             ], 400);
         }
 
@@ -57,10 +57,10 @@ class BookmarkProductController extends Controller
         $userId = Auth::user()->id;
 
         $bookmark = BookmarkProduct::where('user_id', $userId)
-                ->where('id', $id)
-                ->firstOrFail();
+            ->where('id', $id)
+            ->firstOrFail();
 
-            $bookmark->delete();
+        $bookmark->delete();
 
         return response()->json([
             'status' => 'success',

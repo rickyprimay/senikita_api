@@ -89,13 +89,14 @@ class ProductController extends Controller
     {
         $product = Product::with(['category', 'images', 'shop.city.province', 'bookmark'])->find($id);
 
+
         $token = $request->bearerToken();
 
         if ($token) {
             try {
                 JWTAuth::setToken($token);
                 $user = JWTAuth::parseToken()->authenticate();
-                
+
                 if ($user) {
                     $isBookmarked = $product->bookmark()->where('user_id', $user->id)->exists();
                     $product->is_bookmarked = $isBookmarked;

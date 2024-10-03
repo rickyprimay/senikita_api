@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('invoice_url');
             $table->json('optional_document')->nullable();
             $table->string('status')->default('pending');
+            $table->string('status_order')->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('service_id')->references('id')->on('service');

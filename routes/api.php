@@ -135,6 +135,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // Order Service
     Route::post('order-service', [OrderServiceController::class, 'create']);
     Route::get('/transaction-history-service', [OrderServiceController::class, 'transactionHistory']);
+    Route::put('/order-service/payment-status/{orderId}', [OrderServiceController::class, 'updatePaymentStatus']);
 
     // Rating Product
     Route::post('/product/rating/{id}', [RatingController::class, 'store']);

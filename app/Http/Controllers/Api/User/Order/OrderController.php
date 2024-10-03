@@ -335,6 +335,7 @@ class OrderController extends Controller
             if($orderService) {
                 if ($request->status == 'PAID') {
                     $orderService->status = 'Success';
+                    $orderService->status_payment = 'process';
                     $orderService->save();
 
                     $service = Service::find($orderService->service_id);

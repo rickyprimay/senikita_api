@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Mail\ReminderPayments;
 use App\Models\OrderService;
 use App\Models\Service;
+use App\Models\Shop;
 use App\Models\TransactionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Xendit\Configuration;
@@ -92,7 +94,7 @@ class OrderServiceController extends Controller
 
         try {
             TransactionService::create([
-                'service_id' => $service->id,
+                'order_service_id' => $service->id,
             ]);
 
             $apiInstance = new InvoiceApi();
@@ -126,6 +128,8 @@ class OrderServiceController extends Controller
                 'no_transaction' => $no_transaction,
                 'price' => $price,
                 'address' => $request->address,
+                'status' => 'pending',
+                'status_order' => 'pending',
                 'optional_document' => json_encode($optionalDocuments),
                 'invoice_url' => $invoiceUrl,
             ]);
@@ -200,6 +204,82 @@ class OrderServiceController extends Controller
                 [
                     'status' => 'error',
                     'message' => $th->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
+    public function updatePaymentStatus($orderId)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            $order = OrderService::find($orderId);
+
+            if (!$order) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'code' => 404,
+                        'message' => 'Order Service not found',
+                    ],
+                    404,
+                );
+            }
+
+            if ($order->status_order === 'DONE' || $order->status === 'DONE') {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'code' => 400,
+                        'message' => 'Order already marked as done',
+                    ],
+                    400,
+                );
+            }
+
+            $order->status_order = 'DONE';
+            $order->status = 'DONE';
+            $order->save();
+
+            DB::table('transaction_service') 
+                ->where('order_id', $orderId)
+                ->update([
+                    'payment_status' => 'DONE',
+                    'updated_at' => now(),
+                ]);
+
+            $services = DB::table('service')->join('order_service', 'service.id', '=', 'order_service.service_id')->where('order_service.order_id', $orderId)->select('service.id as service_id', 'service.price')->get();
+
+            foreach ($services as $service) {
+                $shop = Shop::whereHas('services', function ($query) use ($service) {
+                    $query->where('id', $service->product_id);
+                })->first();
+
+                if ($shop) {
+                    $shop->balance += $service->price;
+                    $shop->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(
+                [
+                    'status' => 'success',
+                    'message' => 'Payment status updated and shop balance adjusted successfully',
+                ],
+                200,
+            );
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to update payment status and adjust shop balance',
+                    'error' => $th->getMessage(),
                 ],
                 500,
             );

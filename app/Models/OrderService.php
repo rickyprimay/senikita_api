@@ -29,7 +29,8 @@ class OrderService extends Model
         'address',
         'invoice_url',
         'optional_document',
-        'status'
+        'status',
+        'status_order',
     ];
 
     public function service()
@@ -39,6 +40,6 @@ class OrderService extends Model
 
     public function transaction()
     {
-        return $this->hasOne(TransactionService::class, 'service_id', 'service_id');
+        return $this->hasOne(TransactionService::class, 'service_id', 'order_service_id');
     }
 }

@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('transaction_service', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('service_id')->unsigned();
+            $table->bigInteger('order_service_id')->unsigned();
             $table->string('payment_status')->default('pending');
             $table->date('payment_date')->nullable();
 
-            $table->foreign('service_id')->references('id')->on('service')->onDelete('cascade');
+            $table->foreign('order_service_id')->references('id')->on('order_service')->onDelete('cascade');
             $table->timestamps();
         });
     }

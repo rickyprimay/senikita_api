@@ -12,7 +12,7 @@ class TransactionService extends Model
     protected $table = 'transaction_service'; 
 
     protected $fillable = [
-        'service_id',
+        'order_service_id',
         'payment_status',
         'payment_date' 
     ];

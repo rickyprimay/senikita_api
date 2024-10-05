@@ -59,9 +59,20 @@ class BookmarkServiceController extends Controller
 
         $userId = Auth::user()->id;
 
-        $bookmark = BookmarkService::where('user_id', $userId)
+        $bookmark = BookmarkService::where('service_id', $id)
             ->where('id', $id)
             ->first();
+
+        $bookmarkUser = BookmarkService::where('user_id', $userId)
+            ->where('service_id', $id)
+            ->first();
+
+        if (!$bookmarkUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This bookmark is not yours',
+            ], 404);
+        }
 
         if ($bookmark) {
             $bookmark->delete();

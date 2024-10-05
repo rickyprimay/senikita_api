@@ -59,9 +59,20 @@ class BookmarkProductController extends Controller
 
         $userId = Auth::user()->id;
 
-        $bookmark = BookmarkProduct::where('user_id', $userId)
+        $bookmark = BookmarkProduct::where('product_id', $id)
             ->where('id', $id)
             ->first();
+
+        $bookmarkUser = BookmarkProduct::where('user_id', $userId)
+            ->where('product_id', $id)
+            ->first();
+
+        if (!$bookmarkUser) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This bookmark is not yours',
+            ], 404);
+        }
 
         if ($bookmark) {
             $bookmark->delete();

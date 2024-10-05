@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\User\Bookmark;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookmarkProduct;
+use App\Models\RatingProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,14 +15,37 @@ class BookmarkProductController extends Controller
         $userId = Auth::user()->id;
 
         $bookmarks = BookmarkProduct::where('user_id', $userId)
-                        ->with('product')
-                        ->get();
+            ->with('product.shop.city.province')
+            ->get();
+
+        foreach ($bookmarks as $bookmark) {
+            $product = $bookmark->product;
+
+            if ($product) {
+                $ratings = RatingProduct::where('product_id', $product->id)->get();
+
+                $product->average_rating = $ratings->avg('rating') ?? 0;
+                $product->rating_count = $ratings->count();
+
+                $cityName = $product->shop && $product->shop->city ? $product->shop->city->name : null;
+                $provinceName = $product->shop && $product->shop->city && $product->shop->city->province ? $product->shop->city->province->name : null;
+
+                $region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+                if ($product->shop) {
+                    $product->shop->region = $region;
+                }
+            }
+        }
 
         return response()->json([
             'status' => 'success',
+            'code' => 200,
+            'message' => 'Bookmarks retrieved successfully',
             'data' => $bookmarks,
         ], 200);
     }
+
 
     public function store(Request $request)
     {
@@ -86,6 +110,6 @@ class BookmarkProductController extends Controller
                 'status' => 'error',
                 'message' => 'Bookmark not found',
             ], 404);
-        }   
+        }
     }
 }

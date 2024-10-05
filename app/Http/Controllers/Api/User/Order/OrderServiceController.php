@@ -209,6 +209,54 @@ class OrderServiceController extends Controller
             );
         }
     }
+
+    public function transactionDetail($orderId)
+    {
+        try {
+            $user = Auth::user();
+
+            $order = OrderService::where('id', $orderId)
+                ->where('user_id', $user->id)
+                ->with(['service', 'transaction'])
+                ->first();
+
+            if (!$order) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'Order not found',
+                    ],
+                    404,
+                );
+            }
+
+            $serviceDetails = $order->service->map(function ($service) {
+                return [
+                    'name' => $service->name,
+                    'price' => $service->price,
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Transaction details retrieved successfully',
+                'data' => [
+                    'order' => $order,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to retrieve transaction details',
+                    'error' => $th->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
+
     public function updatePaymentStatus($orderId)
     {
 

@@ -286,39 +286,39 @@ class OrderController extends Controller
                             'updated_at' => now(),
                         ]);
 
-                        $products = $order->product()->get();
+                    $products = $order->product()->get();
 
-                        foreach ($products as $product) {
-                            $product->sold += $product->pivot->qty;
-                            $product->save();
-                        }
-                        
-                        $productItems = $products->map(function($product) {
-                            // dd('error');
-                            return [
-                                'name' => $product->name,
-                                'price' => $product->price,
-                                'qty' => $product->pivot->qty,
-                            ];
-                        })->toArray();
+                    foreach ($products as $product) {
+                        $product->sold += $product->pivot->qty;
+                        $product->save();
+                    }
 
-                        $feeAdmin = min($order->price * (5 / 100), 5000);
-                        $ongkirFee = $order->ongkir;
-        
-                        $details = [
-                            'name' => $order->name,
-                            'ongkir' => $ongkirFee,
-                            'price' => $order->price,
-                            'total_price' => $order->total_price,
-                            'invoice_number' => $order->no_transaction,
-                            'due_date' => '48 Hours',
-                            'invoice_url' => $order->invoice_url,
-                            'sender_name' => 'SeniKita Team',
-                            'products' => $productItems,
-                            'feeAdmin' => $feeAdmin
+                    $productItems = $products->map(function ($product) {
+                        // dd('error');
+                        return [
+                            'name' => $product->name,
+                            'price' => $product->price,
+                            'qty' => $product->pivot->qty,
                         ];
-        
-                        Mail::to('rickyprima30@gmail.com')->send(new InvoicePayment($details));
+                    })->toArray();
+
+                    $feeAdmin = min($order->price * (5 / 100), 5000);
+                    $ongkirFee = $order->ongkir;
+
+                    $details = [
+                        'name' => $order->name,
+                        'ongkir' => $ongkirFee,
+                        'price' => $order->price,
+                        'total_price' => $order->total_price,
+                        'invoice_number' => $order->no_transaction,
+                        'due_date' => '48 Hours',
+                        'invoice_url' => $order->invoice_url,
+                        'sender_name' => 'SeniKita Team',
+                        'products' => $productItems,
+                        'feeAdmin' => $feeAdmin
+                    ];
+
+                    Mail::to('rickyprima30@gmail.com')->send(new InvoicePayment($details));
                 } else {
                     $order->status = 'Failed';
                     $order->save();
@@ -332,7 +332,7 @@ class OrderController extends Controller
                 }
             }
 
-            if($orderService) {
+            if ($orderService) {
                 if ($request->status == 'PAID') {
                     $orderService->status = 'Success';
                     $orderService->status_payment = 'process';
@@ -413,7 +413,55 @@ class OrderController extends Controller
             );
         }
     }
-    
+
+    public function transactionDetail($orderId)
+    {
+        try {
+            $user = Auth::user();
+
+            $order = Order::where('id', $orderId)
+                ->where('user_id', $user->id)
+                ->with(['product', 'transaction'])
+                ->first();
+
+            if (!$order) {
+                return response()->json(
+                    [
+                        'status' => 'error',
+                        'message' => 'Order not found',
+                    ],
+                    404,
+                );
+            }
+
+            $productDetails = $order->product->map(function ($product) {
+                return [
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => $product->pivot->qty,
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Transaction details retrieved successfully',
+                'data' => [
+                    'order' => $order,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Failed to retrieve transaction details',
+                    'error' => $th->getMessage(),
+                ],
+                500,
+            );
+        }
+    }
+
     public function updatePaymentStatus($orderId)
     {
 

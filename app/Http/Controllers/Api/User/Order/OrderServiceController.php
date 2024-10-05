@@ -93,8 +93,10 @@ class OrderServiceController extends Controller
         ]);
 
         try {
+
+            // dd($request->service_id);
             TransactionService::create([
-                'order_service_id' => $service->id,
+                'order_service_id' => $request->service_id,
             ]);
 
             $apiInstance = new InvoiceApi();

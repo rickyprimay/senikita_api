@@ -82,9 +82,9 @@ class BookmarkServiceController extends Controller
 
         $userId = Auth::user()->id;
 
-        $bookmark = BookmarkService::where('service_id', $id)
-            ->where('id', $id)
-            ->first();
+        // $bookmark = BookmarkService::where('service_id', $id)
+        //     ->where('id', $id)
+        //     ->first();
 
         $bookmarkUser = BookmarkService::where('user_id', $userId)
             ->where('service_id', $id)
@@ -97,8 +97,8 @@ class BookmarkServiceController extends Controller
             ], 404);
         }
 
-        if ($bookmark) {
-            $bookmark->delete();
+        if ($bookmarkUser) {
+            $bookmarkUser->delete();
 
             return response()->json([
                 'status' => 'success',

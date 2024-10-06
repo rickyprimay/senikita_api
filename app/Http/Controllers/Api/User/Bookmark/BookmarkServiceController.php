@@ -15,7 +15,7 @@ class BookmarkServiceController extends Controller
         $userId = Auth::user()->id;
 
         $bookmarks = BookmarkService::where('user_id', $userId)
-            ->with('service.shop.city.province')
+            ->with('service.shop.city.province', 'service.category')
             ->get();
 
         foreach ($bookmarks as $bookmark) {

@@ -282,11 +282,11 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function setStatus($id) 
+    public function setStatus($id)
     {
         $order = Order::findorFail($id);
 
-        if(!$order) {
+        if (!$order) {
             return response()->json([
                 'status' => 'error',
                 'code' => 404,
@@ -313,10 +313,11 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function setStatusReject($id) {
+    public function setStatusReject($id)
+    {
         $order = Order::findorFail($id);
 
-        if(!$order) {
+        if (!$order) {
             return response()->json([
                 'status' => 'error',
                 'code' => 404,

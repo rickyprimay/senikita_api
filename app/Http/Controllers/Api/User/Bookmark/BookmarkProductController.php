@@ -15,7 +15,7 @@ class BookmarkProductController extends Controller
         $userId = Auth::user()->id;
 
         $bookmarks = BookmarkProduct::where('user_id', $userId)
-            ->with('product.shop.city.province')
+            ->with('product.shop.city.province', 'product.category')
             ->get();
 
         foreach ($bookmarks as $bookmark) {

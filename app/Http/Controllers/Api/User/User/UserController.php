@@ -58,7 +58,12 @@ class UserController extends Controller
         }
 
         $user->update($request->only([
-            'username', 'call_number', 'birth_date', 'birth_location', 'gender', 'name',
+            'username',
+            'call_number',
+            'birth_date',
+            'birth_location',
+            'gender',
+            'name',
         ]));
 
         return response()->json([
@@ -112,6 +117,19 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Password updated successfully',
             'code' => 200,
+        ], 200);
+    }
+
+    // get user data
+    public function show()
+    {
+        $user = Auth::user();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User data retrieved successfully',
+            'code' => 200,
+            'data' => $user,
         ], 200);
     }
 }

@@ -15,7 +15,7 @@ class BookmarkProductController extends Controller
         $userId = Auth::user()->id;
 
         $bookmarks = BookmarkProduct::where('user_id', $userId)
-            ->with('product.shop.city.province')
+            ->with('product.shop.city.province', 'product.category')
             ->get();
 
         foreach ($bookmarks as $bookmark) {
@@ -83,9 +83,9 @@ class BookmarkProductController extends Controller
 
         $userId = Auth::user()->id;
 
-        $bookmark = BookmarkProduct::where('product_id', $id)
-            ->where('id', $id)
-            ->first();
+        // $bookmark = BookmarkProduct::where('product_id', $id)
+        //     ->where('id', $id)
+        //     ->first();
 
         $bookmarkUser = BookmarkProduct::where('user_id', $userId)
             ->where('product_id', $id)
@@ -98,8 +98,8 @@ class BookmarkProductController extends Controller
             ], 404);
         }
 
-        if ($bookmark) {
-            $bookmark->delete();
+        if ($bookmarkUser) {
+            $bookmarkUser->delete();
 
             return response()->json([
                 'status' => 'success',

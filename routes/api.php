@@ -44,7 +44,7 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     Route::get('users', [UserController::class, 'getAllUsers']);
     Route::get('users/{id}', [UserController::class, 'getUser']);
     Route::post('users', [UserController::class, 'createUser']);
-    Route::put('users/{id}', [UserController::class, 'updateUser']); 
+    Route::put('users/{id}', [UserController::class, 'updateUser']);
     Route::delete('users/{id}', [UserController::class, 'deleteUser']);
 
     // Category Management
@@ -57,10 +57,11 @@ Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
     // Shop Management
     Route::get('shop', [AdminShopController::class, 'index']);
     Route::put('shop/verification/{id}', [AdminShopController::class, 'verificationShop']);
-
 });
 
 Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
+    // User Profile
+    Route::get('/profile', [UserUserController::class, 'show']);
 
     // Edit Profile
     Route::put('/edit-profile', [UserUserController::class, 'edit']);
@@ -77,7 +78,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // View Order
     Route::get('/shop/order-product', [ProductController::class, 'getOrdersByShop']);
     Route::get('/shop/order-service', [ProductController::class, 'getOrdersByShop']);
-    
+
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 
 
@@ -94,7 +95,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/bookmark-product', [BookmarkProductController::class, 'index']);
     Route::post('/bookmark-product', [BookmarkProductController::class, 'store']);
     Route::delete('/bookmark-product/{id}', [BookmarkProductController::class, 'destroy']);
-    
+
     // Shop
     Route::post('shop', [ShopController::class, 'create']);
     Route::put('shop/{id}', [ShopController::class, 'update']);
@@ -144,7 +145,6 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Rating Service
     Route::post('/service/rating/{id}', [RatingServiceController::class, 'store']);
-
 });
 
 Route::get('/shops/{id}', [ShopShopController::class, 'show']);

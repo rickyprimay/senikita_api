@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\User\Cart\CartController;
 use App\Http\Controllers\Api\User\Cart\CartItemController;
 use App\Http\Controllers\Api\User\Order\OrderController;
 use App\Http\Controllers\Api\User\Order\OrderServiceController;
+use App\Http\Controllers\Api\User\Shop\DetailShopControler;
 use App\Http\Controllers\Api\User\Shop\ShopController as ShopShopController;
 use App\Http\Controllers\Api\User\User\Rating\Product\RatingController;
 use App\Http\Controllers\Api\User\User\Rating\Service\RatingServiceController;
@@ -163,3 +164,7 @@ Route::get('category/search', [CategoryController::class, 'search']);
 Route::get('user/search', [UserController::class, 'search']);
 Route::get('category', [ApiCategoryController::class, 'index']);
 Route::post('/notification', [OrderController::class, 'notificationCallback'])->name('notification');
+
+Route::get('/detail-shop/{shopId}', [DetailShopControler::class, 'getShopDetails']);
+Route::get('/detail-shop/product/{shopId}', [DetailShopControler::class, 'getProductsByShop']);
+Route::get('/detail-shop/service/{shopId}', [DetailShopControler::class, 'getServicesByShop']);

@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Product;
 use App\Models\RatingProduct;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -17,9 +18,13 @@ class CartController extends Controller
     {
         $user = Auth::user();
 
+        Log::info('Current User ID: ' . $user->id);
+
         $carts = Cart::where('user_id', $user->id)
             ->with(['items.product.category', 'items.product.images', 'items.product.shop.city.province'])
             ->get();
+
+            Log::info('Carts Retrieved: ', $carts->toArray());
 
         if ($carts->isEmpty()) {
             return response()->json([
@@ -52,10 +57,10 @@ class CartController extends Controller
 
                 $response[] = [
                     'storeName' => $product->shop ? $product->shop->name : 'Unknown Store',
-                    'storeAvatar' => $product->shop ? $product->shop->avatar : 'https://via.placeholder.com/100',
+                    'storeAvatar' => $product->shop->profile_picture,
                     'storeLocation' => $product->shop && $product->shop->city ? $product->shop->city->name : 'Unknown Location',
                     'productName' => $product->name,
-                    'productThumbnail' => $product->images->first() ? $product->images->first()->url : 'https://via.placeholder.com/150',
+                    'productThumbnail' => $product->thumbnail,
                     'productPrice' => $product->price,
                     'qty' => $item->qty,
                     'shop_id' => $product->shop_id,

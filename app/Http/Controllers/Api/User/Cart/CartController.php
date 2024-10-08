@@ -65,6 +65,7 @@ class CartController extends Controller
                     'qty' => $item->qty,
                     'shop_id' => $product->shop_id,
                     'product_id' => $product->id,
+                    'cart_item_id' => $item->id,
                 ];
             });
         });

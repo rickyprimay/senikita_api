@@ -72,7 +72,7 @@ class CartItemController extends Controller
     public function updateQty(Request $request, $id)
     {
         $request->validate([
-            'qty' => 'required|integer|min:1',
+            'qty' => 'required|integer|min:0',
         ]);
 
         $user = Auth::user();
@@ -92,7 +92,17 @@ class CartItemController extends Controller
         }
 
         $cartItem->qty = $request->input('qty');
+       
+
+        if ($cartItem->qty <= 0) {
+            $cartItem->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Item removed from cart as quantity is zero',
+            ], 200);
+        }
         $cartItem->save();
+        
 
         return response()->json([
             'status' => 'success',
@@ -100,6 +110,7 @@ class CartItemController extends Controller
             'data' => $cartItem,
         ], 200);
     }
+    
     public function destroy($id)
     {
         $user = Auth::user();
@@ -123,6 +134,70 @@ class CartItemController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Item removed from cart',
+        ], 200);
+    }
+
+    public function incrementQty($id)
+    {
+        $user = Auth::user();
+
+        $cartItem = CartItem::where('id', $id)
+                            ->whereHas('cart', function ($query) use ($user) {
+                                $query->where('user_id', $user->id);
+                            })
+                            ->first();
+
+        if (!$cartItem) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Item not found in your cart',
+                'code' => 404,
+            ], 404);
+        }
+
+        $cartItem->qty++;
+        $cartItem->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item quantity increased successfully',
+            'data' => $cartItem,
+        ], 200);
+    }
+    public function decrementQty($id)
+    {
+        $user = Auth::user();
+
+        $cartItem = CartItem::where('id', $id)
+                            ->whereHas('cart', function ($query) use ($user) {
+                                $query->where('user_id', $user->id);
+                            })
+                            ->first();
+
+        if (!$cartItem) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Item not found in your cart',
+                'code' => 404,
+            ], 404);
+        }
+
+        $cartItem->qty--;
+
+        if ($cartItem->qty <= 0) {
+            $cartItem->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Item removed from cart as quantity is zero',
+            ], 200);
+        }
+
+        $cartItem->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item quantity decreased successfully',
+            'data' => $cartItem,
         ], 200);
     }
 }

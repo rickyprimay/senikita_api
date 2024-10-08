@@ -75,6 +75,8 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::post('/cart/items', [CartItemController::class, 'store']);
     Route::delete('/cart/items/{id}', [CartItemController::class, 'destroy']);
     Route::put('/cart/items/{id}', [CartItemController::class, 'updateQty']);
+    Route::put('/cart/items/increment/{id}', [CartItemController::class, 'incrementQty']);
+    Route::put('/cart/items/decrement/{id}', [CartItemController::class, 'decrementQty']);
 
     // View Order
     Route::get('/shop/order-product', [ProductController::class, 'getOrdersByShop']);

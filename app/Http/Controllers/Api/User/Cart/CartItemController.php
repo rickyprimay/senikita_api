@@ -23,9 +23,13 @@ class CartItemController extends Controller
             ], 200);
         }
 
+        $groupedItems = $items->groupBy(function ($item) {
+            return $item->product->shop_id;
+        });
+
         return response()->json([
             'status' => 'success',
-            'data' => $items,
+            'data' => $groupedItems,
         ], 200);
     }
     public function store(Request $request)

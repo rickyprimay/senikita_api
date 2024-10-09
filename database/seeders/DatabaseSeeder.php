@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
             'birth_location' => 'Purwodadi',
             'password' => 'mario.aprilnino27@gmail.com',
             'role' => 0,
+            'isHaveStore' => 1,
         ]);
 
         $this->call([

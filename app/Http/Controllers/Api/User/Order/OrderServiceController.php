@@ -95,13 +95,11 @@ class OrderServiceController extends Controller
         try {
 
             // dd($request->service_id);
-            TransactionService::create([
-                'order_service_id' => $request->service_id,
-            ]);
+            
 
-            $apiInstance = new InvoiceApi();
-            $generateInvoice = $apiInstance->createInvoice($invoice);
-            $invoiceUrl = $generateInvoice['invoice_url'];
+            // $apiInstance = new InvoiceApi();
+            // $generateInvoice = $apiInstance->createInvoice($invoice);
+            $invoiceUrl = 'pending';
 
             $optionalDocuments = [];
 
@@ -146,7 +144,11 @@ class OrderServiceController extends Controller
                 'sender_name' => 'SeniKita Team',
             ];
 
-            Mail::to($user->email)->send(new ReminderPayments($details));
+            TransactionService::create([
+                'order_service_id' => $request->service_id,
+            ]);
+
+            // Mail::to($user->email)->send(new ReminderPayments($details));
 
             return response()->json(
                 [

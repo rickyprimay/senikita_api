@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\User\Order\OrderController;
 use App\Http\Controllers\Api\User\Order\OrderServiceController;
 use App\Http\Controllers\Api\User\Shop\DetailShopControler;
 use App\Http\Controllers\Api\User\Shop\ShopController as ShopShopController;
+use App\Http\Controllers\Api\User\User\Address\AddressController;
 use App\Http\Controllers\Api\User\User\Rating\Product\RatingController;
 use App\Http\Controllers\Api\User\User\Rating\Service\RatingServiceController;
 use App\Http\Controllers\Api\User\User\UserController as UserUserController;
@@ -84,14 +85,13 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 
-
     // Accept Order
-    Route::put('/shop/accept-order-service/{orderServiceId}', [ServiceController::class, 'setStatusConfirmed']);
-    Route::put('/shop/reject-order/{orderServiceId}', [ProductController::class, 'setStatusReject']);
+    Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);
+    Route::put('/shop/reject-order/{id}', [ProductController::class, 'setStatusReject']);
 
     // Accept Order Service
-    Route::put('/shop/accept-order-service/{id}', [ProductController::class, 'setStatus']);
-    Route::put('/shop/reject-order/{id}', [ProductController::class, 'setStatusReject']);
+    Route::put('/shop/accept-order-service/{orderServiceId}', [ServiceController::class, 'setStatus']);
+    Route::put('/shop/reject-order-service/{orderServiceId}', [ServiceController::class, 'setStatusReject']);
 
     // Bookmark Service
     Route::get('/bookmark-service', [BookmarkServiceController::class, 'index']);
@@ -106,6 +106,12 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // Shop
     Route::post('shop', [ShopController::class, 'create']);
     Route::put('shop/{id}', [ShopController::class, 'update']);
+
+    Route::get('address', [AddressController::class, 'index']);
+    Route::post('address', [AddressController::class, 'store']);
+    Route::get('address/{id}', [AddressController::class, 'show']);
+    Route::put('address/{id}', [AddressController::class, 'update']);
+    Route::delete('address/{id}', [AddressController::class, 'destroy']);
 
     // Product Shop
     Route::get('/shop/products', [ProductController::class, 'index']);

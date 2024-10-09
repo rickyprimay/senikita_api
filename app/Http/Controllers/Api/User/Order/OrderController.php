@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\User\Order;
 use App\Http\Controllers\Controller;
 use App\Mail\InvoicePayment;
 use App\Mail\ReminderPayments;
+use App\Models\Address;
 use App\Models\City;
 use App\Models\Order;
 use App\Models\OrderService;
@@ -57,201 +58,206 @@ class OrderController extends Controller
     }
 
     public function create(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'product_ids' => 'required|array',
-            'product_ids.*' => 'integer|exists:product,id',
-            'qtys' => 'required|array',
-            'qtys.*' => 'integer|min:1',
-            'city_id' => 'required|integer|exists:cities,id',
-            'province_id' => 'required|integer|exists:provinces,id',
-            'address' => 'required|string',
-            'name' => 'required|string',
-            'courier' => 'required|string',
-            'service' => 'required|string',
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'product_ids' => 'required|array',
+        'product_ids.*' => 'integer|exists:product,id',
+        'qtys' => 'required|array',
+        'qtys.*' => 'integer|min:1',
+        'courier' => 'required|string',
+        'service' => 'required|string',
+        'address_id' => 'required|exists:address,id' // Validasi address_id
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 400,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors(),
-                ],
-                400,
-            );
-        }
-
-        $user = Auth::user();
-        $productIds = $request->input('product_ids');
-        $qtys = $request->input('qtys');
-
-        $totalPriceProduct = 0;
-        $items = [];
-        $fees = [];
-
-        foreach ($productIds as $index => $productId) {
-            $product = Product::find($productId);
-            if (!$product) {
-                return response()->json(
-                    [
-                        'status' => 'error',
-                        'code' => 400,
-                        'message' => "Product with ID $productId not found.",
-                    ],
-                    400,
-                );
-            }
-
-            $priceProduct = $product->price;
-            $qty = $qtys[$index] ?? 1;
-            $totalPriceProduct += $priceProduct * $qty;
-
-            $items[] = new InvoiceItem([
-                'name' => $product->name,
-                'price' => $priceProduct,
-                'quantity' => $qty,
-            ]);
-        }
-
-        $weight = 1000;
-        $courier = $request->input('courier');
-        $selectedService = $request->input('service');
-
-        $shop = $product ? $product->shop : null;
-        $origin = $shop ? $shop->city_id : null;
-
-        if (!$origin) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 400,
-                    'message' => 'Origin city ID is missing for the selected product.',
-                ],
-                400,
-            );
-        }
-
-        $ongkirResponse = $this->checkOngkir(
-            new Request([
-                'origin' => $origin,
-                'destination' => $request->input('city_id'),
-                'weight' => $weight,
-                'courier' => $courier,
-            ]),
+    if ($validator->fails()) {
+        return response()->json(
+            [
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ],
+            400,
         );
+    }
 
-        $ongkirData = $ongkirResponse->original;
-        $ongkirCost = 0;
-        $estimation = null;
+    $user = Auth::user();
+    $productIds = $request->input('product_ids');
+    $qtys = $request->input('qtys');
 
-        foreach ($ongkirData as $service) {
-            if ($service['service'] === $selectedService) {
-                $ongkirCost = $service['cost'][0]['value'] ?? 0;
-                $estimation = $service['cost'][0]['etd'] ?? null;
-                break;
-            }
-        }
+    $address = Address::where('user_id', $user->id)->find($request->input('address_id'));
 
-        $no_transaction = 'Inv-' . rand();
-        $totalPrices = $totalPriceProduct + $ongkirCost;
-        $feeAdmin = min($totalPrices * (5 / 100), 5000);
-        $totalPrice = $totalPrices + $feeAdmin;
+    if (!$address) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 400,
+            'message' => 'Address not found or does not belong to this user.',
+        ], 400);
+    }
 
-        $fees = [
-            [
-                'type' => 'Ongkir Fee',
-                'value' => $ongkirCost,
-            ],
-            [
-                'type' => 'Admin Fee',
-                'value' => $feeAdmin,
-            ],
-        ];
+    $totalPriceProduct = 0;
+    $items = [];
+    $fees = [];
 
-        $invoice = new CreateInvoiceRequest([
-            'external_id' => $no_transaction,
-            'amount' => $totalPrice,
-            'invoice_duration' => 86400,
-            'customer_email' => $user->email,
-            'items' => $items,
-            'fees' => $fees,
-        ]);
-
-        try {
-            $apiInstance = new InvoiceApi();
-            $generateInvoice = $apiInstance->createInvoice($invoice);
-            $invoiceUrl = $generateInvoice['invoice_url'];
-
-            $city = City::find($request->input('city_id'));
-            $province_id = $city ? $city->province_id : null;
-            $products = Product::whereIn('id', $productIds)->get();
-
-            $order = Order::create([
-                'user_id' => $user->id,
-                'city_id' => $request->input('city_id'),
-                'no_transaction' => $no_transaction,
-                'email' => $user->email,
-                'name' => $request->input('name'),
-                'address' => $request->input('address'),
-                'province_id' => $province_id,
-                'price' => $totalPriceProduct,
-                'ongkir' => $ongkirCost,
-                'total_price' => $totalPrice,
-                'invoice_url' => $invoiceUrl,
-                'courier' => $request->input('courier'),
-                'service' => $selectedService,
-                'estimation' => $estimation,
-                'status' => 'pending',
-                'status_order' => 'waiting',
-            ]);
-
-            foreach ($productIds as $index => $productId) {
-                $order->product()->attach($productId, ['qty' => $qtys[$index]]);
-            }
-
-            DB::table('transaction')->insert([
-                'order_id' => $order->id,
-                'payment_status' => 'pending',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            $details = [
-                'name' => $request->input('name'),
-                'price' => $totalPrice,
-                'invoice_number' => $no_transaction,
-                'product_names' => implode(', ', array_map(fn($id) => Product::find($id)->name ?? 'Unknown', $productIds)),
-                'due_date' => '48 Hours',
-                'invoice_url' => $invoiceUrl,
-                'sender_name' => 'SeniKita Team',
-            ];
-
-            Mail::to($user->email)->send(new ReminderPayments($details));
-
-            return response()->json([
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Order created successfully',
-                'data' => [
-                    'order' => $order,
-                    'invoice_url' => $invoiceUrl,
-                ],
-                'product' => $products,
-            ]);
-        } catch (\Throwable $th) {
+    foreach ($productIds as $index => $productId) {
+        $product = Product::find($productId);
+        if (!$product) {
             return response()->json(
                 [
                     'status' => 'error',
-                    'code' => 500,
-                    'message' => 'Failed to create invoice',
-                    'errors' => $th->getMessage(),
+                    'code' => 400,
+                    'message' => "Product with ID $productId not found.",
                 ],
-                500,
+                400,
             );
+        }
+
+        $priceProduct = $product->price;
+        $qty = $qtys[$index] ?? 1;
+        $totalPriceProduct += $priceProduct * $qty;
+
+        $items[] = new InvoiceItem([
+            'name' => $product->name,
+            'price' => $priceProduct,
+            'quantity' => $qty,
+        ]);
+    }
+
+    // Gunakan city_id dari alamat
+    $weight = 1000;
+    $courier = $request->input('courier');
+    $selectedService = $request->input('service');
+
+    $shop = $product ? $product->shop : null;
+    $origin = $shop ? $shop->city_id : null;
+
+    if (!$origin) {
+        return response()->json(
+            [
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Origin city ID is missing for the selected product.',
+            ],
+            400,
+        );
+    }
+
+    $ongkirResponse = $this->checkOngkir(
+        new Request([
+            'origin' => $origin,
+            'destination' => $address->city_id,
+            'weight' => $weight,
+            'courier' => $courier,
+        ]),
+    );
+
+    $ongkirData = $ongkirResponse->original;
+    $ongkirCost = 0;
+    $estimation = null;
+
+    foreach ($ongkirData as $service) {
+        if ($service['service'] === $selectedService) {
+            $ongkirCost = $service['cost'][0]['value'] ?? 0;
+            $estimation = $service['cost'][0]['etd'] ?? null;
+            break;
         }
     }
+
+    $no_transaction = 'Inv-' . rand();
+    $totalPrices = $totalPriceProduct + $ongkirCost;
+    $feeAdmin = min($totalPrices * (5 / 100), 5000);
+    $totalPrice = $totalPrices + $feeAdmin;
+
+    $fees = [
+        [
+            'type' => 'Ongkir Fee',
+            'value' => $ongkirCost,
+        ],
+        [
+            'type' => 'Admin Fee',
+            'value' => $feeAdmin,
+        ],
+    ];
+
+    $invoice = new CreateInvoiceRequest([
+        'external_id' => $no_transaction,
+        'amount' => $totalPrice,
+        'invoice_duration' => 86400,
+        'customer_email' => $user->email,
+        'items' => $items,
+        'fees' => $fees,
+    ]);
+
+    try {
+        $apiInstance = new InvoiceApi();
+        $generateInvoice = $apiInstance->createInvoice($invoice);
+        $invoiceUrl = $generateInvoice['invoice_url'];
+        $products = Product::whereIn('id', $productIds)->get();
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'no_transaction' => $no_transaction,
+            'email' => $user->email,
+            'address_id' => $request->input('address_id'),
+            'price' => $totalPriceProduct,
+            'ongkir' => $ongkirCost,
+            'total_price' => $totalPrice,
+            'invoice_url' => $invoiceUrl,
+            'courier' => $courier,
+            'service' => $selectedService,
+            'estimation' => $estimation,
+            'status' => 'pending',
+            'status_order' => 'waiting',
+        ]);
+
+        foreach ($productIds as $index => $productId) {
+            $order->product()->attach($productId, ['qty' => $qtys[$index]]);
+        }
+
+        DB::table('transaction')->insert([
+            'order_id' => $order->id,
+            'payment_status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $details = [
+            'name' => $user->name,
+            'price' => $totalPrice,
+            'invoice_number' => $no_transaction,
+            'product_names' => implode(', ', array_map(fn($id) => Product::find($id)->name ?? 'Unknown', $productIds)),
+            'due_date' => '48 Hours',
+            'invoice_url' => $invoiceUrl,
+            'sender_name' => 'SeniKita Team',
+        ];
+
+        Mail::to($user->email)->send(new ReminderPayments($details));
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Order created successfully',
+            'data' => [
+                'order' => $order,
+                'invoice_url' => $invoiceUrl,
+                'address' => $address,
+                'product' => $products,
+            ],
+            
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json(
+            [
+                'status' => 'error',
+                'code' => 500,
+                'message' => 'Failed to create invoice',
+                'errors' => $th->getMessage(),
+            ],
+            500,
+        );
+    }
+}
+
 
     public function notificationCallback(Request $request)
     {

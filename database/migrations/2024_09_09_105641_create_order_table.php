@@ -14,15 +14,12 @@ return new class extends Migration
         Schema::create('order', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned();
-            $table->foreignId('city_id');
-            $table->foreignId('province_id');
-            $table->string('name');
             $table->string('email');
+            $table->bigInteger('address_id')->unsigned();
             $table->string('no_transaction');
             $table->integer('ongkir')->nullable();
             $table->integer('price');
             $table->integer('total_price');
-            $table->string('address');
             $table->string('courier')->default('jne');
             $table->string('service');
             $table->string('invoice_url');
@@ -31,6 +28,7 @@ return new class extends Migration
             $table->string('status_order')->default('pending');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('address_id')->references('id')->on('address')->onDelete('cascade');
             $table->timestamps();
         });
     }

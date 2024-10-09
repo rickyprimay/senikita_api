@@ -22,6 +22,7 @@ class Order extends Model
         'price',
         'city_id',
         'province_id',
+        'address_id',
         'total_price',
         'invoice_url',
         'service',
@@ -51,5 +52,10 @@ class Order extends Model
     {
         return $this->hasOne(TransactionOrder::class, 'order_id');
     }
+    public function address()
+{
+    return $this->belongsTo(Address::class, 'address_id');
+}
+
     
 }

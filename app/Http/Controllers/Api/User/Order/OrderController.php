@@ -339,12 +339,10 @@ class OrderController extends Controller
             }
 
             if ($orderService) {
-                if ($request->status == 'PAID') {
+                if ($request->status === 'PAID') {
                     $orderService->status = 'Success';
-                    // $orderService->status_payment = 'process';
                     $orderService->save();
-
-
+    
                     DB::table('transaction_service')
                         ->where('order_service_id', $orderService->id)
                         ->update([

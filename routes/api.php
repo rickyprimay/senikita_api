@@ -90,7 +90,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::put('/shop/reject-order/{id}', [ProductController::class, 'setStatusReject']);
 
     // Accept Order Service
-    Route::put('/shop/accept-order-service/{orderServiceId}', [ServiceController::class, 'setStatus']);
+    Route::put('/shop/accept-order-service/{orderServiceId}', [ServiceController::class, 'setStatusConfirmed']);
     Route::put('/shop/reject-order-service/{orderServiceId}', [ServiceController::class, 'setStatusReject']);
 
     // Bookmark Service

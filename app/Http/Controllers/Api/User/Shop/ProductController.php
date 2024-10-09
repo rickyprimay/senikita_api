@@ -370,7 +370,7 @@ class ProductController extends Controller
 
         $orders = Order::whereHas('product', function ($query) use ($products) {
             $query->whereIn('product_id', $products);
-        })->with('product')->get();
+        })->with('product', 'address')->get();
 
         if ($orders->isEmpty()) {
             return response()->json([

@@ -383,7 +383,7 @@ class OrderController extends Controller
             $user = Auth::user();
 
             $orders = Order::where('user_id', $user->id)
-                ->with(['product', 'transaction'])
+                ->with(['address', 'product', 'transaction', ])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -423,7 +423,7 @@ class OrderController extends Controller
 
             $order = Order::where('id', $orderId)
                 ->where('user_id', $user->id)
-                ->with(['product', 'transaction'])
+                ->with(['address', 'product', 'transaction'])
                 ->first();
 
             if (!$order) {

@@ -40,6 +40,6 @@ class OrderService extends Model
 
     public function transaction()
     {
-        return $this->hasOne(TransactionService::class, 'service_id', 'order_service_id');
+        return $this->hasOne(TransactionService::class, 'order_service_id', 'id');
     }
 }

@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Api\User\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImageService;
+use App\Models\OrderService;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Xendit\Invoice\CreateInvoiceRequest;
+use Xendit\Xendit;
+use Xendit\Invoice\InvoiceApi;
+use Xendit\Invoice\InvoiceItem;
+use Xendit\Configuration;
 
 class ServiceController extends Controller
 {
@@ -298,5 +304,136 @@ class ServiceController extends Controller
             'message' => 'Order service retrieved successfully',
             'data' => $services,
         ], 200);
+    }
+    public function getOrdersByShop()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $services = Service::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+        if (empty($services)) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No Service found for this shop.',
+            ], 404);
+        }
+
+        $orders = OrderService::whereHas('service', function ($query) use ($services) {
+            $query->whereIn('service_id', $services);
+        })->with('service')->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No orders service found for this shop.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'orders' => $orders,
+        ], 200);
+    }
+
+    public function __construct()
+    {
+        Configuration::setXenditKey(env('XENDIT_SECRET_KEY'));
+    }
+
+    public function setStatusConfirmed($orderServiceId) 
+    {
+        $orderService = OrderService::find($orderServiceId);
+
+        if ($orderService->status == "confirmed") {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Order already confirmed',
+            ], 400);
+        }
+        
+        if (!$orderService) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        if ($orderService->status_order === 'confirmed') {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Order already confirmed',
+            ], 400);
+        }
+
+        try {
+
+            $price = $orderService->price;
+            $feeAdmin = min($price * (5 / 100), 5000);
+            $totalPrice = $price + $feeAdmin;
+
+            $items = new InvoiceItem([
+                'name' => $orderService->name,
+                'price' => $price,
+                'quantity' => 1
+            ]);
+
+            $fees = [
+                [
+                    'type' => 'Admin Fee',
+                    'value' => $feeAdmin,
+                ],
+            ];
+
+            $invoice = new CreateInvoiceRequest([
+                'external_id' => $orderService->no_transaction,
+                'amount' => $totalPrice,
+                'invoice_duration' => 172800 / 2,
+                'customer_email' => $orderService->email,
+                'description' => 'Payment for ' . $orderService->activity_name,
+                'fees' => $fees,
+            ]);
+
+            $apiInstance = new InvoiceApi();
+            $generateInvoice = $apiInstance->createInvoice($invoice);
+            $invoiceUrl = $generateInvoice['invoice_url'];
+
+            $orderService->status_order = 'confirmed';
+            $orderService->status = 'waiting for payment';
+            $orderService->invoice_url = $invoiceUrl;
+            $orderService->save();
+
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Order status updated to confirmed and invoice URL generated',
+                'data' => [
+                    'invoice_url' => $invoiceUrl,
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => 'Failed to generate invoice URL',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

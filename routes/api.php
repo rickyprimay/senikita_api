@@ -80,13 +80,17 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // View Order
     Route::get('/shop/order-product', [ProductController::class, 'getOrdersByShop']);
-    Route::get('/shop/order-service', [ProductController::class, 'getOrdersByShop']);
+    Route::get('/shop/order-service', [ServiceController::class, 'getOrdersByShop']);
 
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 
 
     // Accept Order
-    Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);
+    Route::put('/shop/accept-order-service/{orderServiceId}', [ServiceController::class, 'setStatusConfirmed']);
+    Route::put('/shop/reject-order/{orderServiceId}', [ProductController::class, 'setStatusReject']);
+
+    // Accept Order Service
+    Route::put('/shop/accept-order-service/{id}', [ProductController::class, 'setStatus']);
     Route::put('/shop/reject-order/{id}', [ProductController::class, 'setStatusReject']);
 
     // Bookmark Service

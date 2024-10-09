@@ -343,6 +343,7 @@ class ProductController extends Controller
             'order' => $order,
         ], 200);
     }
+    
     public function getOrdersByShop()
     {
         $user = Auth::user();

@@ -14,11 +14,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        $this->call([
-            ProvinceSeeder::class,
-            CitySeeder::class,
-            CategorySeeder::class,
-        ]);
 
         User::create([
             'name' => 'Ricky Primayuda Putra',
@@ -52,6 +47,13 @@ class DatabaseSeeder extends Seeder
             'birth_location' => 'Purwodadi',
             'password' => 'mario.aprilnino27@gmail.com',
             'role' => 0,
+        ]);
+
+        $this->call([
+            ProvinceSeeder::class,
+            CitySeeder::class,
+            CategorySeeder::class,
+            ProductServiceSeeder::class,
         ]);
     }
 }

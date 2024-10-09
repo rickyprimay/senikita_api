@@ -49,8 +49,8 @@ class CartItemController extends Controller
         $cart = Cart::firstOrCreate(['user_id' => $user->id]);
 
         $cartItem = CartItem::where('cart_id', $cart->id)
-                            ->where('product_id', $request->product_id)
-                            ->first();
+            ->where('product_id', $request->product_id)
+            ->first();
 
         if ($cartItem) {
             $cartItem->qty += $request->qty;
@@ -78,10 +78,10 @@ class CartItemController extends Controller
         $user = Auth::user();
 
         $cartItem = CartItem::where('id', $id)
-                            ->whereHas('cart', function ($query) use ($user) {
-                                $query->where('user_id', $user->id);
-                            })
-                            ->first();
+            ->whereHas('cart', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->first();
 
         if (!$cartItem) {
             return response()->json([
@@ -92,7 +92,7 @@ class CartItemController extends Controller
         }
 
         $cartItem->qty = $request->input('qty');
-       
+
 
         if ($cartItem->qty <= 0) {
             $cartItem->delete();
@@ -102,7 +102,7 @@ class CartItemController extends Controller
             ], 200);
         }
         $cartItem->save();
-        
+
 
         return response()->json([
             'status' => 'success',
@@ -110,16 +110,16 @@ class CartItemController extends Controller
             'data' => $cartItem,
         ], 200);
     }
-    
+
     public function destroy($id)
     {
         $user = Auth::user();
 
         $cartItem = CartItem::where('id', $id)
-                            ->whereHas('cart', function ($query) use ($user) {
-                                $query->where('user_id', $user->id);
-                            })
-                            ->first();
+            ->whereHas('cart', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->first();
 
         if (!$cartItem) {
             return response()->json([
@@ -142,10 +142,10 @@ class CartItemController extends Controller
         $user = Auth::user();
 
         $cartItem = CartItem::where('id', $id)
-                            ->whereHas('cart', function ($query) use ($user) {
-                                $query->where('user_id', $user->id);
-                            })
-                            ->first();
+            ->whereHas('cart', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->first();
 
         if (!$cartItem) {
             return response()->json([
@@ -169,10 +169,10 @@ class CartItemController extends Controller
         $user = Auth::user();
 
         $cartItem = CartItem::where('id', $id)
-                            ->whereHas('cart', function ($query) use ($user) {
-                                $query->where('user_id', $user->id);
-                            })
-                            ->first();
+            ->whereHas('cart', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->first();
 
         if (!$cartItem) {
             return response()->json([

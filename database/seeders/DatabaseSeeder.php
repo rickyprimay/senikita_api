@@ -50,6 +50,55 @@ class DatabaseSeeder extends Seeder
             'isHaveStore' => 1,
         ]);
 
+        User::create([
+            'name' => 'Mario Aprilnino',
+            'email' => 'mario.1@gmail.com',
+            'email_verified_at' => now(),
+            'call_number' => '0895363185264',
+            'gender' => 'male',
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
+            'password' => 'mario.1@gmail.com',
+            'role' => 0,
+            'isHaveStore' => 1,
+        ]);
+        User::create([
+            'name' => 'Mario Aprilnino',
+            'email' => 'sanggar_semarang@gmail.com',
+            'email_verified_at' => now(),
+            'call_number' => '0895363185264',
+            'gender' => 'male',
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
+            'password' => 'sanggar_semarang@gmail.com',
+            'role' => 0,
+            'isHaveStore' => 1,
+        ]);
+        User::create([
+            'name' => 'Mario Aprilnino',
+            'email' => 'sanggar_bali@gmail.com',
+            'email_verified_at' => now(),
+            'call_number' => '0895363185264',
+            'gender' => 'male',
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
+            'password' => 'sanggar_bali@gmail.com',
+            'role' => 0,
+            'isHaveStore' => 1,
+        ]);
+        User::create([
+            'name' => 'Mario Aprilnino',
+            'email' => 'sanggarbari@gmail.com',
+            'email_verified_at' => now(),
+            'call_number' => '0895363185264',
+            'gender' => 'male',
+            'birth_date' => '2004-05-22',
+            'birth_location' => 'Purwodadi',
+            'password' => 'sanggarbari@gmail.com',
+            'role' => 0,
+            'isHaveStore' => 1,
+        ]);
+
         $this->call([
             ProvinceSeeder::class,
             CitySeeder::class,

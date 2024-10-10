@@ -12,7 +12,55 @@ class ProductServiceSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
+
     {
+        $seederShop = [
+            [
+                'name' => 'Toko Seni Bali',
+                'desc' => 'Toko seni yang menjual berbagai macam kerajinan khas Bali.',
+                'city_id' => 1,
+                'province_id' => 1,
+                'user_id' => 3,
+                'profile_picture' => 'https://smartbintaro.com/wp-content/uploads/2023/09/IG-Sanggar-Sanggita-Kencana-Budaya.jpg',
+            ],
+            [
+                'name' => 'Toko Seni Jawa Barat',
+                'desc' => 'Toko seni yang menjual berbagai macam kerajinan khas Jawa Barat.',
+                'city_id' => 2,
+                'province_id' => 2,
+                'user_id' => 4,
+                'profile_picture' => 'https://pandeyan.magetan.go.id/media/img/berita/berita_50476152a2dbf1f652.04601186.jpg',
+            ],
+            [
+                'name' => 'Toko Seni Jawa Tengah',
+                'desc' => 'Toko seni yang menjual berbagai macam kerajinan khas Jawa Tengah.',
+                'city_id' => 3,
+                'province_id' => 3,
+                'user_id' => 5,
+                'profile_picture' => 'https://homestaydijogja.net/wp-content/uploads/2024/01/Toko-Batik-Jogja-Berkualitas.jpg',
+            ],
+            [
+                'name' => 'Sanggar Seni Bali',
+                'desc' => 'Sanggar seni yang menawarkan berbagai macam kesenian khas Bali.',
+                'city_id' => 3,
+                'province_id' => 3,
+                'user_id' => 6,
+                'profile_picture' => 'https://yt3.googleusercontent.com/ReVt-Ti3nkchXIkTV0_a_q11j-Nn9D9FwbTtKmXFpsoeW9Rs1kT4nTR1ef1KyieatvY6hyqf2g=s900-c-k-c0x00ffffff-no-rj',
+            ],
+            [
+                'name' => 'Sanggar Seni Semarang',
+                'desc' => 'Sanggar seni yang menawarkan berbagai macam kesenian khas Semarang.',
+                'city_id' => 3,
+                'province_id' => 3,
+                'user_id' => 6,
+                'profile_picture' => 'https://assets.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/2022/04/24/192013399.jpg',
+            ]
+        ];
+
+        foreach ($seederShop as $shop) {
+            DB::table('shop')->insert($shop);
+        }
+
         DB::table('shop')->insert([
             'name' => 'Toko Seni Bali',
             'desc' => 'Toko seni yang menjual berbagai macam kerajinan khas Bali.',

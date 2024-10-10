@@ -41,7 +41,7 @@ class OrderServiceController extends Controller
             'city_id' => 'required|exists:cities,id',
             'description' => 'nullable|string',
             'address' => 'required|string|max:255',
-            'optional_document.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5000',
+            'optional_document.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,pdf,docx,xls,xlsx|max:5000',
         ]);
 
         if ($validator->fails()) {

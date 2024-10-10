@@ -59,6 +59,7 @@ class OrderController extends Controller
 
     public function create(Request $request)
 {
+
     $validator = Validator::make($request->all(), [
         'product_ids' => 'required|array',
         'product_ids.*' => 'integer|exists:product,id',
@@ -66,9 +67,9 @@ class OrderController extends Controller
         'qtys.*' => 'integer|min:1',
         'courier' => 'required|string',
         'service' => 'required|string',
-        'address_id' => 'required|exists:address,id' // Validasi address_id
+        'address_id' => 'required|exists:address,id' 
     ]);
-
+    
     if ($validator->fails()) {
         return response()->json(
             [
@@ -80,7 +81,7 @@ class OrderController extends Controller
             400,
         );
     }
-
+    
     $user = Auth::user();
     $productIds = $request->input('product_ids');
     $qtys = $request->input('qtys');

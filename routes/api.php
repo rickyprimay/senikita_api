@@ -165,6 +165,7 @@ Route::get('/shops/{id}', [ShopShopController::class, 'show']);
 Route::get('/products', [ProductProductController::class, 'index']);
 Route::get('/products/{id}', [ProductProductController::class, 'show']);
 Route::get('/random-product', [ProductProductController::class, 'randomProducts']);
+Route::get('/top-shop', [ProductProductController::class, 'topShops']);
 Route::get('/service', [ServiceServiceController::class, 'index']);
 Route::get('/service/{id}', [ServiceServiceController::class, 'show']);
 Route::get('/random-services', [ServiceServiceController::class, 'randomServices']);

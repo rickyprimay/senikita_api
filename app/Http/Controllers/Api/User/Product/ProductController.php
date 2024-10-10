@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\RatingProduct;
+use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -173,5 +175,29 @@ class ProductController extends Controller
             'message' => 'Show Product retrieved successfully',
             'product' => $product,
         ]);
+    }
+    public function topShops(Request $request)
+    {
+        $shops = Shop::with(['city.province'])
+            ->select('shop.*', 
+                DB::raw('(SELECT SUM(sold) FROM product WHERE product.shop_id = shop.id) AS total_product_sold'),
+                DB::raw('(SELECT SUM(sold) FROM service WHERE service.shop_id = shop.id) AS total_service_sold')
+            )
+            ->orderBy(DB::raw('total_product_sold + total_service_sold'), 'desc')
+            ->limit(5)
+            ->get();
+
+        foreach ($shops as $shop) {
+            $cityName = $shop->city ? $shop->city->name : null;
+            $provinceName = $shop->city && $shop->city->province ? $shop->city->province->name : null;
+            $shop->region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Top 5 shops retrieved successfully',
+            'data' => $shops,
+        ], 200);
     }
 }

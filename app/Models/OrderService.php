@@ -31,6 +31,8 @@ class OrderService extends Model
         'optional_document',
         'status',
         'status_order',
+        'qty',
+        'name',
     ];
 
     public function service()

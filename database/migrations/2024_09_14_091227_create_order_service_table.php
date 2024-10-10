@@ -16,6 +16,7 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('service_id')->unsigned();
             $table->string('name');
+            $table->integer('qty');
             $table->string('activity_name');
             $table->date('activity_date');
             $table->string('phone');

@@ -178,7 +178,7 @@ class ProductController extends Controller
     }
     public function topShops(Request $request)
     {
-        $shops = Shop::with(['city.province'])
+        $shops = Shop::with(['city.province', 'categories'])
             ->select('shop.*', 
                 DB::raw('(SELECT SUM(sold) FROM product WHERE product.shop_id = shop.id) AS total_product_sold'),
                 DB::raw('(SELECT SUM(sold) FROM service WHERE service.shop_id = shop.id) AS total_service_sold')
@@ -191,6 +191,17 @@ class ProductController extends Controller
             $cityName = $shop->city ? $shop->city->name : null;
             $provinceName = $shop->city && $shop->city->province ? $shop->city->province->name : null;
             $shop->region = $cityName && $provinceName ? $cityName . ', ' . $provinceName : 'Region not available';
+
+            $shop->total_product_sold = $shop->total_product_sold ?? 0;
+            $shop->total_service_sold = $shop->total_service_sold ?? 0;
+            $shop->total_sold = $shop->total_product_sold + $shop->total_service_sold;
+
+            $shop->categories = $shop->categories->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                ];
+            });
         }
 
         return response()->json([

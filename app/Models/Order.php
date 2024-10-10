@@ -29,7 +29,8 @@ class Order extends Model
         'courier',
         'status',
         'status_order',
-        'estimation'
+        'estimation',
+        'note',
     ];
     protected $casts = [
         'product_ids' => 'array',

@@ -67,7 +67,8 @@ class OrderController extends Controller
         'qtys.*' => 'integer|min:1',
         'courier' => 'required|string',
         'service' => 'required|string',
-        'address_id' => 'required|exists:address,id' 
+        'address_id' => 'required|exists:address,id' ,
+        'note' => 'nullable|string',
     ]);
     
     if ($validator->fails()) {
@@ -209,6 +210,7 @@ class OrderController extends Controller
             'estimation' => $estimation,
             'status' => 'pending',
             'status_order' => 'waiting',
+            'note' => $request->input('note'),
         ]);
 
         foreach ($productIds as $index => $productId) {

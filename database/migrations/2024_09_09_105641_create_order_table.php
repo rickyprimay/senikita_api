@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('estimation');
             $table->string('status')->default('pending');
             $table->string('status_order')->default('pending');
-            $table->string('note');
+            $table->string('note')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             // $table->foreign('address_id')->references('id')->on('address')->onDelete('cascade');

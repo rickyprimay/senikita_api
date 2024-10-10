@@ -145,7 +145,7 @@ class ShopController extends Controller
             }
         }
 
-        $shop->fill($request->except(['profile_picture', 'province_id'])); 
+        $shop->fill($request->except(['profile_picture', 'province_id']));
         $shop->save();
 
         $shop->load('city', 'province', 'categories');

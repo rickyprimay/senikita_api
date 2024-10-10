@@ -220,7 +220,13 @@ class ServiceController extends Controller
         }
 
         $service->update($request->only([
-            'name', 'price', 'desc', 'type', 'status', 'person_amount', 'category_id'
+            'name',
+            'price',
+            'desc',
+            'type',
+            'status',
+            'person_amount',
+            'category_id'
         ]));
 
         $serviceImages = [];
@@ -353,7 +359,7 @@ class ServiceController extends Controller
         Configuration::setXenditKey(env('XENDIT_SECRET_KEY'));
     }
 
-    public function setStatusConfirmed($orderServiceId) 
+    public function setStatusConfirmed($orderServiceId)
     {
         $orderService = OrderService::find($orderServiceId);
 
@@ -364,7 +370,7 @@ class ServiceController extends Controller
                 'message' => 'Order already confirmed',
             ], 400);
         }
-        
+
         if (!$orderService) {
             return response()->json([
                 'status' => 'error',
@@ -426,12 +432,49 @@ class ServiceController extends Controller
                     'invoice_url' => $invoiceUrl,
                 ],
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'code' => 500,
                 'message' => 'Failed to generate invoice URL',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function setStatusRejected($orderServiceId)
+    {
+        $orderService = OrderService::find($orderServiceId);
+
+        if (!$orderService) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Order not found',
+            ], 404);
+        }
+
+        if ($orderService->status_order === 'rejected') {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Order already rejected',
+            ], 400);
+        }
+
+        try {
+            $orderService->status_order = 'rejected';
+            $orderService->save();
+
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Order status updated to rejected',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => 'Failed to update order status',
                 'error' => $e->getMessage(),
             ], 500);
         }

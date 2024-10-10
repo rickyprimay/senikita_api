@@ -24,7 +24,7 @@ class CartController extends Controller
             ->with(['items.product.category', 'items.product.images', 'items.product.shop.city.province'])
             ->get();
 
-            Log::info('Carts Retrieved: ', $carts->toArray());
+        Log::info('Carts Retrieved: ', $carts->toArray());
 
         if ($carts->isEmpty()) {
             return response()->json([
@@ -64,6 +64,7 @@ class CartController extends Controller
                     'productPrice' => $product->price,
                     'qty' => $item->qty,
                     'shop_id' => $product->shop_id,
+                    'shop_city_id' => $product->shop->city_id,
                     'product_id' => $product->id,
                     'cart_item_id' => $item->id,
                 ];

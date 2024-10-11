@@ -236,12 +236,10 @@ class OrderServiceController extends Controller
                 );
             }
 
-            $serviceDetails = $order->service->map(function ($service) {
-                return [
-                    'name' => $service->name,
-                    'price' => $service->price,
-                ];
-            });
+            $serviceDetails = [
+                'name' => $order->service->name,
+                'price' => $order->service->price,
+            ];
 
             return response()->json([
                 'status' => 'success',

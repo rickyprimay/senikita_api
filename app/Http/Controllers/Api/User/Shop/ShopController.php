@@ -38,6 +38,17 @@ class ShopController extends Controller
             // $product->region = $product->shop->city->name . ', ' . $product->shop->city->province->name;
             return $product;
         });
+        $sold = 0;
+
+        foreach ($services as $service) {
+            $sold += $service->sold;
+        }
+
+        foreach ($products as $product) {
+            $sold += $product->sold;
+        }
+
+        $shop->sold = $sold;
 
         return response()->json([
             'status' => 'success',

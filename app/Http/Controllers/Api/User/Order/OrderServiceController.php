@@ -57,16 +57,16 @@ class OrderServiceController extends Controller
         }
 
         $service = Service::find($request->service_id);
-            if (!$service) {
-                return response()->json(
-                    [
-                        'status' => 'error',
-                        'code' => 404,
-                        'message' => 'Service not found',
-                    ],
-                    404
-                );
-            }
+        if (!$service) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'Service not found',
+                ],
+                404
+            );
+        }
 
         $no_transaction = 'Inv-' . rand();
         $price = $service->price;
@@ -97,7 +97,7 @@ class OrderServiceController extends Controller
         try {
 
             // dd($request->service_id);
-            
+
 
             // $apiInstance = new InvoiceApi();
             // $generateInvoice = $apiInstance->createInvoice($invoice);
@@ -164,7 +164,6 @@ class OrderServiceController extends Controller
                 ],
                 201
             );
-
         } catch (\Exception $e) {
             return response()->json(
                 [
@@ -184,7 +183,7 @@ class OrderServiceController extends Controller
             $user = Auth::user();
 
             $orders = OrderService::where('user_id', $user->id)
-                ->with(['service', 'transaction'])
+                ->with(['service', 'transaction', 'service.shop'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -298,7 +297,7 @@ class OrderServiceController extends Controller
             $order->status = 'DONE';
             $order->save();
 
-            DB::table('transaction_service') 
+            DB::table('transaction_service')
                 ->where('order_id', $orderId)
                 ->update([
                     'payment_status' => 'DONE',

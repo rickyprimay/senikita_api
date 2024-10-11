@@ -384,7 +384,7 @@ class OrderController extends Controller
             $user = Auth::user();
 
             $orders = Order::where('user_id', $user->id)
-                ->with(['address', 'product', 'transaction',])
+                ->with(['address', 'product', 'transaction', 'product.shop'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 

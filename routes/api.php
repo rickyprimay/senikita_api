@@ -146,12 +146,14 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/transaction-history', [OrderController::class, 'transactionHistory']);
     Route::get('/transaction-history/{orderId}', [OrderController::class, 'transactionDetail']);
     Route::put('/order/payment-status/{orderId}', [OrderController::class, 'updatePaymentStatus']);
-
+    Route::get('/order/status-order', [OrderController::class, 'getDataOrderProductByStatus']);
+    
     // Order Service
     Route::post('order-service', [OrderServiceController::class, 'create']);
     Route::get('/transaction-history-service', [OrderServiceController::class, 'transactionHistory']);
     Route::get('/transaction-history-service/{orderId}', [OrderServiceController::class, 'transactionDetail']);
     Route::put('/order-service/payment-status/{orderId}', [OrderServiceController::class, 'updatePaymentStatus']);
+    Route::get('/order-service/status-order', [OrderServiceController::class, 'getDataOrderServiceByStatus']);
 
     // Rating Product
     Route::post('/product/rating/{id}', [RatingController::class, 'store']);

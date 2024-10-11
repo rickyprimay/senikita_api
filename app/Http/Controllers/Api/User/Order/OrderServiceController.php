@@ -342,4 +342,50 @@ class OrderServiceController extends Controller
             );
         }
     }
+    public function getDataOrderServiceByStatus(Request $request) {
+        $user = Auth::user();
+    
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,paid,failed,DONE,confirmed,rejected,Success',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+     
+        try {
+            $status = $request->status;
+    
+            $orders = OrderService::where('user_id', $user->id)
+                ->where('status_order', $status)
+                ->with(['service', 'transaction', 'service.shop'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+    
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No orders found with the specified status',
+                ], 404);
+            }
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Orders retrieved successfully',
+                'data' => $orders,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve orders',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+    
 }

@@ -12,7 +12,7 @@ class DetailShopControler extends Controller
 {
     public function getShopDetails($shopId)
     {
-        $shop = Shop::with(['categories','products.ratings', 'products.category', 'services.ratings', 'services.category'])->find($shopId);
+        $shop = Shop::with(['categories', 'products.ratings', 'products.category', 'services.ratings', 'services.category'])->find($shopId);
 
         if (!$shop) {
             return response()->json([
@@ -36,19 +36,19 @@ class DetailShopControler extends Controller
 
             $averageRating = $productRatings->avg('rating') ?? 0;
             $ratingCount = $productRatings->count();
-            
+
             $productsData[] = [
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'thumbnail' => $product->thumbnail,
                 'price' => $product->price,
                 'stock' => $product->stock,
-                'description' => $product->desc, 
-                'status' => $product->status,    
+                'description' => $product->desc,
+                'status' => $product->status,
                 'category_id' => $product->category_id,
                 'category_name' => $product->category ? $product->category->name : null,
-                'sold' => $product->sold,        
-                'average_rating' => $averageRating, 
+                'sold' => $product->sold,
+                'average_rating' => $averageRating,
                 'rating_count' => $ratingCount,
             ];
         }
@@ -60,26 +60,26 @@ class DetailShopControler extends Controller
 
         foreach ($shop->services as $service) {
             $serviceRatings = $service->ratings;
-        
+
             if ($serviceRatings->isNotEmpty()) {
                 $totalServiceRatings += $serviceRatings->sum('rating');
                 $totalServiceCount += $serviceRatings->count();
             }
             $totalServicesSold += $service->sold;
-        
+
             $averageRating = $serviceRatings->avg('rating') ?? 0;
             $ratingCount = $serviceRatings->count();
-        
+
             $servicesData[] = [
                 'id' => $service->id,
                 'name' => $service->name,
                 'price' => $service->price,
                 'description' => $service->desc,
-                'status' => $service->status, 
-                'sold' => $service->sold, 
-                'average_rating' => $averageRating, 
-                'rating_count' => $ratingCount, 
-                'thumbnail' => $service->thumbnail, 
+                'status' => $service->status,
+                'sold' => $service->sold,
+                'average_rating' => $averageRating,
+                'rating_count' => $ratingCount,
+                'thumbnail' => $service->thumbnail,
                 'person_amount' => $service->person_amount,
                 'category_name' => $service->category ? $service->category->name : null,
             ];
@@ -89,8 +89,8 @@ class DetailShopControler extends Controller
         $averageServiceRating = $totalServiceCount > 0 ? $totalServiceRatings / $totalServiceCount : 0;
         $averageShop = ($averageProductRating + $averageServiceRating) / 2;
 
-        $fullLocation = ($shop->city ? $shop->city->name : 'Unknown') . ', ' . 
-                ($shop->city && $shop->city->province ? $shop->city->province->name : 'Unknown');
+        $fullLocation = ($shop->city ? $shop->city->name : 'Unknown') . ', ' .
+            ($shop->city && $shop->city->province ? $shop->city->province->name : 'Unknown');
 
         return response()->json([
             'status' => 'success',
@@ -104,11 +104,83 @@ class DetailShopControler extends Controller
                     'total_products_sold' => $totalProductsSold,
                     'total_services_sold' => $totalServicesSold,
                     'categories' => $shop->categories,
-                    'products' => $productsData, 
-                    'services' => $servicesData, 
+                    'products' => $productsData,
+                    'services' => $servicesData,
                 ],
             ],
         ], 200);
     }
 
+    public function getRatingProductAndService($shopId)
+    {
+        $shop = Shop::with([
+            'products.ratings.user',
+            'products.ratings.ratingImages',
+            'services.ratings.user',
+            'services.ratings.ratingImages'
+        ])->find($shopId);
+
+        if (!$shop) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Shop not found',
+            ], 404);
+        }
+
+        $productsRatingData = [];
+        foreach ($shop->products as $product) {
+            $highestRating = $product->ratings->sortByDesc('rating')->first();
+            $ratingImages = $highestRating ? $highestRating->ratingImages->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'image_url' => $image->picture_rating_product,
+                ];
+            })->toArray() : [];
+
+            $productsRatingData[] = [
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'average_rating' => $product->ratings->avg('rating'),
+                'rating_count' => $product->ratings->count(),
+                'highest_rating' => $highestRating ? [
+                    'user' => $highestRating->user ? $highestRating->user->name : 'Anonymous',
+                    'rating' => $highestRating->rating,
+                    'comment' => $highestRating->comment,
+                    'images' => $ratingImages,
+                ] : null,
+            ];
+        }
+
+        $servicesRatingData = [];
+        foreach ($shop->services as $service) {
+            $highestRating = $service->ratings->sortByDesc('rating')->first();
+            $ratingImages = $highestRating ? $highestRating->ratingImages->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'image_url' => $image->picture_rating_service,
+                ];
+            })->toArray() : [];
+
+            $servicesRatingData[] = [
+                'service_id' => $service->id,
+                'name' => $service->name,
+                'average_rating' => $service->ratings->avg('rating'),
+                'rating_count' => $service->ratings->count(),
+                'highest_rating' => $highestRating ? [
+                    'user' => $highestRating->user ? $highestRating->user->name : 'Anonymous',
+                    'rating' => $highestRating->rating,
+                    'comment' => $highestRating->comment,
+                    'images' => $ratingImages,
+                ] : null,
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'product_ratings' => $productsRatingData,
+                'service_ratings' => $servicesRatingData,
+            ],
+        ], 200);
+    }
 }

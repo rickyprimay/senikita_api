@@ -179,5 +179,6 @@ Route::get('category', [ApiCategoryController::class, 'index']);
 Route::post('/notification', [OrderController::class, 'notificationCallback'])->name('notification');
 
 Route::get('/detail-shop/{shopId}', [DetailShopControler::class, 'getShopDetails']);
+Route::get('/detail-shop/rating/{shopId}', [DetailShopControler::class, 'getRatingProductAndService']);
 Route::get('/detail-shop/product/{shopId}', [DetailShopControler::class, 'getProductsByShop']);
 Route::get('/detail-shop/service/{shopId}', [DetailShopControler::class, 'getServicesByShop']);

@@ -298,17 +298,22 @@ class OrderServiceController extends Controller
             $order->save();
 
             DB::table('transaction_service')
-                ->where('order_id', $orderId)
+                ->where('order_service_id', $orderId)
                 ->update([
                     'payment_status' => 'DONE',
                     'updated_at' => now(),
                 ]);
 
-            $services = DB::table('service')->join('order_service', 'service.id', '=', 'order_service.service_id')->where('order_service.order_id', $orderId)->select('service.id as service_id', 'service.price')->get();
+                $services = DB::table('service')
+                ->join('order_service', 'service.id', '=', 'order_service.service_id')
+                ->where('order_service.id', $orderId)
+                ->select('service.id as service_id', 'service.price')
+                ->get();
+            
 
             foreach ($services as $service) {
                 $shop = Shop::whereHas('services', function ($query) use ($service) {
-                    $query->where('id', $service->product_id);
+                    $query->where('id', $service->service_id);
                 })->first();
 
                 if ($shop) {

@@ -44,4 +44,14 @@ class OrderService extends Model
     {
         return $this->hasOne(TransactionService::class, 'order_service_id', 'id');
     }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id');
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
 }

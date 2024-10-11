@@ -223,7 +223,7 @@ class OrderServiceController extends Controller
 
             $order = OrderService::where('id', $orderId)
                 ->where('user_id', $user->id)
-                ->with(['service', 'transaction'])
+                ->with(['service', 'transaction', 'province', 'city'])
                 ->first();
 
             if (!$order) {
@@ -302,12 +302,12 @@ class OrderServiceController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                $services = DB::table('service')
+            $services = DB::table('service')
                 ->join('order_service', 'service.id', '=', 'order_service.service_id')
                 ->where('order_service.id', $orderId)
                 ->select('service.id as service_id', 'service.price')
                 ->get();
-            
+
 
             foreach ($services as $service) {
                 $shop = Shop::whereHas('services', function ($query) use ($service) {

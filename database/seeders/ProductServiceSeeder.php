@@ -19,7 +19,7 @@ class ProductServiceSeeder extends Seeder
             [
                 'name' => 'Toko Seni Bali',
                 'desc' => 'Toko seni yang menjual berbagai macam kerajinan khas Bali.',
-                'city_id' => 122,
+                'city_id' => 120,
                 'province_id' => 5,
                 'user_id' => 3,
                 'profile_picture' => 'https://smartbintaro.com/wp-content/uploads/2023/09/IG-Sanggar-Sanggita-Kencana-Budaya.jpg',

@@ -343,7 +343,7 @@ class ProductController extends Controller
             'order' => $order,
         ], 200);
     }
-    
+
     public function getOrdersByShop()
     {
         $user = Auth::user();
@@ -370,7 +370,7 @@ class ProductController extends Controller
 
         $orders = Order::whereHas('product', function ($query) use ($products) {
             $query->whereIn('product_id', $products);
-        })->with('product', 'address')->get();
+        })->with('product', 'address', 'address.city', 'address.province')->get();
 
         if ($orders->isEmpty()) {
             return response()->json([

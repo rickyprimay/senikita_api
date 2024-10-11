@@ -346,7 +346,7 @@ class OrderServiceController extends Controller
         $user = Auth::user();
     
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:pending,paid,failed,DONE',
+            'status' => 'required|in:pending,paid,failed,DONE,confirmed,rejected,Success',
         ]);
     
         if ($validator->fails()) {

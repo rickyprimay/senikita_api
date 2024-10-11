@@ -83,6 +83,10 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/shop/order-product', [ProductController::class, 'getOrdersByShop']);
     Route::get('/shop/order-service', [ServiceController::class, 'getOrdersByShop']);
 
+    // View Pending Deliverry Order
+    Route::get('/shop/order-product/pending-delivery', [ProductController::class, 'getPendingDeliveries']);
+
+    // Cashout
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 
     // Accept Order

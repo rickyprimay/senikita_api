@@ -386,4 +386,54 @@ class ProductController extends Controller
             'orders' => $orders,
         ], 200);
     }
+    public function getPendingDeliveries()
+{
+    $user = Auth::user();
+
+    if (!$user->shop) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'User does not have a shop.',
+        ], 404);
+    }
+
+    $shop_id = $user->shop->id;
+
+    // Mendapatkan produk terkait toko
+    $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+    if (empty($products)) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'No products found for this shop.',
+        ], 404);
+    }
+
+    // Menggunakan whereHas untuk mencari order yang memiliki produk terkait dan filter status serta status_order
+    $orders = Order::whereHas('product', function ($query) use ($products) {
+        $query->whereIn('product_id', $products);
+    })
+    ->where('status', 'Success')
+    ->where('status_order', 'process')
+    ->with('product', 'address', 'address.city', 'address.province')
+    ->get();
+
+    if ($orders->isEmpty()) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'No pending deliveries found for this shop.',
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'code' => 200,
+        'orders' => $orders,
+    ], 200);
+}
+
+
 }

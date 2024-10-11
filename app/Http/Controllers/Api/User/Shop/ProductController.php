@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ImageProduct;
 use App\Models\Order;
 use App\Models\OrderProduct;
+use App\Models\OrderService;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
@@ -500,11 +501,50 @@ class ProductController extends Controller
             ], 404);
         }
 
-        
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'sold_products_count' => $soldProductsCount,
+        ], 200);
+    }
+    public function getTotalSoldItems()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $soldCount = OrderService::whereHas('service', function ($query) use ($shop_id) {
+            $query->where('shop_id', $shop_id);
+        })
+            ->where('status', 'DONE')
+            ->count();
+
+        $soldProducts = Product::with(['orders' => function ($query) {
+            $query->where('status', 'DONE');
+        }])
+            ->where('shop_id', $shop_id)
+            ->get()
+            ->filter(function ($product) {
+                return $product->orders->isNotEmpty();
+            });
+
+        $soldProductsCount = $soldProducts->count();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'sold_count_services' => $soldCount,
+            'sold_count_products' => $soldProductsCount,
+            'total_sold_count' => $soldCount + $soldProductsCount,
         ], 200);
     }
 }

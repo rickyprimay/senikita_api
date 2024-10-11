@@ -541,49 +541,67 @@ class OrderController extends Controller
             );
         }
     }
-    public function getDataOrderProductByStatus(Request $request) {
-        $user = Auth::user();
-    
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|in:pending,paid,failed,DONE',
-        ]);
-    
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 400,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 400);
-        }
-    
-        try {
-            $status = $request->status;
-    
+    public function getDataOrderProductByStatus(Request $request)
+{
+    $user = Auth::user();
+
+    $validator = Validator::make($request->all(), [
+        'status' => 'required|in:pending,Success,failed,DONE,delivered',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 400,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors(),
+        ], 400);
+    }
+
+    try {
+        $status = $request->status;
+
+        if ($status === 'delivered') {
             $orders = Order::where('user_id', $user->id)
-                ->where('status_order', $status)
-                ->with(['service', 'transaction', 'service.shop'])
+                ->where('status_order', 'delivered')
+                ->with(['product', 'transaction', 'product.shop'])
                 ->orderBy('created_at', 'desc')
                 ->get();
-    
-            if ($orders->isEmpty()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'No orders found with the specified status',
-                ], 404);
-            }
-    
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Orders retrieved successfully',
-                'data' => $orders,
-            ], 200);
-        } catch (\Throwable $th) {
+        } else if ($status === 'Success') {
+            $orders = Order::where('user_id', $user->id)
+                ->where('status_order', 'process')
+                ->with(['product', 'transaction', 'product.shop'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+        } else {
+            $orders = Order::where('user_id', $user->id)
+                ->where('status', $status)
+                ->with(['product', 'transaction', 'product.shop'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        if ($orders->isEmpty()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to retrieve orders',
-                'error' => $th->getMessage(),
-            ], 500);
+                'message' => 'No orders found with the specified status',
+            ], 404);
         }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Orders retrieved successfully',
+            'data' => $orders,
+        ], 200);
+        
+    } catch (\Throwable $th) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to retrieve orders',
+            'error' => $th->getMessage(),
+        ], 500);
     }
+}
+
 }

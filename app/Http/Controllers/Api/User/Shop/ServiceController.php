@@ -337,7 +337,7 @@ class ServiceController extends Controller
 
         $orders = OrderService::whereHas('service', function ($query) use ($services) {
             $query->whereIn('service_id', $services);
-        })->with('service')->get();
+        })->with('service', 'service.shop', 'city', 'province')->get();
 
         if ($orders->isEmpty()) {
             return response()->json([

@@ -105,9 +105,9 @@ class UserController extends Controller
         if (!Hash::check($request->input('old_password'), $user->password)) {
             return response()->json([
                 'status' => 'error',
-                'code' => 401,
+                'code' => 400,
                 'message' => 'The provided old password is incorrect',
-            ], 401);
+            ], 400);
         }
 
         $user->password = Hash::make($request->input('password'));

@@ -14,7 +14,7 @@ class ShopController extends Controller
 {
     public function show($id)
     {
-        $shop = Shop::with(['services', 'products', 'categories', 'products.category', 'services.category'])->find($id);
+        $shop = Shop::with(['services', 'products', 'categories', 'products.category', 'services.category', 'products.shop', 'services.shop'])->find($id);
 
         if (!$shop) {
             return response()->json([

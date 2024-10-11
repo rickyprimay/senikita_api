@@ -39,14 +39,19 @@ class ShopController extends Controller
             return $product;
         });
         $sold = 0;
+        $rating = 0;
 
         foreach ($services as $service) {
             $sold += $service->sold;
+            $rating += $service->average_rating;
         }
 
         foreach ($products as $product) {
             $sold += $product->sold;
+            $rating += $product->average_rating;
         }
+
+        $shop->rating = $rating / ($services->count() + $products->count());
 
         $shop->sold = $sold;
 

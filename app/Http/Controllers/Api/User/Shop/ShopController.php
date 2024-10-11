@@ -15,7 +15,6 @@ class ShopController extends Controller
     public function show($id)
     {
         $shop = Shop::with(['services', 'products', 'categories', 'products.category', 'services.category', 'products.shop', 'services.shop', 'products.shop.city', 'services.shop.city', 'products.ratings', 'services.ratings'])->find($id);
-
         if (!$shop) {
             return response()->json([
                 'status' => 'error',
@@ -23,12 +22,12 @@ class ShopController extends Controller
                 'message' => 'Shop not found.'
             ], 404);
         }
-
+        $shop->region = $shop->city->name . ', ' . $shop->city->province->name;
         $services = $shop->services->map(function ($service) {
             $ratings = RatingService::where('service_id', $service->id)->get();
             $service->average_rating = $ratings->avg('rating') ?? 0;
             $service->rating_count = $ratings->count();
-            $service->region = $service->shop->city->name . ', ' . $service->shop->city->province->name;
+            // $service->region = $service->shop->city->name . ', ' . $service->shop->city->province->name;
             return $service;
         });
 
@@ -36,7 +35,7 @@ class ShopController extends Controller
             $ratings = RatingProduct::where('product_id', $product->id)->get();
             $product->average_rating = $ratings->avg('rating') ?? 0;
             $product->rating_count = $ratings->count();
-            $product->region = $product->shop->city->name . ', ' . $product->shop->city->province->name;
+            // $product->region = $product->shop->city->name . ', ' . $product->shop->city->province->name;
             return $product;
         });
 

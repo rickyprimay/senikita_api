@@ -89,6 +89,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // View Product with low stock
     Route::get('/shop/products/low-stock', [ProductController::class, 'getLowStockProducts']);
 
+    // View Produnct sold count
+    Route::get('/shop/products/sold-count', [ProductController::class, 'getSoldProducts']);
+
     // Cashout
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 

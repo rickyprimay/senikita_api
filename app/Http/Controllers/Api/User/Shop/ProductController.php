@@ -467,4 +467,44 @@ class ProductController extends Controller
             'low_stock_products' => $lowStockProducts,
         ], 200);
     }
+    public function getSoldProducts()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $soldProducts = Product::with(['category', 'images', 'orders' => function ($query) {
+            $query->where('status', 'DONE');
+        }])
+            ->where('shop_id', $shop_id)
+            ->get()
+            ->filter(function ($product) {
+                return $product->orders->isNotEmpty();
+            });
+
+        $soldProductsCount = $soldProducts->count();
+
+        if ($soldProductsCount === 0) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No sold products found with status DONE for this shop.',
+            ], 404);
+        }
+
+        
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'sold_products_count' => $soldProductsCount,
+        ], 200);
+    }
 }

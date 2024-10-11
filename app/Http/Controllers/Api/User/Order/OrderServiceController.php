@@ -357,7 +357,7 @@ class OrderServiceController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-    
+     
         try {
             $status = $request->status;
     

@@ -92,6 +92,9 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // View Produnct sold count
     Route::get('/shop/products/sold-count', [ProductController::class, 'getSoldProducts']);
 
+    // View Service sold count
+    Route::get('/shop/service/sold-count', [ServiceController::class, 'countSoldServices']);
+
     // Cashout
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 

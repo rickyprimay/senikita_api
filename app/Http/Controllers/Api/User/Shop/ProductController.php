@@ -387,53 +387,84 @@ class ProductController extends Controller
         ], 200);
     }
     public function getPendingDeliveries()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    if (!$user->shop) {
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        // Mendapatkan produk terkait toko
+        $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+        if (empty($products)) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No products found for this shop.',
+            ], 404);
+        }
+
+        // Menggunakan whereHas untuk mencari order yang memiliki produk terkait dan filter status serta status_order
+        $orders = Order::whereHas('product', function ($query) use ($products) {
+            $query->whereIn('product_id', $products);
+        })
+            ->where('status', 'Success')
+            ->where('status_order', 'process')
+            ->with('product', 'address', 'address.city', 'address.province')
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No pending deliveries found for this shop.',
+            ], 404);
+        }
+
         return response()->json([
-            'status' => 'error',
-            'code' => 404,
-            'message' => 'User does not have a shop.',
-        ], 404);
+            'status' => 'success',
+            'code' => 200,
+            'orders' => $orders,
+        ], 200);
     }
+    public function getLowStockProducts()
+    {
+        $user = Auth::user();
 
-    $shop_id = $user->shop->id;
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
 
-    // Mendapatkan produk terkait toko
-    $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+        $shop_id = $user->shop->id;
 
-    if (empty($products)) {
+        $lowStockProducts = Product::with(['category', 'images'])
+            ->where('shop_id', $shop_id)
+            ->where('stock', '<=', 10)
+            ->get();
+
+        if ($lowStockProducts->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No low stock products found for this shop.',
+            ], 404);
+        }
+
         return response()->json([
-            'status' => 'error',
-            'code' => 404,
-            'message' => 'No products found for this shop.',
-        ], 404);
+            'status' => 'success',
+            'code' => 200,
+            'low_stock_products' => $lowStockProducts,
+        ], 200);
     }
-
-    // Menggunakan whereHas untuk mencari order yang memiliki produk terkait dan filter status serta status_order
-    $orders = Order::whereHas('product', function ($query) use ($products) {
-        $query->whereIn('product_id', $products);
-    })
-    ->where('status', 'Success')
-    ->where('status_order', 'process')
-    ->with('product', 'address', 'address.city', 'address.province')
-    ->get();
-
-    if ($orders->isEmpty()) {
-        return response()->json([
-            'status' => 'error',
-            'code' => 404,
-            'message' => 'No pending deliveries found for this shop.',
-        ], 404);
-    }
-
-    return response()->json([
-        'status' => 'success',
-        'code' => 200,
-        'orders' => $orders,
-    ], 200);
-}
-
-
 }

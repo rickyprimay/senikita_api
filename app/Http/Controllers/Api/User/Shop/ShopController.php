@@ -117,4 +117,23 @@ class ShopController extends Controller
             'balance' => $shop->balance,
         ], 200);
     }
+    public function getShopByLogin()
+    {
+        $user = Auth::user();
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
+        }
+        $shop = Shop::find($user->shop->id);
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Shop retrieved successfully',
+            'data' => $shop,
+        ], 200);
+    }
 }

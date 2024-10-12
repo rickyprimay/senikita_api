@@ -102,6 +102,8 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/shop/products/total-count', [ProductController::class, 'getTotalSoldItems']);
     Route::get('/shop/products/summary-sales', [ProductController::class, 'getSalesDataByYear']);
 
+    // View Shop data shop by login
+    Route::get('/shop/view-login', [ShopShopController::class, 'getShopByLogin']);
     
     // View Service sold count
     Route::get('/shop/service/sold-count', [ServiceController::class, 'countSoldServices']);

@@ -26,6 +26,8 @@ use App\Http\Controllers\Api\User\User\Address\AddressController;
 use App\Http\Controllers\Api\User\User\Rating\Product\RatingController;
 use App\Http\Controllers\Api\User\User\Rating\Service\RatingServiceController;
 use App\Http\Controllers\Api\User\User\UserController as UserUserController;
+use App\Http\Controllers\ImageController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -147,7 +149,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/transaction-history/{orderId}', [OrderController::class, 'transactionDetail']);
     Route::put('/order/payment-status/{orderId}', [OrderController::class, 'updatePaymentStatus']);
     Route::get('/order/status-order', [OrderController::class, 'getDataOrderProductByStatus']);
-    
+
     // Order Service
     Route::post('order-service', [OrderServiceController::class, 'create']);
     Route::get('/transaction-history-service', [OrderServiceController::class, 'transactionHistory']);
@@ -184,3 +186,25 @@ Route::get('/detail-shop/{shopId}', [DetailShopControler::class, 'getShopDetails
 Route::get('/detail-shop/rating/{shopId}', [DetailShopControler::class, 'getRatingProductAndService']);
 Route::get('/detail-shop/product/{shopId}', [DetailShopControler::class, 'getProductsByShop']);
 Route::get('/detail-shop/service/{shopId}', [DetailShopControler::class, 'getServicesByShop']);
+
+
+Route::get('fetch-image', [ImageController::class, 'fetchImage']);
+
+use Illuminate\Support\Facades\Storage;
+
+// Route::get('/fetch-image', function (Request $request) {
+//     $path = 'public/' . $request->path;
+
+//     if (!Storage::exists($path)) {
+//         abort(404);
+//     }
+
+//     $file = Storage::get($path);
+//     $type = Storage::mimeType($path);
+
+//     return response($file, 200)
+//         ->header('Content-Type', $type)
+//         ->header('Access-Control-Allow-Origin', '*')
+//         ->header('Access-Control-Allow-Methods', 'GET')
+//         ->header('Access-Control-Allow-Headers', 'Content-Type');
+// });

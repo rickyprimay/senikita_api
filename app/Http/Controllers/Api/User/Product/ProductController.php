@@ -54,10 +54,24 @@ class ProductController extends Controller
         );
     }
 
-    public function randomProducts()
+    public function randomProducts(Request $request)
     {
-        $products = Product::with(['category', 'shop.city.province'])
-            ->inRandomOrder()
+        $cityId = $request->query('city_id');
+        $categoryId = $request->query('category_id');
+
+        $query = Product::with(['category', 'shop.city.province']);
+
+        if (!is_null($cityId)) {
+            $query->whereHas('shop.city', function ($q) use ($cityId) {
+                $q->where('id', $cityId);
+            });
+        }
+
+        if (!is_null($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+
+        $products = $query->inRandomOrder()
             ->limit(5)
             ->get()
             ->map(function ($product) {
@@ -76,16 +90,14 @@ class ProductController extends Controller
                 return $product;
             });
 
-        return response()->json(
-            [
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Random products retrieved successfully',
-                'data' => $products,
-            ],
-            200,
-        );
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Random products retrieved successfully',
+            'data' => $products,
+        ], 200);
     }
+
 
     public function show($id, Request $request)
     {
@@ -179,7 +191,8 @@ class ProductController extends Controller
     public function topShops(Request $request)
     {
         $shops = Shop::with(['city.province', 'categories'])
-            ->select('shop.*', 
+            ->select(
+                'shop.*',
                 DB::raw('(SELECT SUM(sold) FROM product WHERE product.shop_id = shop.id) AS total_product_sold'),
                 DB::raw('(SELECT SUM(sold) FROM service WHERE service.shop_id = shop.id) AS total_service_sold')
             )

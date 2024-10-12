@@ -609,9 +609,6 @@ class ProductController extends Controller
         return response()->json([
             'status' => 'success',
             'code' => 200,
-            'sold_count_services' => $sold_count_services,
-            'sold_count_products' => $sold_count_products,
-            'total_sold_count' => $total_sold_count,
             'summary' => [
                 'year' => (int) $year,
                 'salesData' => $salesData,

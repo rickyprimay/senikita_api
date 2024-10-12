@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ImageProduct;
 use App\Models\Order;
 use App\Models\OrderProduct;
+use App\Models\OrderService;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
@@ -384,6 +385,166 @@ class ProductController extends Controller
             'status' => 'success',
             'code' => 200,
             'orders' => $orders,
+        ], 200);
+    }
+    public function getPendingDeliveries()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        // Mendapatkan produk terkait toko
+        $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+        if (empty($products)) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No products found for this shop.',
+            ], 404);
+        }
+
+        // Menggunakan whereHas untuk mencari order yang memiliki produk terkait dan filter status serta status_order
+        $orders = Order::whereHas('product', function ($query) use ($products) {
+            $query->whereIn('product_id', $products);
+        })
+            ->where('status', 'Success')
+            ->where('status_order', 'process')
+            ->with('product', 'address', 'address.city', 'address.province')
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No pending deliveries found for this shop.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'orders' => $orders,
+        ], 200);
+    }
+    public function getLowStockProducts()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $lowStockProducts = Product::with(['category', 'images'])
+            ->where('shop_id', $shop_id)
+            ->where('stock', '<=', 10)
+            ->get();
+
+        if ($lowStockProducts->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No low stock products found for this shop.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'low_stock_products' => $lowStockProducts,
+        ], 200);
+    }
+    public function getSoldProducts()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $soldProducts = Product::with(['category', 'images', 'orders' => function ($query) {
+            $query->where('status', 'DONE');
+        }])
+            ->where('shop_id', $shop_id)
+            ->get()
+            ->filter(function ($product) {
+                return $product->orders->isNotEmpty();
+            });
+
+        $soldProductsCount = $soldProducts->count();
+
+        if ($soldProductsCount === 0) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No sold products found with status DONE for this shop.',
+            ], 404);
+        }
+
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'sold_products_count' => $soldProductsCount,
+        ], 200);
+    }
+    public function getTotalSoldItems()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $soldCount = OrderService::whereHas('service', function ($query) use ($shop_id) {
+            $query->where('shop_id', $shop_id);
+        })
+            ->where('status', 'DONE')
+            ->count();
+
+        $soldProducts = Product::with(['orders' => function ($query) {
+            $query->where('status', 'DONE');
+        }])
+            ->where('shop_id', $shop_id)
+            ->get()
+            ->filter(function ($product) {
+                return $product->orders->isNotEmpty();
+            });
+
+        $soldProductsCount = $soldProducts->count();
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'sold_count_services' => $soldCount,
+            'sold_count_products' => $soldProductsCount,
+            'total_sold_count' => $soldCount + $soldProductsCount,
         ], 200);
     }
 }

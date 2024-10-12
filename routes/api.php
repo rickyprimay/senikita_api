@@ -85,6 +85,20 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/shop/order-product', [ProductController::class, 'getOrdersByShop']);
     Route::get('/shop/order-service', [ServiceController::class, 'getOrdersByShop']);
 
+    // View Pending Deliverry Order
+    Route::get('/shop/order-product/pending-delivery', [ProductController::class, 'getPendingDeliveries']);
+
+    // View Product with low stock
+    Route::get('/shop/products/low-stock', [ProductController::class, 'getLowStockProducts']);
+
+    // View Produnct sold count
+    Route::get('/shop/products/sold-count', [ProductController::class, 'getSoldProducts']);
+    Route::get('/shop/products/total-count', [ProductController::class, 'getTotalSoldItems']);
+
+    // View Service sold count
+    Route::get('/shop/service/sold-count', [ServiceController::class, 'countSoldServices']);
+
+    // Cashout
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
 
     // Accept Order

@@ -148,7 +148,7 @@ class OrderServiceController extends Controller
             ];
 
             TransactionService::create([
-                'order_service_id' => $request->service_id,
+                'order_service_id' => $order->id,
             ]);
 
             // Mail::to($user->email)->send(new ReminderPayments($details));

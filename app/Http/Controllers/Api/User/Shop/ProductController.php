@@ -10,6 +10,7 @@ use App\Models\OrderService;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -545,6 +546,76 @@ class ProductController extends Controller
             'sold_count_services' => $soldCount,
             'sold_count_products' => $soldProductsCount,
             'total_sold_count' => $soldCount + $soldProductsCount,
+        ], 200);
+    }
+
+    public function getSalesDataByYear(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.',
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+        $year = $request->input('year', now()->year);
+
+        $productSales = DB::table('order_product')
+            ->join('product', 'order_product.product_id', '=', 'product.id')
+            ->join('order', 'order_product.order_id', '=', 'order.id')
+            ->selectRaw('MONTH(order.created_at) as month, COUNT(order_product.id) as productSales')
+            ->where('product.shop_id', $shop_id)
+            ->where('order.status', 'DONE')
+            ->whereYear('order.created_at', $year)
+            ->groupBy('month')
+            ->pluck('productSales', 'month');
+
+        $serviceSales = DB::table('order_service')
+            ->join('service', 'order_service.service_id', '=', 'service.id')
+            ->selectRaw('MONTH(order_service.created_at) as month, COUNT(order_service.id) as serviceSales')
+            ->where('service.shop_id', $shop_id)
+            ->where('order_service.status', 'DONE')
+            ->whereYear('order_service.created_at', $year)
+            ->groupBy('month')
+            ->pluck('serviceSales', 'month');
+
+        $sold_count_products = DB::table('order_product')
+            ->join('product', 'order_product.product_id', '=', 'product.id')
+            ->join('order', 'order_product.order_id', '=', 'order.id')
+            ->where('product.shop_id', $shop_id)
+            ->where('order.status', 'DONE')
+            ->count();
+
+        $sold_count_services = DB::table('order_service')
+            ->join('service', 'order_service.service_id', '=', 'service.id')
+            ->where('service.shop_id', $shop_id)
+            ->where('order_service.status', 'DONE')
+            ->count();
+
+        $salesData = collect(range(1, 12))->map(function ($month) use ($productSales, $serviceSales) {
+            return [
+                'month' => date('M', mktime(0, 0, 0, $month, 1)),
+                'productSales' => $productSales->get($month, 0),
+                'serviceSales' => $serviceSales->get($month, 0),
+            ];
+        });
+
+        $total_sold_count = $sold_count_products + $sold_count_services;
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'sold_count_services' => $sold_count_services,
+            'sold_count_products' => $sold_count_products,
+            'total_sold_count' => $total_sold_count,
+            'summary' => [
+                'year' => (int) $year,
+                'salesData' => $salesData,
+            ],
         ], 200);
     }
 }

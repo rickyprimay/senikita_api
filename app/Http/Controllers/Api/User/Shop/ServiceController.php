@@ -480,30 +480,65 @@ class ServiceController extends Controller
         }
     }
     public function countSoldServices()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    if (!$user->shop) {
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $soldCount = OrderService::whereHas('service', function ($query) use ($shop_id) {
+            $query->where('shop_id', $shop_id);
+        })
+            ->where('status', 'DONE')
+            ->count();
+
         return response()->json([
-            'status' => 'error',
-            'code' => 404,
-            'message' => 'User does not have a shop.'
-        ], 404);
+            'status' => 'success',
+            'code' => 200,
+            'sold_count' => $soldCount,
+        ], 200);
     }
 
-    $shop_id = $user->shop->id;
+    public function getPendingOrderServiceByShop()
+    {
+        $user = Auth::user();
 
-    $soldCount = OrderService::whereHas('service', function ($query) use ($shop_id) {
-        $query->where('shop_id', $shop_id);
-    })
-    ->where('status', 'DONE') 
-    ->count();
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
+        }
 
-    return response()->json([
-        'status' => 'success',
-        'code' => 200,
-        'sold_count' => $soldCount,
-    ], 200);
-}
+        $pendingOrders = OrderService::whereHas('service', function ($query) use ($user) {
+            $query->where('shop_id', $user->shop->id);
+        })
+            ->where('status', 'Success')
+            ->where('status_order', 'process')
+            ->with(['service', 'user'])
+            ->get();
 
+        if ($pendingOrders->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No pending orders found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Pending orders retrieved successfully',
+            'data' => $pendingOrders,
+        ], 200);
+    }
 }

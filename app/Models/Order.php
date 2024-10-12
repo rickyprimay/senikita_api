@@ -13,7 +13,6 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'qty',
         'no_transaction',
         'email',
         'name',
@@ -47,16 +46,14 @@ class Order extends Model
     public function product()
     {
         return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id')
-                    ->withPivot('qty'); 
+            ->withPivot('qty');
     }
     public function transaction()
     {
         return $this->hasOne(TransactionOrder::class, 'order_id');
     }
     public function address()
-{
-    return $this->belongsTo(Address::class, 'address_id');
-}
-
-    
+    {
+        return $this->belongsTo(Address::class, 'address_id');
+    }
 }

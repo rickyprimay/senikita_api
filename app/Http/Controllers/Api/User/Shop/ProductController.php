@@ -390,51 +390,74 @@ class ProductController extends Controller
     }
     
     public function getPendingDeliveries()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user->shop) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'User does not have a shop.',
-            ], 404);
-        }
+    if (!$user->shop) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'User does not have a shop.',
+        ], 404);
+    }
 
-        $shop_id = $user->shop->id;
+    $shop_id = $user->shop->id;
 
-        $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+    $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
 
-        if (empty($products)) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'No products found for this shop.',
-            ], 404);
-        }
+    if (empty($products)) {
+        return response()->json([
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'No products found for this shop.',
+        ], 404);
+    }
 
-        $orders = Order::whereHas('product', function ($query) use ($products) {
+    $orders = Order::whereHas('product', function ($query) use ($products) {
             $query->whereIn('product_id', $products);
         })
-            ->where('status', 'Success')
-            ->where('status_order', 'process')
-            ->with('product', 'address', 'address.city', 'address.province')
-            ->get();
+        ->where('status', 'Success')
+        ->where('status_order', 'process')
+        ->with(['product' => function ($query) {
+            $query->withPivot('qty'); // Ambil qty dari tabel pivot
+        }, 'address', 'transaction'])
+        ->get();
 
-        if ($orders->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'No pending deliveries found for this shop.',
-            ], 404);
-        }
-
+    if ($orders->isEmpty()) {
         return response()->json([
-            'status' => 'success',
-            'code' => 200,
-            'orders' => $orders,
-        ], 200);
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'No pending deliveries found for this shop.',
+        ], 404);
     }
+
+    // Format ulang data order sesuai kebutuhan
+    $formattedOrders = $orders->map(function ($order) {
+        return $order->product->map(function ($product) use ($order) {
+            return [
+                'id' => $order->id,
+                'product' => [
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'thumbnail' => $product->thumbnail,
+                ],
+                'quantity' => $product->pivot->qty,
+                'customer' => $order->address->name,
+                'no_transaction' => $order->no_transaction,
+                'created_at' => $order->created_at->toIso8601String(),
+                'payment_status' => $order->status,
+                'shipping_status' => $order->status_order,
+            ];
+        });
+    })->flatten(1); 
+
+    return response()->json([
+        'status' => 'success',
+        'code' => 200,
+        'orders' => $formattedOrders,
+    ], 200);
+}
+
 
     public function getLowStockProducts()
     {

@@ -33,55 +33,56 @@ class OrderController extends Controller
     }
 
     public function checkOngkir(Request $request)
-{
-    try {
-        $response = Http::withOptions(['verify' => false])
-            ->withHeaders([
-                'key' => env('RAJAONGKIR_API_KEY'), 
-            ])
-            ->post('https://api.rajaongkir.com/starter/cost', [
-                'origin' => $request->origin,
-                'destination' => $request->destination,
-                'weight' => $request->weight,
-                'courier' => $request->courier,
-            ])
-            ->json();
+    {
+        try {
+            $response = Http::withOptions(['verify' => false])
+                ->withHeaders([
+                    'key' => env('RAJAONGKIR_API_KEY'),
+                ])
+                ->post('https://api.rajaongkir.com/starter/cost', [
+                    'origin' => $request->origin,
+                    'destination' => $request->destination,
+                    'weight' => $request->weight,
+                    'courier' => $request->courier,
+                ])
+                ->json();
 
-        if (isset($response['rajaongkir']['status']['code']) && $response['rajaongkir']['status']['code'] != 200) {
-            $statusCode = $response['rajaongkir']['status']['code'];
-            $statusDescription = $response['rajaongkir']['status']['description'];
+            // dd(env('RAJAONGKIR_API_KEY'));
 
-            if ($statusCode == 403 || str_contains($statusDescription, 'expired')) {
+            if (isset($response['rajaongkir']['status']['code']) && $response['rajaongkir']['status']['code'] != 200) {
+                $statusCode = $response['rajaongkir']['status']['code'];
+                $statusDescription = $response['rajaongkir']['status']['description'];
+
+                if ($statusCode == 403 || str_contains($statusDescription, 'expired')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'API key has expired. Please contact the administrator to update the Raja Ongkir API key.',
+                        'data' => [],
+                    ], 403);
+                }
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'API key has expired. Please contact the administrator to update the Raja Ongkir API key.',
+                    'message' => $statusDescription,
                     'data' => [],
-                ], 403);
+                ], $statusCode);
             }
 
+            $costs = $response['rajaongkir']['results'][0]['costs'];
+            return response()->json($costs);
+        } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => $statusDescription,
+                'message' => 'An error occurred while fetching the shipping cost: ' . $th->getMessage(),
                 'data' => [],
-            ], $statusCode);
+            ], 500);
         }
-
-        $costs = $response['rajaongkir']['results'][0]['costs'];
-        return response()->json($costs);
-
-    } catch (\Throwable $th) {
-        return response()->json([
-            'success' => false,
-            'message' => 'An error occurred while fetching the shipping cost: ' . $th->getMessage(),
-            'data' => [],
-        ], 500);
     }
-}
 
 
     public function create(Request $request)
     {
-
+        // dd(env('XENDIT_SECRET_KEY'));
         $validator = Validator::make($request->all(), [
             'product_ids' => 'required|array',
             'product_ids.*' => 'integer|exists:product,id',
@@ -564,66 +565,99 @@ class OrderController extends Controller
         }
     }
     public function getDataOrderProductByStatus(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $validator = Validator::make($request->all(), [
-        'status' => 'required|in:pending,Success,failed,DONE,delivered',
-    ]);
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,Success,failed,DONE,delivered',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 'error',
-            'code' => 400,
-            'message' => 'Validation failed',
-            'errors' => $validator->errors(),
-        ], 400);
-    }
-
-    try {
-        $status = $request->status;
-
-        if ($status === 'delivered') {
-            $orders = Order::where('user_id', $user->id)
-                ->where('status_order', 'delivered')
-                ->with(['product', 'transaction', 'product.shop'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-        } else if ($status === 'Success') {
-            $orders = Order::where('user_id', $user->id)
-                ->where('status_order', 'process')
-                ->with(['product', 'transaction', 'product.shop'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-        } else {
-            $orders = Order::where('user_id', $user->id)
-                ->where('status', $status)
-                ->with(['product', 'transaction', 'product.shop'])
-                ->orderBy('created_at', 'desc')
-                ->get();
-        }
-
-        if ($orders->isEmpty()) {
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No orders found with the specified status',
-            ], 404);
+                'code' => 400,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 400);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Orders retrieved successfully',
-            'data' => $orders,
-        ], 200);
-        
-    } catch (\Throwable $th) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Failed to retrieve orders',
-            'error' => $th->getMessage(),
-        ], 500);
-    }
-}
+        try {
+            $status = $request->status;
 
+            if ($status === 'delivered') {
+                $orders = Order::where('user_id', $user->id)
+                    ->where('status_order', 'delivered')
+                    ->with(['product', 'transaction', 'product.shop'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else if ($status === 'Success') {
+                $orders = Order::where('user_id', $user->id)
+                    ->where('status_order', 'process')
+                    ->with(['product', 'transaction', 'product.shop'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else {
+                $orders = Order::where('user_id', $user->id)
+                    ->where('status', $status)
+                    ->with(['product', 'transaction', 'product.shop'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No orders found with the specified status',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Orders retrieved successfully',
+                'data' => $orders,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve orders',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getOrderProductCountByStatus()
+    {
+        try {
+            $user = Auth::user();
+
+            $statuses = ['pending', 'Success', 'failed', 'DONE', 'delivered'];
+
+            $counts = [];
+            foreach ($statuses as $status) {
+                $query = Order::where('user_id', $user->id);
+
+                if ($status === 'delivered') {
+                    $query->where('status_order', 'delivered');
+                } elseif ($status === 'Success') {
+                    $query->where('status_order', 'process');
+                } else {
+                    $query->where('status', $status);
+                }
+
+                $counts[$status] = $query->count();
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order counts retrieved successfully',
+                'data' => $counts,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve order counts',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
 }

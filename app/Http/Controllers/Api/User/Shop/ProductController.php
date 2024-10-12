@@ -388,6 +388,7 @@ class ProductController extends Controller
             'orders' => $orders,
         ], 200);
     }
+    
     public function getPendingDeliveries()
     {
         $user = Auth::user();
@@ -402,7 +403,6 @@ class ProductController extends Controller
 
         $shop_id = $user->shop->id;
 
-        // Mendapatkan produk terkait toko
         $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
 
         if (empty($products)) {
@@ -413,7 +413,6 @@ class ProductController extends Controller
             ], 404);
         }
 
-        // Menggunakan whereHas untuk mencari order yang memiliki produk terkait dan filter status serta status_order
         $orders = Order::whereHas('product', function ($query) use ($products) {
             $query->whereIn('product_id', $products);
         })
@@ -436,6 +435,7 @@ class ProductController extends Controller
             'orders' => $orders,
         ], 200);
     }
+
     public function getLowStockProducts()
     {
         $user = Auth::user();
@@ -469,6 +469,7 @@ class ProductController extends Controller
             'low_stock_products' => $lowStockProducts,
         ], 200);
     }
+
     public function getSoldProducts()
     {
         $user = Auth::user();
@@ -509,6 +510,7 @@ class ProductController extends Controller
             'sold_products_count' => $soldProductsCount,
         ], 200);
     }
+
     public function getTotalSoldItems()
     {
         $user = Auth::user();

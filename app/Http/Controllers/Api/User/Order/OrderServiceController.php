@@ -387,5 +387,35 @@ class OrderServiceController extends Controller
             ], 500);
         }
     }
+
+    public function getOrderServiceCountByStatus()
+{
+    try {
+        $user = Auth::user();
+
+        $statuses = ['pending', 'paid', 'failed', 'DONE', 'confirmed', 'rejected', 'Success'];
+
+        $counts = [];
+        foreach ($statuses as $status) {
+            $counts[$status] = OrderService::where('user_id', $user->id)
+                ->where('status_order', $status)
+                ->count();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Service order counts retrieved successfully',
+            'data' => $counts,
+        ], 200);
+
+    } catch (\Throwable $th) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to retrieve service order counts',
+            'error' => $th->getMessage(),
+        ], 500);
+    }
+}
+
     
 }

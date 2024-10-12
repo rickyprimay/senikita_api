@@ -96,6 +96,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/shop/products/total-count', [ProductController::class, 'getTotalSoldItems']);
     Route::get('/shop/products/summary-sales', [ProductController::class, 'getSalesDataByYear']);
 
+    
     // View Service sold count
     Route::get('/shop/service/sold-count', [ServiceController::class, 'countSoldServices']);
 
@@ -164,6 +165,10 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/transaction-history/{orderId}', [OrderController::class, 'transactionDetail']);
     Route::put('/order/payment-status/{orderId}', [OrderController::class, 'updatePaymentStatus']);
     Route::get('/order/status-order', [OrderController::class, 'getDataOrderProductByStatus']);
+    
+    Route::get('/order/status-order-count', [OrderController::class, 'getOrderProductCountByStatus']);
+    Route::get('/order-service/status-order-count', [OrderServiceController::class, 'getOrderServiceCountByStatus']);
+
 
     // Order Service
     Route::post('order-service', [OrderServiceController::class, 'create']);

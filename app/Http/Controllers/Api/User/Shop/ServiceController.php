@@ -521,8 +521,8 @@ class ServiceController extends Controller
         $pendingOrders = OrderService::whereHas('service', function ($query) use ($user) {
             $query->where('shop_id', $user->shop->id);
         })
-            ->where('status', 'Success')
-            ->where('status_order', 'process')
+            ->where('status', 'pending')
+            ->where('status_order', 'pending')
             ->with(['service', 'user'])
             ->get();
 

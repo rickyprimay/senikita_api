@@ -92,6 +92,11 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // View Product with low stock
     Route::get('/shop/products/low-stock', [ProductController::class, 'getLowStockProducts']);
 
+    //  View revenue 
+    Route::get('/shop/revenue-service', [ServiceController::class, 'getRevenueFromService']);
+    Route::get('/shop/revenue-product', [ServiceController::class, 'getRevenueFromProduct']);
+    Route::get('/shop/revenue', [ServiceController::class, 'getRevenue']);
+
     // View Produnct sold count
     Route::get('/shop/products/sold-count', [ProductController::class, 'getSoldProducts']);
     Route::get('/shop/products/total-count', [ProductController::class, 'getTotalSoldItems']);

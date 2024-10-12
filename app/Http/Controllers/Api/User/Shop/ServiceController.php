@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\User\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImageService;
+use App\Models\Order;
 use App\Models\OrderService;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
@@ -555,6 +557,94 @@ class ServiceController extends Controller
             'code' => 200,
             'message' => 'Pending orders retrieved successfully',
             'data' => $formattedOrders,
+        ], 200);
+    }
+
+    public function getRevenueFromService() {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $services = Service::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+        if (empty($services)) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No Service found for this shop.',
+            ], 404);
+        }
+
+        $orders = OrderService::whereHas('service', function ($query) use ($services) {
+            $query->whereIn('service_id', $services);
+        })->where('status', 'DONE')->get();
+
+        $revenue = $orders->sum('price');
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'revenue' => $revenue,
+        ], 200);
+    }
+
+    public function getRevenueFromProduct()
+    {
+        $user = Auth::user();
+
+        if (!$user->shop) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'User does not have a shop.'
+            ], 404);
+        }
+
+        $shop_id = $user->shop->id;
+
+        $products = Product::where('shop_id', $shop_id)->pluck('id')->toArray();
+
+        if (empty($products)) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No Product found for this shop.',
+            ], 404);
+        }
+
+        $orders = Order::whereHas('product', function ($query) use ($products) {
+            $query->whereIn('product_id', $products);
+        })->where('status', 'DONE')->get();
+
+        $revenue = $orders->sum('total_price');
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'revenue' => $revenue,
+        ], 200);
+    }
+    public function getRevenue()
+    {
+        $serviceRevenue = $this->getRevenueFromService();
+        $productRevenue = $this->getRevenueFromProduct();
+
+        $totalRevenue = $serviceRevenue->original['revenue'] + $productRevenue->original['revenue'];
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'service_revenue' => $serviceRevenue->original['revenue'],
+            'product_revenue' => $productRevenue->original['revenue'],
+            'revenue' => $totalRevenue,
         ], 200);
     }
 }

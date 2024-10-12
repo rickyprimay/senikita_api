@@ -54,4 +54,8 @@ class OrderService extends Model
     {
         return $this->belongsTo(City::class, 'city_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id'); // Adjust the foreign key if it's different
+    }
 }

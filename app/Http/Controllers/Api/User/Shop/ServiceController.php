@@ -534,11 +534,27 @@ class ServiceController extends Controller
             ], 404);
         }
 
+        $formattedOrders = $pendingOrders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'service' => [
+                    'name' => $order->service->name,
+                    'price' => $order->service->price,
+                    'thumbnail' => $order->service->thumbnail,
+                ],
+                'customer' => $order->user->name,
+                'no_transaction' => $order->no_transaction,
+                'created_at' => $order->created_at->toISOString(),
+                'payment_status' => $order->status,
+                'shipping_status' => $order->status_order,
+            ];
+        });
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'message' => 'Pending orders retrieved successfully',
-            'data' => $pendingOrders,
+            'data' => $formattedOrders,
         ], 200);
     }
 }

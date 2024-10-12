@@ -11,7 +11,7 @@ class CityController extends Controller
 {
     public function index()
     {
-        $cities = City::all();
+        $cities = City::with('province')->get();
 
         return response()->json([
             'status' => 'success',

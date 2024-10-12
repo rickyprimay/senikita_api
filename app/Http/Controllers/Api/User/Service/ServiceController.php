@@ -60,7 +60,7 @@ class ServiceController extends Controller
             try {
                 JWTAuth::setToken($token);
                 $user = JWTAuth::parseToken()->authenticate();
-                
+
                 if ($user) {
                     $isBookmarked = $service->bookmarkService()->where('user_id', $user->id)->exists();
                     $service->is_bookmarked = $isBookmarked;
@@ -132,10 +132,24 @@ class ServiceController extends Controller
         );
     }
 
-    public function randomServices()
+    public function randomServices(Request $request)
     {
-        $services = Service::with(['category', 'shop.city.province', 'images'])
-            ->inRandomOrder()
+        $cityId = $request->query('city_id');
+        $categoryId = $request->query('category_id');
+
+        $query = Service::with(['category', 'shop.city.province', 'images']);
+
+        if (!is_null($cityId)) {
+            $query->whereHas('shop.city', function ($q) use ($cityId) {
+                $q->where('id', $cityId);
+            });
+        }
+
+        if (!is_null($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+
+        $services = $query->inRandomOrder()
             ->limit(5)
             ->get()
             ->map(function ($service) {
@@ -155,24 +169,18 @@ class ServiceController extends Controller
             });
 
         if ($services->isEmpty()) {
-            return response()->json(
-                [
-                    'status' => 'error',
-                    'code' => 404,
-                    'message' => 'No services found.',
-                ],
-                404,
-            );
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No services found.',
+            ], 404);
         }
 
-        return response()->json(
-            [
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Random services retrieved successfully',
-                'data' => $services,
-            ],
-            200,
-        );
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Random services retrieved successfully',
+            'data' => $services,
+        ], 200);
     }
 }

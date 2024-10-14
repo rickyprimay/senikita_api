@@ -90,13 +90,13 @@ class ProductController extends Controller
                 return $product;
             });
 
-        if ($products->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'No Product found.',
-            ], 404);
-        }
+        // if ($products->isEmpty()) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'code' => 404,
+        //         'message' => 'No Product found.',
+        //     ], 404);
+        // }
 
         return response()->json([
             'status' => 'success',

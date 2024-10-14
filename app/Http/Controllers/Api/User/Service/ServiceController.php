@@ -168,13 +168,13 @@ class ServiceController extends Controller
                 return $service;
             });
 
-        if ($services->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'code' => 404,
-                'message' => 'No services found.',
-            ], 404);
-        }
+        // if ($services->isEmpty()) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'code' => 404,
+        //         'message' => 'No services found.',
+        //     ], 404);
+        // }
 
         return response()->json([
             'status' => 'success',

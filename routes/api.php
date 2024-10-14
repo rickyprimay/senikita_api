@@ -92,7 +92,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // View Product with low stock
     Route::get('/shop/products/low-stock', [ProductController::class, 'getLowStockProducts']);
 
-    //  View revenue 
+    //  View revenue
     Route::get('/shop/revenue-service', [ServiceController::class, 'getRevenueFromService']);
     Route::get('/shop/revenue-product', [ServiceController::class, 'getRevenueFromProduct']);
     Route::get('/shop/revenue', [ServiceController::class, 'getRevenue']);
@@ -104,7 +104,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // View Shop data shop by login
     Route::get('/shop/view-login', [ShopShopController::class, 'getShopByLogin']);
-    
+
     // View Service sold count
     Route::get('/shop/service/sold-count', [ServiceController::class, 'countSoldServices']);
 
@@ -173,7 +173,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('/transaction-history/{orderId}', [OrderController::class, 'transactionDetail']);
     Route::put('/order/payment-status/{orderId}', [OrderController::class, 'updatePaymentStatus']);
     Route::get('/order/status-order', [OrderController::class, 'getDataOrderProductByStatus']);
-    
+
     Route::get('/order/status-order-count', [OrderController::class, 'getOrderProductCountByStatus']);
     Route::get('/order-service/status-order-count', [OrderServiceController::class, 'getOrderServiceCountByStatus']);
 
@@ -217,22 +217,3 @@ Route::get('/detail-shop/service/{shopId}', [DetailShopControler::class, 'getSer
 
 
 Route::get('fetch-image', [ImageController::class, 'fetchImage']);
-
-use Illuminate\Support\Facades\Storage;
-
-// Route::get('/fetch-image', function (Request $request) {
-//     $path = 'public/' . $request->path;
-
-//     if (!Storage::exists($path)) {
-//         abort(404);
-//     }
-
-//     $file = Storage::get($path);
-//     $type = Storage::mimeType($path);
-
-//     return response($file, 200)
-//         ->header('Content-Type', $type)
-//         ->header('Access-Control-Allow-Origin', '*')
-//         ->header('Access-Control-Allow-Methods', 'GET')
-//         ->header('Access-Control-Allow-Headers', 'Content-Type');
-// });

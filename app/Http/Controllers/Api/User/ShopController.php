@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ShopController extends Controller
-{
+{   
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [

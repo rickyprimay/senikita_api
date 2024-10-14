@@ -127,7 +127,7 @@ class ShopController extends Controller
                 'message' => 'User does not have a shop.'
             ], 404);
         }
-        $shop = Shop::with('categories')->find($user->shop->id);
+        $shop = Shop::with('categories', 'user')->find($user->shop->id);
         $shop->region = $shop->city->name . ', ' . $shop->city->province->name;
 
 

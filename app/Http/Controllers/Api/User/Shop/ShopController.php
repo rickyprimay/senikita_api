@@ -130,8 +130,6 @@ class ShopController extends Controller
         $shop = Shop::with('categories', 'user')->find($user->shop->id);
         $shop->region = $shop->city->name . ', ' . $shop->city->province->name;
 
-
-
         return response()->json([
             'status' => 'success',
             'code' => 200,

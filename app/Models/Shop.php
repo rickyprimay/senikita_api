@@ -44,5 +44,9 @@ class Shop extends Model
     {
         return $this->hasMany(Service::class, 'shop_id');
     }
-    
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

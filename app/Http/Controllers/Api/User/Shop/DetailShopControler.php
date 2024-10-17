@@ -48,7 +48,7 @@ class DetailShopControler extends Controller
                 'category_id' => $product->category_id,
                 'category_name' => $product->category ? $product->category->name : null,
                 'sold' => $product->sold,
-                'average_rating' => $averageRating,
+                'average_rating' => number_format($averageRating, 2), // Format dua desimal
                 'rating_count' => $ratingCount,
             ];
         }
@@ -77,7 +77,7 @@ class DetailShopControler extends Controller
                 'description' => $service->desc,
                 'status' => $service->status,
                 'sold' => $service->sold,
-                'average_rating' => $averageRating,
+                'average_rating' => number_format($averageRating, 2),
                 'rating_count' => $ratingCount,
                 'thumbnail' => $service->thumbnail,
                 'person_amount' => $service->person_amount,
@@ -100,7 +100,7 @@ class DetailShopControler extends Controller
                     'name' => $shop->name,
                     'description' => $shop->desc,
                     'location' => $fullLocation,
-                    'average_shop_rating' => $averageShop,
+                    'average_shop_rating' => number_format($averageShop, 2),
                     'total_products_sold' => $totalProductsSold,
                     'total_services_sold' => $totalServicesSold,
                     'categories' => $shop->categories,
@@ -110,6 +110,7 @@ class DetailShopControler extends Controller
             ],
         ], 200);
     }
+
 
     public function getRatingProductAndService($shopId)
     {

@@ -52,7 +52,7 @@ class ServiceController extends Controller
 
     public function show($id, Request $request)
     {
-        $service = Service::with(['images', 'ratings', 'category', 'shop.city.province', 'bookmarkService'])->find($id);
+        $service = Service::with(['images', 'ratings', 'category', 'shop.city.province', 'bookmarkService', 'ratings.user', 'ratings.ratingImages'])->find($id);
 
         $token = $request->bearerToken();
 

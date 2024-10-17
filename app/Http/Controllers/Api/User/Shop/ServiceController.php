@@ -560,7 +560,8 @@ class ServiceController extends Controller
         ], 200);
     }
 
-    public function getRevenueFromService() {
+    public function getRevenueFromService()
+    {
         $user = Auth::user();
 
         if (!$user->shop) {

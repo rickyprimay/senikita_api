@@ -109,7 +109,7 @@ class ProductController extends Controller
 
     public function show($id, Request $request)
     {
-        $product = Product::with(['category', 'images', 'shop.city.province', 'bookmark'])->find($id);
+        $product = Product::with(['category', 'images', 'shop.city.province', 'bookmark', 'ratings', 'ratings.user', 'ratings.ratingImages'])->find($id);
 
 
         $token = $request->bearerToken();

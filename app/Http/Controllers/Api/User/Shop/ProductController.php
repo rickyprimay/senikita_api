@@ -623,9 +623,9 @@ class ProductController extends Controller
 
         $salesData = collect(range(1, 12))->map(function ($month) use ($productSales, $serviceSales) {
             return [
-                'month' => date('M', mktime(0, 0, 0, $month, 1)),
+                'month' => date('M', mktime(0,  0, 0, $month, 1)),
                 'Penjualan Produk' => $productSales->get($month, 0),
-                'Penjualan Layanan' => $serviceSales->get($month, 0),
+                'Penjualan Jasa' => $serviceSales->get($month, 0),
             ];
         });
 

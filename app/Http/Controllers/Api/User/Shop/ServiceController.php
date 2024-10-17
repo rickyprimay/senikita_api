@@ -638,13 +638,16 @@ class ServiceController extends Controller
         $serviceRevenue = $this->getRevenueFromService();
         $productRevenue = $this->getRevenueFromProduct();
 
-        $totalRevenue = $serviceRevenue->original['revenue'] + $productRevenue->original['revenue'];
+        $serviceRevenueAmount = isset($serviceRevenue->original['revenue']) ? $serviceRevenue->original['revenue'] : 0;
+        $productRevenueAmount = isset($productRevenue->original['revenue']) ? $productRevenue->original['revenue'] : 0;
+
+        $totalRevenue = $serviceRevenueAmount + $productRevenueAmount;
 
         return response()->json([
             'status' => 'success',
             'code' => 200,
-            'service_revenue' => $serviceRevenue->original['revenue'],
-            'product_revenue' => $productRevenue->original['revenue'],
+            'service_revenue' => $serviceRevenueAmount,
+            'product_revenue' => $productRevenueAmount,
             'revenue' => $totalRevenue,
         ], 200);
     }

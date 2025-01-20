@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\ArtProvinceController;
+use App\Http\Controllers\Api\Admin\ArtProvinceDetailController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\ShopController as AdminShopController;
 use App\Http\Controllers\Api\Admin\UserController;
@@ -220,3 +222,17 @@ Route::get('/detail-shop/service/{shopId}', [DetailShopControler::class, 'getSer
 
 
 Route::get('fetch-image', [ImageController::class, 'fetchImage']);
+
+
+// Art Province
+Route::get('art-provinces', [ArtProvinceController::class, 'index']);
+Route::get('art-provinces/{id}', [ArtProvinceController::class, 'show']);
+Route::post('art-provinces', [ArtProvinceController::class, 'store']);
+Route::delete('art-provinces/{id}', [ArtProvinceController::class, 'delete']);
+
+// Art Province Detail
+Route::get('art-province-details', [ArtProvinceDetailController::class, 'index']);
+Route::get('art-province-details/{id}', [ArtProvinceDetailController::class, 'show']);
+Route::get('art-province-details/province/{id}', [ArtProvinceDetailController::class, 'getByArtProvince']);
+Route::post('art-province-details', [ArtProvinceDetailController::class, 'store']);
+Route::delete('art-province-details/{id}', [ArtProvinceDetailController::class, 'delete']);

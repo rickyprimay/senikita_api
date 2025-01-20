@@ -102,6 +102,38 @@ class ShopController extends Controller
         );
     }
 
+    public function checkStatusShop()
+    {
+        $user = Auth::user();
+
+        if ($user->role == 1) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Admin cannot create shop',
+                    'code' => 400,
+                ],
+                400,
+            );
+        }
+
+        $shop = Shop::where('user_id', $user->id)->first();
+        $statusShop = $shop ? $shop->status : 0;
+
+        if ($shop) {
+            return response()->json([
+                'status' => "success checking status shop",
+                'message' => "Shop status retrieved successfully",
+                'status shop' => $statusShop
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => "error",
+                'message' => "User does not have a shop"
+            ], 400);
+        }
+    }
+
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [

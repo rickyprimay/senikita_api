@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\ShopController as AdminShopController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\SocialiteController;
 use App\Http\Controllers\Api\CategoryController as ApiCategoryController;
 use App\Http\Controllers\Api\City\CityController;
 use App\Http\Controllers\Api\City\ProvinceController;
@@ -34,6 +35,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
+    Route::get('google', [SocialiteController::class, 'googleLogin']);
+    Route::get('google-callback', [SocialiteController::class, 'handleGoogleCallback']);
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('verify-otp', [AuthController::class, 'verifyOTP']);

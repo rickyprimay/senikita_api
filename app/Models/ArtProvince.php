@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ArtProvince extends Model
 {
-    protected $fillable = ['name', 'longitude', 'latitude'];
+    protected $fillable = ['name', 'longitude', 'latitude', 'subtitle'];
 
     public function artProvinceDetails()
     {

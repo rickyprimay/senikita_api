@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ArtProvince;
+use Ausi\SlugGenerator\SlugGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Str;
 
 class ArtProvinceController extends Controller
 {
@@ -53,7 +55,11 @@ class ArtProvinceController extends Controller
             'latitude' => 'required'
         ]);
 
-        $artProvince = ArtProvince::create($request->all());
+        $data = $request->all();
+        $generator = new SlugGenerator;
+        $data['slug'] = $generator->generate($request->name);
+
+        $artProvince = ArtProvince::create($data);
 
         return response()->json([
             'status' => 'success',
@@ -80,9 +86,10 @@ class ArtProvinceController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($slug)
     {
-        $artProvince = ArtProvince::with('artProvinceDetails')->find($id);
+        // $artProvince = ArtProvince::with('artProvinceDetails')->find($id);
+        $artProvince = ArtProvince::with('artProvinceDetails')->where('slug', $slug)->first();
 
         if (!$artProvince) {
             return response()->json([

@@ -123,7 +123,8 @@ class ArtProvinceController extends Controller
         Fokuskan pada penjelasan singkat setiap budanya.
         Tolong buatkan kata kata nya secara friendly,
         menyenangkan, periang dan jangan terlalu banyak
-        ( buatlah secara singkat namun tetap menyenangkan ) : \n " . $artProvinceString;
+        ( buatlah secara singkat namun tetap menyenangkan )
+        Langsung berikan penjelasnya tanpa kata kata sapaan : \n " . $artProvinceString;
 
         $content = $this->generateContent($query);
 

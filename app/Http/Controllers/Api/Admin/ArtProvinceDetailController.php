@@ -41,6 +41,7 @@ class ArtProvinceDetailController extends Controller
             'name' => 'required',
             'image' => 'required',
             'type' => 'required',
+            'description' => 'required',
             'art_province_id' => 'required'
         ]);
 

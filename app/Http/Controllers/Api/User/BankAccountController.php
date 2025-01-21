@@ -10,6 +10,36 @@ use Illuminate\Support\Facades\Validator;
 
 class BankAccountController extends Controller
 {
+
+    public function index()
+    {
+        $user = Auth::user();
+
+        $bank_accounts = BankAccount::where('user_id', $user->id)->get();
+
+        if ($bank_accounts->isEmpty()) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'No bank accounts found for this user',
+                    'data' => [],
+                ],
+                404
+            );
+        }
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Bank accounts retrieved successfully',
+                'code' => 200,
+                'data' => $bank_accounts,
+            ],
+            200
+        );
+    }
+
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [

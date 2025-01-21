@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Auth\SocialiteController;
 use App\Http\Controllers\Api\CategoryController as ApiCategoryController;
 use App\Http\Controllers\Api\City\CityController;
 use App\Http\Controllers\Api\City\ProvinceController;
+use App\Http\Controllers\Api\User\BankAccountController;
 use App\Http\Controllers\Api\User\Bookmark\BookmarkProductController;
 use App\Http\Controllers\Api\User\Bookmark\BookmarkServiceController;
 use App\Http\Controllers\Api\User\Product\ProductController as ProductProductController;
@@ -138,6 +139,11 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::post('shop', [ShopController::class, 'create']);
     Route::put('shop/{id}', [ShopController::class, 'update']);
     Route::get('shop/check-status', [ShopController::class, 'checkStatusShop']);
+
+    // Shop Bank Account
+    Route::get('shop/bank-account', [BankAccountController::class, 'index']);
+    Route::post('shop/bank-account', [BankAccountController::class, 'create']);
+    Route::put('shop/bank-account/{id}', [BankAccountController::class, 'update']);
 
     Route::get('address', [AddressController::class, 'index']);
     Route::post('address', [AddressController::class, 'store']);

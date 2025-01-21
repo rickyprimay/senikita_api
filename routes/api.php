@@ -137,6 +137,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     // Shop
     Route::post('shop', [ShopController::class, 'create']);
     Route::put('shop/{id}', [ShopController::class, 'update']);
+    Route::get('shop/check-status', [ShopController::class, 'checkStatusShop']);
 
     Route::get('address', [AddressController::class, 'index']);
     Route::post('address', [AddressController::class, 'store']);

@@ -124,7 +124,7 @@ class ShopController extends Controller
             return response()->json([
                 'status' => "success checking status shop",
                 'message' => "Shop status retrieved successfully",
-                'status shop' => $statusShop
+                'status_shop' => $statusShop
             ], 200);
         } else {
             return response()->json([

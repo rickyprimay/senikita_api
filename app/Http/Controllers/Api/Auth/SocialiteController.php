@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers\Api\Auth;
 
@@ -41,7 +41,7 @@ class SocialiteController extends Controller
 
             $token = JWTAuth::fromUser($user);
 
-            return response()->json([
+            $responseData = [
                 'status' => 'success',
                 'message' => 'Login successful',
                 'user' => [
@@ -52,7 +52,11 @@ class SocialiteController extends Controller
                 ],
                 'type' => 'bearer',
                 'token' => $token,
-            ], 200);
+            ];
+
+            $redirectUrl = 'https://senikita.my.id/?' . http_build_query($responseData);
+
+            return redirect()->away($redirectUrl);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

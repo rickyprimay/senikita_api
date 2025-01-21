@@ -16,6 +16,43 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+
+    public function profile(Request $request)
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found',
+                    'code' => 404,
+                ], 404);
+            }
+
+            $shop = Shop::where('user_id', $user->id)->first();
+
+            $response = [
+                'status' => 'success',
+                'message' => 'Profile retrieved successfully',
+                'code' => 200,
+                'user' => $user
+            ];
+
+            if ($shop) {
+                $response['shop'] = $shop;
+            }
+
+            return response()->json($response, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized or invalid token',
+                'code' => 401,
+            ], 401);
+        }
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [

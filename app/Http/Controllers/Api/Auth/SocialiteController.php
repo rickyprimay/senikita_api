@@ -41,20 +41,7 @@ class SocialiteController extends Controller
 
             $token = JWTAuth::fromUser($user);
 
-            $responseData = [
-                'status' => 'success',
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'profile_picture' => $user->profile_picture,
-                ],
-                'type' => 'bearer',
-                'token' => $token,
-            ];
-
-            $redirectUrl = 'https://senikita.my.id/?' . http_build_query($responseData);
+            $redirectUrl = 'https://senikita.my.id/callback-google?jwt_token=' . urlencode($token);
 
             return redirect()->away($redirectUrl);
         } catch (\Exception $e) {

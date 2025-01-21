@@ -18,10 +18,37 @@ class ArtProvinceController extends Controller
         ]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required',
+            'subtitle' => 'required',
+            'longitude' => 'required',
+            'latitude' => 'required'
+        ]);
+
+        $artProvince = ArtProvince::find($id);
+
+        if (!$artProvince) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Art Province not found'
+            ], 404);
+        }
+
+        $artProvince->update($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $artProvince
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',
+            'subtitle' => 'required',
             'longitude' => 'required',
             'latitude' => 'required'
         ]);

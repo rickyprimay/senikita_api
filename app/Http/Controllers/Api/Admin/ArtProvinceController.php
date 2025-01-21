@@ -119,8 +119,11 @@ class ArtProvinceController extends Controller
         }
 
         $query = "Anda adalah asisten yang akan memberikan penjelasan singkat
-        kebudayaan dari daerah yang akan saya berikan dibawah ini. Fokuskan pada penjelasan singkat setiap budanya.
-        Tolong buatkan kata kata nya secara friendly dan jangan terlalu banyak ( buatlah lebih singkat ) : " . $artProvinceString;
+        kebudayaan dari daerah yang akan saya berikan dibawah ini.
+        Fokuskan pada penjelasan singkat setiap budanya.
+        Tolong buatkan kata kata nya secara friendly,
+        menyenangkan, periang dan jangan terlalu banyak
+        ( buatlah secara singkat namun tetap menyenangkan ) : \n " . $artProvinceString;
 
         $content = $this->generateContent($query);
 

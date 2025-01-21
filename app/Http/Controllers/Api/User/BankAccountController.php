@@ -112,7 +112,6 @@ class BankAccountController extends Controller
             );
         }
 
-        // Perbarui data bank account
         $bank_account->update([
             'bank_name' => $request->bank_name,
             'account_number' => $request->account_number,
@@ -124,6 +123,35 @@ class BankAccountController extends Controller
                 'message' => 'Bank account updated successfully',
                 'code' => 200,
                 'data' => $bank_account,
+            ],
+            200
+        );
+    }
+
+    public function destroy($id)
+    {
+        $user = Auth::user();
+
+        $bank_account = BankAccount::where('id', $id)->where('user_id', $user->id)->first();
+
+        if (!$bank_account) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'Bank account not found',
+                ],
+                404
+            );
+        }
+
+        $bank_account->delete();
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Bank account deleted successfully',
+                'code' => 200,
             ],
             200
         );

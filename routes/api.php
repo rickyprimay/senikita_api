@@ -145,6 +145,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
     Route::get('shop/bank-account', [BankAccountController::class, 'index']);
     Route::post('shop/bank-account', [BankAccountController::class, 'create']);
     Route::put('shop/bank-account/{id}', [BankAccountController::class, 'update']);
+    Route::delete('shop/bank-account/{id}', [BankAccountController::class, 'destroy']);
 
     Route::get('address', [AddressController::class, 'index']);
     Route::post('address', [AddressController::class, 'store']);

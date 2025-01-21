@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\User\Shop;
 
 use App\Http\Controllers\Controller;
+use App\Models\LogBalance;
 use App\Models\RatingProduct;
 use App\Models\RatingService;
 use App\Models\Shop;
@@ -67,6 +68,7 @@ class ShopController extends Controller
 
         $validator = Validator::make($request->all(), [
             'balance' => 'required|numeric',
+            'bank_account_id' => 'required|exists:bank_accounts,id',
         ]);
 
         if ($validator->fails()) {
@@ -109,14 +111,56 @@ class ShopController extends Controller
         $shop->balance -= $request->balance;
         $shop->save();
 
+        $logBalance = LogBalance::create([
+            'user_id' => $user->id,
+            'bank_account_id' => $request->bank_account_id,
+            'message' => "Cashout of {$request->balance} from shop balance.",
+        ]);
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'message' => 'Balance cashed out successfully',
             'balance_cash_out' => $request->balance,
             'balance' => $shop->balance,
+            'log' => $logBalance,
         ], 200);
     }
+
+    public function getLogBalanceByUser()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 401,
+                'message' => 'Unauthorized. Please log in.',
+            ], 401);
+        }
+
+        $logBalances = LogBalance::where('user_id', $user->id)
+            ->with('bankAccount') 
+            ->orderBy('created_at', 'desc') 
+            ->get();
+
+        if ($logBalances->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'No log balances found for this user.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'Log balances retrieved successfully',
+            'data' => $logBalances,
+        ], 200);
+    }
+
+
     public function getShopByLogin()
     {
         $user = Auth::user();

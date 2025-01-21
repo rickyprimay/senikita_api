@@ -117,6 +117,7 @@ Route::prefix('user')->middleware(['auth:api', 'user'])->group(function () {
 
     // Cashout
     Route::put('/shop/cashout', [ShopShopController::class, 'cashOutBalance']);
+    Route::get('/shop/log-balance', [ShopShopController::class, 'getLogBalanceByUser']);
 
     // Accept Order
     Route::put('/shop/accept-order/{id}', [ProductController::class, 'setStatus']);

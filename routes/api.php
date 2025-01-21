@@ -227,7 +227,7 @@ Route::get('fetch-image', [ImageController::class, 'fetchImage']);
 
 // Art Province
 Route::get('art-provinces', [ArtProvinceController::class, 'index']);
-Route::get('art-provinces/{id}', [ArtProvinceController::class, 'show']);
+Route::get('art-provinces/{slug}', [ArtProvinceController::class, 'show']);
 Route::post('art-provinces', [ArtProvinceController::class, 'store']);
 Route::put('art-provinces/{id}', [ArtProvinceController::class, 'update']);
 Route::delete('art-provinces/{id}', [ArtProvinceController::class, 'delete']);

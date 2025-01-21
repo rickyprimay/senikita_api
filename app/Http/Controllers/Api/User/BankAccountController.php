@@ -40,6 +40,34 @@ class BankAccountController extends Controller
         );
     }
 
+    public function show($id)
+    {
+        $user = Auth::user();
+
+        $bank_account = BankAccount::where('id', $id)->where('user_id', $user->id)->first();
+
+        if (!$bank_account) {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'Bank account not found',
+                ],
+                404
+            );
+        }
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'message' => 'Bank account retrieved successfully',
+                'code' => 200,
+                'data' => $bank_account,
+            ],
+            200
+        );
+    }
+
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [

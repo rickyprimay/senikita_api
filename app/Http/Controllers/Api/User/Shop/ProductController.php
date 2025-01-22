@@ -43,6 +43,14 @@ class ProductController extends Controller
 
         $products->each(function ($product) {
             $product->category_name = $product->category ? $product->category->name : null;
+
+            $product->rating_average = DB::table('rating_product')
+                ->where('product_id', $product->id)
+                ->avg('rating') ?: 0;
+
+            $product->ratings = DB::table('rating_product')
+                ->where('product_id', $product->id)
+                ->get();
         });
 
         return response()->json([
@@ -277,12 +285,21 @@ class ProductController extends Controller
 
         $product->category_name = $product->category ? $product->category->name : null;
 
+        $product->rating_average = DB::table('rating_product')
+            ->where('product_id', $product->id)
+            ->avg('rating') ?: 0;
+
+        $product->ratings = DB::table('rating_product')
+            ->where('product_id', $product->id)
+            ->get();
+
         return response()->json([
             'status' => 'success',
             'code' => 200,
             'product' => $product,
         ], 200);
     }
+
 
     public function setStatus($id)
     {

@@ -9,7 +9,7 @@ class RatingService extends Model
 {
     use HasFactory;
 
-    protected $table = 'rating_service';
+    protected $table = 'service_id';
 
     protected $fillable = [
         'user_id',

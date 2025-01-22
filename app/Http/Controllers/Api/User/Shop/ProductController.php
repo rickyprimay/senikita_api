@@ -399,7 +399,10 @@ class ProductController extends Controller
             ], 404);
         }
 
-        $orders->resi_code = "JNE" . rand(100000000, 999999999);
+        $orders = $orders->map(function ($order) {
+            $order->resi_code = "JNE" . rand(100000000, 999999999);
+            return $order;
+        });
 
         return response()->json([
             'status' => 'success',

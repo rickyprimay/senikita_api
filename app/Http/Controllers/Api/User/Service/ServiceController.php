@@ -155,7 +155,7 @@ class ServiceController extends Controller
             ->map(function ($service) {
                 $ratings = RatingService::where('service_id', $service->id)->get();
                 $service->average_rating = $ratings->avg('rating') ?? 0;
-                $service->rating_count = $ratings->count();
+                $service->rating_count = $ratings->count(); 
 
                 $cityName = $service->shop && $service->shop->city ? $service->shop->city->name : null;
                 $provinceName = $service->shop && $service->shop->city && $service->shop->city->province ? $service->shop->city->province->name : null;

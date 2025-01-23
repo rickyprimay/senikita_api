@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Xendit\Invoice\CreateInvoiceRequest;
@@ -47,6 +48,18 @@ class ServiceController extends Controller
 
         $services->each(function ($service) {
             $service->category_name = $service->category ? $service->category->name : null;
+        });
+
+        $services->each(function ($service) {
+            $service->category_name = $service->category ? $service->category->name : null;
+
+            $service->rating_average = DB::table('rating_service')
+                ->where('service_id', $service->id)
+                ->avg('rating') ?: 0;
+
+            $service->ratings = DB::table('rating_service')
+                ->where('service_id', $service->id)
+                ->get();
         });
 
         return response()->json([
@@ -164,6 +177,14 @@ class ServiceController extends Controller
         }
 
         $service->category_name = $service->category ? $service->category->name : null;
+
+        $service->rating_average = DB::table('rating_service')
+            ->where('service_id', $service->id)
+            ->avg('rating') ?: 0;
+
+        $service->ratings = DB::table('rating_service')
+            ->where('service_id', $service->id)
+            ->get();
 
         return response()->json([
             'status' => 'success',

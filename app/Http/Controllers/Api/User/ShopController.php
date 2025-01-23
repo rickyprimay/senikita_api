@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ShopController extends Controller
-{   
+{
     public function create(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -122,15 +122,16 @@ class ShopController extends Controller
 
         if ($shop) {
             return response()->json([
-                'status' => "success checking status shop",
+                'status' => "success",
                 'message' => "Shop status retrieved successfully",
                 'status_shop' => $statusShop
             ], 200);
         } else {
             return response()->json([
-                'status' => "error",
-                'message' => "User does not have a shop"
-            ], 400);
+                'status' => "success",
+                'message' => "User does not have a shop",
+                'status_shop' => $statusShop
+            ], 200);
         }
     }
 

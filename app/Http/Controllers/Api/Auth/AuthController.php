@@ -256,21 +256,28 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $user = $request->only('email', 'password');
+        $user = User::where('email', $request->email)->first();
 
-        if (!($token = JWTAuth::attempt($user))) {
+        if (!$user) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unauthorized',
+                'message' => 'Email not found',
+                'code' => 404,
+            ], 404);
+        }
+
+        $credentials = $request->only('email', 'password');
+
+        if (!($token = JWTAuth::attempt($credentials))) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incorrect password',
                 'code' => 401,
             ], 401);
         }
 
-        $user = User::where('email', $request->email)->first();
-
         if (is_null($user->email_verified_at)) {
             $otp = User::generateOTP();
-
             $user->otp = $otp;
             $user->otp_sent_at = now();
             $user->save();
@@ -306,6 +313,7 @@ class AuthController extends Controller
 
         return response()->json($response, 200);
     }
+
 
     protected function respondWithToken($token)
     {

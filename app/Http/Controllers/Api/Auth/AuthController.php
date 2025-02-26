@@ -70,7 +70,31 @@ class AuthController extends Controller
             ], 400);
         }
 
-        if (User::where('email', $request->email)->exists()) {
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            if ($user->email_verified_at === null) {
+                $otp = User::generateOTP();
+                $user->update([
+                    'otp' => $otp,
+                    'otp_sent_at' => Carbon::now(),
+                ]);
+
+                $details = [
+                    'name' => $user->name,
+                    'otp' => $otp,
+                ];
+
+                Mail::to($user->email)->send(new VerificationCodeMail($details));
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Email already registered but not verified. OTP has been resent.',
+                    'code' => 200,
+                    'user' => $user,
+                ], 200);
+            }
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Email already registered',
@@ -102,6 +126,7 @@ class AuthController extends Controller
             'user' => $user,
         ], 201);
     }
+
 
     public function verifyOTP(Request $request)
     {

@@ -34,12 +34,10 @@ use App\Http\Controllers\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-
-
 Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::get('google', [SocialiteController::class, 'googleLogin']);
     Route::get('google-callback', [SocialiteController::class, 'handleGoogleCallback']);
+    Route::post('verify-google', [SocialiteController::class, 'verifyGoogleToken']);
     Route::post('register', [AuthController::class, 'register']);
     Route::get('profile', [AuthController::class, 'profile']);
     Route::post('login', [AuthController::class, 'login']);

@@ -91,10 +91,12 @@ class SocialiteController extends Controller
 
             $token = JWTAuth::fromUser($user);
 
+            $user->token = $token;
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Authentication successful',
-                'token' => $token,
+                'code' => 200,
                 'user' => $user,
             ], 200);
         } catch (\Exception $e) {

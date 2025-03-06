@@ -45,6 +45,8 @@ Route::group(['prefix' => 'auth', 'as' => 'auth.'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('verify-otp', [AuthController::class, 'verifyOTP']);
     Route::post('resend-otp', [AuthController::class, 'resendOTP']);
+    Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
+    Route::post('reset-password', [AuthController::class, 'resetPassword']);
     Route::middleware('auth:api')->post('logout', [AuthController::class, 'logout']);
     Route::middleware('auth:api')->post('refresh', [AuthController::class, 'refreshToken']);
 });

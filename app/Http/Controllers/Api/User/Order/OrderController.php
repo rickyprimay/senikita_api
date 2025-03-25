@@ -69,7 +69,11 @@ class OrderController extends Controller
             }
 
             $costs = $response['rajaongkir']['results'][0]['costs'];
-            return response()->json($costs);
+            return response()->json([
+                'success' => true,
+                'message' => 'Shipping cost retrieved successfully',
+                'data' => $costs,
+            ], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

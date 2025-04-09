@@ -152,7 +152,6 @@ class OrderController extends Controller
             ]);
         }
 
-        // Gunakan city_id dari alamat
         $weight = 1000;
         $courier = $request->input('courier');
         $selectedService = $request->input('service');
@@ -180,7 +179,7 @@ class OrderController extends Controller
             ]),
         );
 
-        $ongkirData = $ongkirResponse->original;
+        $ongkirData = $ongkirResponse->original['data'] ?? [];
         $ongkirCost = 0;
         $estimation = null;
 

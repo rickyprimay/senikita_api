@@ -186,7 +186,7 @@ class OrderController extends Controller
         foreach ($ongkirData as $service) {
             if ($service['service'] === $selectedService) {
                 $ongkirCost = $service['cost'][0]['value'] ?? 0;
-                $estimation = $service['cost'][0]['etd'] ?? null;
+                $estimation = $service['cost'][0]['etd'] ?? "4-7";
                 break;
             }
         }

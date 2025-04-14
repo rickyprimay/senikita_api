@@ -179,9 +179,10 @@ class OrderController extends Controller
             ]),
         );
 
-        $ongkirData = $ongkirResponse->original['data'] ?? [];
+        $ongkirJson = $ongkirResponse->getData(true); // Ambil response json sebagai array
+        $ongkirData = $ongkirJson['data'] ?? [];
 
-        dd($ongkirData);
+        // dd($ongkirData);
         $ongkirCost = 0;
         $estimation = "4-7";
 

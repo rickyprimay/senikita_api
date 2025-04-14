@@ -179,7 +179,7 @@ class OrderController extends Controller
             ]),
         );
 
-        $ongkirJson = $ongkirResponse->getData(true); // Ambil response json sebagai array
+        $ongkirJson = $ongkirResponse->getData(true); 
         $ongkirData = $ongkirJson['data'] ?? [];
 
         // dd($ongkirData);

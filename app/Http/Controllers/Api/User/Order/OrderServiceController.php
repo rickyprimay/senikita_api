@@ -96,12 +96,9 @@ class OrderServiceController extends Controller
 
         try {
 
-            // dd($request->service_id);
-
-
-            // $apiInstance = new InvoiceApi();
-            // $generateInvoice = $apiInstance->createInvoice($invoice);
-            $invoiceUrl = 'pending';
+            $apiInstance = new InvoiceApi();
+            $generateInvoice = $apiInstance->createInvoice($invoice);
+            $invoiceUrl = $generateInvoice['invoice_url'];
 
             $optionalDocuments = [];
 
